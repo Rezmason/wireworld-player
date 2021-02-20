@@ -1,0 +1,81 @@
+<html>
+<head>
+	<title>Wireworld Player Help</title>
+</head>
+<body>
+	<h1>Wireworld Player Help</h1>
+	<h2>What is this thing?</h2>
+	<p>
+		Wireworld is a type of <a href="http://en.wikipedia.org/wiki/Cellular_automata" target="_blank">cellular automaton</a>, or CA.
+		CAs are sets of rules that act on a grid of cells to produce a new grid of cells. Specifically, each cell in the old grid uses
+		these rules and knowledge of itself and of its neighbors to determine its next state. CAs demonstrate how simple systems
+		can express complex behaviors.<br/>
+	</p>
+	<p>
+		Wireworld is a CA developed by <a href="http://llk.media.mit.edu/projects/emergence/" target="_blank">Brian Silverman</a>.
+		Its rules are very simple, yet they allow it to exhibit behavior similar to circuitry. Wireworld instances have been built
+		to perform computations. The point of that exercise is not to create computers that run at speeds
+		comparable to physical computers, but instead to demonstrate a phenomenon called
+		"<a href="http://en.wikipedia.org/wiki/Turing-complete" target="_blank">universality</a>".<br/>
+	</p>
+
+	<p>
+		A universal computational system is able to compute any information that is computable. Counterintuitively, many CAs have
+		exhibited universality; Wireworld is one of them.
+		<a href="http://quinapalus.com/wi-index.html" target="_blank">David Moore and Mark Owen</a> demonstrate this
+		with their Wireworld computer, which not only computes things, but can even be programmed to compute one thing
+		rather than another.<br/>
+	</p>
+
+	<h2>What is Wireworld's rule set?</h2>
+	<p>
+		Wireworld cells can have one of four states. We call them <b>DEAD</b>, <b>WIRE</b>, <b>HEAD</b> and <b>TAIL</b>.<br/>
+	</p>
+	<ul>
+		<li><b>DEAD</b> cells always become <b>DEAD</b> cells.</li>
+		<li><b>TAIL</b> cells always become <b>WIRE</b> cells.</li>
+		<li><b>HEAD</b> cells always become <b>TAIL</b> cells.</li>
+		<li>
+			<b>WIRE</b> cells become <b>HEAD</b> cells only if they currently touch one or two <b>HEAD</b> cells.
+			We call such a <b>WIRE</b> cell "excited". Otherwise they become <b>WIRE</b> cells.
+		</li>
+	</ul><br/>
+	<p>
+		Much of the time a WIRE cell doesn't get excited, which may lead you to think that they are mundane. In fact,
+		they constrain the spread of information along certain channels, which helps to perform operations quickly and efficiently.
+		Because of <b>WIRE</b> cells, Wireworld is a more predictable and comprehensible CA.<br/>
+	</p>
+	<p>
+		Wireworld's excitation rule is not unique among CAs, but it is nonetheless crucial to the way Wireworld works.
+		It allows information to spread cheaply and quickly, but also controls the flow of information– whether it continues to spread
+		or whether it stops. There are many examples of simple Wireworld components that control information in useful ways;
+		the Owen Moore computer makes use of several of these.<br/>
+	</p>
+	<h2>How do I make a Wireworld instance?</h2>
+	<p>
+		What, seriously? Wow. Good for you.<br/>
+	</p>
+	<p>
+		Wireworld Player supports two file types: .MCL, a common CA format which isn't very amateur-friendly, and .TXT, which you can modify
+		in any text editor. <a href="http://rezmason.net/wireworld/examples/txt/test/simple.txt" target="_blank">Click here</a> to see
+		an example of a TXT file that the player supports.<br/>
+	</p>
+	<p>
+		A built-in Wireworld editor might be added to the player in the future.<br/>
+	</p>
+
+	<h2>Why are you doing this?</h2>
+	<p>
+		CAs make great test subjects for code optimization strategies, and Wireworld is a CA that is fairly simple to put together–
+		most of its cells never change, and the size of the grid never grows or shrinks.<br/>
+	</p>
+	<p>
+		I use the Wireworld Player to experiment with new ways to improve the efficiency of my code, and to demonstrate
+		the web's potential as a high-performance creative and experimental platform.
+	</p>
+	<p>
+		The source for the Wireworld Player is now <a href="https://github.com/Rezmason/wireworld-player" target="_blank">available online</a>.
+		If you have any questions, <a href="https://rezmason.net/contact.html">contact me and I'll get back to you</a>.<br/>
+	</p>
+</body>
+</html>
