@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Wireworld Player</title>
+	<link rel="shortcut icon" href="assets/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="assets/basics.css">
+</head>
+<body>
+	<drag-region>
+		<canvas id="canvas"></canvas>
+	</drag-region>
+	<bar class="top">
+		<bar-group class="left">
+			<button-group>
+				<button id="stop" title="Reset"><icon></icon></button>
+				<button id="play-pause" title="Play / Pause"><icon></icon></button>
+				<button id="step" title="Step"><icon></icon></button>
+			</button-group>
+			<button id="heatmap" title="Toggle heat vision"><icon></icon></button>
+			<button-group id="tools">
+				<button id="hand-tool" title="Hand tool"><icon></icon></button>
+				<button id="eraser-tool" title="Eraser tool"><icon></icon></button>
+			</button-group>
+		</bar-group>
+		<bar-group class="middle">
+			<button-group>
+				<button id="slow" title="Slow down"><icon></icon></button>
+				<input type="range" id="speed-slider" title="Adjust speed"></input>
+				<button id="fast" title="Speed up"><icon></icon></button>
+			</button-group>
+			<button id="overdrive" title="Toggle overdrive"><icon></icon></button>
+		</bar-group>
+		<bar-group class="right">
+			<button id="snapshot" title="Save picture"><icon></icon></button>
+			<button id="help" title="Help!"><icon></icon></button>
+			<button id="about" title="About Wireworld player"><icon></icon></button>
+		</bar-group>
+	</bar>
+	<bar class="bottom">
+		<bar-group class="left">
+			<button-group>
+				<button id="zoom-out" title="Zoom out"><icon></icon></button>
+				<button id="reset-view" title="Reset view"><icon></icon></button>
+				<input type="range" id="zoom-slider" title="Adjust zoom"></input>
+				<button id="zoom-in" title="Zoom in"><icon></icon></button>
+			</button-group>
+			<label id="generation" title="Current generation">123456789</label>
+		</bar-group>
+		<bar-group class="middle">
+			<button-group>
+				<button id="load" title="Load file"><icon></icon></button>
+				<label id="file-name" title="Current file">lorem_ipsum.mcl</label>
+			</button-group>
+		</bar-group>
+		<bar-group class="right">
+			<label id="framerate" title="Framerate">60</label>
+		</bar-group>
+	</bar>
+</body>
+</html>

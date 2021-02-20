@@ -1,0 +1,26 @@
+TODO
+
+Milestone: basic implementation
+Milestone: overdrive: move impl to worker, run it without limit
+Milestone: linked list impl
+Milestone: loading
+	Support drag-and-drop
+Milestone: webassembly worker
+
+Milestone: drag-and-drop themes
+	Merveilles themes
+	Old Wireworld themes
+
+Milestone: mobile usability
+	Media queries
+	Suppress standard scroll behavior
+	Multitouch gesture that pans, zooms and shrinks
+	Maximum/minimum zoom elasticity
+
+How about an animated favicon?
+	But only if the sim is running
+	That'd be pretty neat
+
+Milestone: administrative
+	About box
+	Help box
