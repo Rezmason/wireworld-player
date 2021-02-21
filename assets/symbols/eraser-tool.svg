@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100px" height="100px" viewBox="-10 -10 20 20">
-<path d="M0.976,0.34l5.169-5.363h-7.021L-6.144,0.34H0.976z M1.658,4.338V0.925L6.827-4.34v3.413L1.658,4.338z M-6.825,5.021V1.315
-	h7.508v3.706H-6.825z"/>
+	<g transform="scale(9,9)">
+		<rect x="-0.75" y="0.15" width="0.85" height="0.4"></rect>
+		<polygon points="-0.7,0.05 0.1,0.05 0.7,-0.55 -0.1,-0.55"></polygon>
+		<polygon points="0.2,0.1 0.75,-0.45 0.75,-0.05 0.2,0.5"></polygon>
+	</g>
 </svg>

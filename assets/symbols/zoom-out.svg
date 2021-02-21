@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100px" height="100px" viewBox="-10 -10 20 20">
-<path d="M-1.072-1.171v-2.146h-2.243v2.146H-1.072z M1.073-3.316h2.243v2.146H1.073V-3.316z M1.073,1.169h-2.146v-2.34h2.146V1.169z
-	 M-1.072,1.169v2.146h-2.243V1.169H-1.072z M3.316,1.169v2.146H1.073V1.169H3.316z"/>
+	<g transform="scale(2.25,2.25) translate(-0.5,-0.5)">
+		<rect x="-1" y="-1" width="1" height="1"></rect>
+		<rect x="0" y="0" width="1" height="1"></rect>
+		<rect x="1" y="-1" width="1" height="1"></rect>
+		<rect x="-1" y="1" width="1" height="1"></rect>
+		<rect x="1" y="1" width="1" height="1"></rect>
+	</g>
 </svg>

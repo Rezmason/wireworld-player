@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100px" height="100px" viewBox="-10 -10 20 20">
-<path d="M-8.336-0.757v-4.095h4.388v4.095H-8.336z M-8.336,4.947V0.852h4.388v4.095H-8.336z M-2.193,4.899V0.803h4.388v4.097H-2.193
-	z M-2.193-0.806v-4.096h4.388v4.096H-2.193z M3.95-0.854V-4.95h4.388v4.096H3.95z M3.95,4.85V0.755h4.388V4.85H3.95z"/>
+	<g transform="scale(4.125,4.125) translate(-0.5,-0.5)">
+		<rect x="-1.5" y="-0.75" width="1" height="1"></rect>
+		<rect x="-1.5" y="0.75" width="1" height="1"></rect>
+
+		<rect x="0" y="-0.75" width="1" height="1"></rect>
+		<rect x="0" y="0.75" width="1" height="1"></rect>
+
+		<rect x="1.5" y="-0.75" width="1" height="1"></rect>
+		<rect x="1.5" y="0.75" width="1" height="1"></rect>
+	</g>
 </svg>
