@@ -32,38 +32,22 @@ body {
 }
 
 button {
-	display: unset;
 	border: unset;
 	padding: unset;
-	margin: unset;
-	text-decoration: unset;
-	background: unset;
-	color: unset;
-	font-family: unset;
 	font-size: unset;
-	line-height: unset;
-	cursor: unset;
-	text-align: unset;
-	transition: unset;
-	appearance: unset;
 }
 
 input[type=range] {
 	-webkit-appearance: unset;
-	appearance: unset;
+	font-size: unset;
 }
 
 input[type=range]::-webkit-slider-thumb {
-	-webkit-appearance: unset;
-	appearance: unset;
+  -webkit-appearance: unset;
 }
 
 input[type=range]::-moz-range-thumb {
-	width: unset;
-	height: unset;
-	background: unset;
-	border: unset;
-	border-radius: unset;
+  border: unset;
 }
 
 bar {
@@ -165,8 +149,9 @@ bar button icon {
 	/*filter: contrast(0) brightness(2);*/
 }
 
-bar button:hover {
+bar button:hover, bar button:focus {
 	background-color: var(--ui-bg-hover);
+	outline: none;
 }
 
 bar button:active {
@@ -174,16 +159,24 @@ bar button:active {
 }
 
 bar input[type=range] {
-	width: 10em;
+	width: 5em;
+	height: 1em;
 	background: var(--ui-bg-active);
-	padding: 0 0.2em;
+	padding: 0 0.1em;
+}
+
+bar input[type=range]:hover, bar input[type=range]:focus {
+	background-color: var(--ui-bg-hover);
+	outline: none;
 }
 
 bar input[type=range]::-webkit-slider-thumb {
 	background: var(--ui-fg);
-	border-radius: 0.25em;
-	width: 3em;
-	height: 1.75em;
+	border-radius: 0.1em;
+	margin: 0;
+	padding: 0;
+	width: 1.5em;
+	height: 0.8em;
 	cursor: grab;
 }
 
@@ -193,9 +186,9 @@ bar input[type=range]::-webkit-slider-thumb:active {
 
 bar input[type=range]::-moz-range-thumb {
 	background: var(--ui-fg);
-	border-radius: 0.25em;
-	width: 3em;
-	height: 1.75em;
+	border-radius: 0.1em;
+	width: 1.5em;
+	height: 0.8em;
 	cursor: grab;
 }
 

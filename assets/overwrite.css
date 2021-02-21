@@ -1,0 +1,62 @@
+input[type=range] {
+	-webkit-appearance: unset;
+	font-size: unset;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  /*width: unset;*/
+  /*height: unset;*/
+  /*cursor: unset;*/
+  /*box-shadow: unset;*/
+  /*background: unset;*/
+  /*border-radius: unset;*/
+  /*border: unset;*/
+}
+input[type=range]::-webkit-slider-thumb {
+  /*box-shadow: unset;*/
+  /*border: unset;*/
+  /*height: unset;*/
+  /*width: unset;*/
+  /*border-radius: unset;*/
+  /*background: unset;*/
+  /*cursor: unset;*/
+  -webkit-appearance: unset;
+  /*margin-top: unset;*/
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  /*background: unset;*/
+}
+input[type=range]::-moz-range-track {
+  /*width: unset;*/
+  /*height: unset;*/
+  /*cursor: unset;*/
+  /*box-shadow: unset;*/
+  /*background: unset;*/
+  /*border-radius: unset;*/
+  /*border: unset;*/
+}
+input[type=range]::-moz-range-thumb {
+  /*box-shadow: unset;*/
+  border: unset;
+  /*height: unset;*/
+  /*width: unset;*/
+  /*border-radius: unset;*/
+  /*background: unset;*/
+  /*cursor: unset;*/
+}
+
+button {
+  /*display: unset;*/
+  border: unset;
+  padding: unset;
+  /*margin: unset;*/
+  /*text-decoration: unset;*/
+  /*background: unset;*/
+  /*color: unset;*/
+  /*font-family: unset;*/
+  font-size: unset;
+  /*line-height: unset;*/
+  /*cursor: unset;*/
+  /*text-align: unset;*/
+  /*transition: unset;*/
+  /*appearance: unset;*/
+}
