@@ -7,6 +7,12 @@
 	<link rel="stylesheet" type="text/css" href="assets/layout.css">
 	<link rel="stylesheet" type="text/css" href="assets/wwgui.css">
 	<link rel="stylesheet" type="text/css" href="assets/wwicons.css">
+	<script type="module">
+		const params = (new URL(document.location)).searchParams;
+		if (params.has("a11y") || params.has("accessibility")) {
+			document.body.classList.remove("wwgui");
+		}
+	</script>
 	<script type="module" src="js/wireworld.js"></script>
 </head>
 <body class="wwgui">
