@@ -4,58 +4,60 @@
 	<meta charset="utf-8">
 	<title>Wireworld Player</title>
 	<link rel="shortcut icon" href="assets/favicon.ico">
-	<link rel="stylesheet" type="text/css" href="assets/basics.css">
+	<link rel="stylesheet" type="text/css" href="assets/layout.css">
+	<link rel="stylesheet" type="text/css" href="assets/wwgui.css">
+	<link rel="stylesheet" type="text/css" href="assets/wwicons.css">
 	<script type="module" src="js/wireworld.js"></script>
 </head>
-<body>
-	<drag-region>
+<body class="wwgui">
+	<drag-region class="wwdragregion">
 		<canvas id="canvas"></canvas>
 	</drag-region>
 	<bar class="top">
-		<bar-group class="left">
-			<button-group>
-				<button id="stop" title="Reset"><icon></icon></button>
-				<button id="play-pause" title="Play / Pause"><icon></icon></button>
-				<button id="step" title="Step"><icon></icon></button>
-			</button-group>
-			<button id="heatmap" title="Toggle heat vision"><icon></icon></button>
-			<button-group id="tools">
-				<button id="hand-tool" title="Hand tool"><icon></icon></button>
-				<button id="eraser-tool" title="Eraser tool"><icon></icon></button>
-			</button-group>
+		<bar-group class="bargroup left">
+			<wwgroup>
+				<button id="stop" title="Reset"><span class="wwcaption">Reset</span><icon></icon></button>
+				<button id="play-pause" title="Play / Pause"><span class="wwcaption">Play / Pause</span><icon></icon></button>
+				<button id="step" title="Step"><span class="wwcaption">Step</span><icon></icon></button>
+			</wwgroup>
+			<button id="heatmap" title="Toggle heat vision"><span class="wwcaption">Toggle heat vision</span><icon></icon></button>
+			<wwgroup id="tools">
+				<button id="hand-tool" title="Hand tool"><span class="wwcaption">Hand tool</span><icon></icon></button>
+				<button id="eraser-tool" title="Eraser tool"><span class="wwcaption">Eraser tool</span><icon></icon></button>
+			</wwgroup>
 		</bar-group>
-		<bar-group class="middle">
-			<button-group>
-				<button id="slow" title="Slow down"><icon></icon></button>
-				<input type="range" id="speed-slider" title="Adjust speed"></input>
-				<button id="fast" title="Speed up"><icon></icon></button>
-			</button-group>
-			<button id="overdrive" title="Toggle overdrive"><icon></icon></button>
+		<bar-group class="bargroup middle">
+			<wwgroup>
+				<button id="slow" title="Slow down"><span class="wwcaption">Slow down</span><icon></icon></button>
+				<input type="range" id="speed-slider" title="Adjust speed"><span class="wwcaption">Adjust speed</span></input>
+				<button id="fast" title="Speed up"><span class="wwcaption">Speed up</span><icon></icon></button>
+			</wwgroup>
+			<button id="overdrive" title="Toggle overdrive"><span class="wwcaption">Toggle overdrive</span><icon></icon></button>
 		</bar-group>
-		<bar-group class="right">
-			<button id="snapshot" title="Save picture"><icon></icon></button>
-			<button id="help" title="Help!"><icon></icon></button>
-			<button id="about" title="About Wireworld player"><icon></icon></button>
+		<bar-group class="bargroup right">
+			<button id="snapshot" title="Save picture"><span class="wwcaption">Save picture</span><icon></icon></button>
+			<button id="help" title="Help!"><span class="wwcaption">Help!</span><icon></icon></button>
+			<button id="about" title="About Wireworld player"><span class="wwcaption">About Wireworld player</span><icon></icon></button>
 		</bar-group>
 	</bar>
 	<bar class="bottom">
-		<bar-group class="left">
-			<button-group>
-				<button id="zoom-out" title="Zoom out"><icon></icon></button>
-				<button id="reset-view" title="Reset view"><icon></icon></button>
-				<input type="range" id="zoom-slider" title="Adjust zoom"></input>
-				<button id="zoom-in" title="Zoom in"><icon></icon></button>
-			</button-group>
-			<label id="generation" title="Current generation">123456789</label>
+		<bar-group class="bargroup left">
+			<wwgroup>
+				<button id="zoom-out" title="Zoom out"><span class="wwcaption">Zoom out</span><icon></icon></button>
+				<button id="reset-view" title="Reset view"><span class="wwcaption">Reset view</span><icon></icon></button>
+				<input type="range" id="zoom-slider" title="Adjust zoom"><span class="wwcaption">Adjust zoom</span></input>
+				<button id="zoom-in" title="Zoom in"><span class="wwcaption">Zoom in</span><icon></icon></button>
+			</wwgroup>
+			<label id="generation" title="Current generation"><span class="wwcaption">Current generation</span> <span class="wwguitext">123456789</span></label>
 		</bar-group>
-		<bar-group class="middle">
-			<button-group>
-				<button id="load" title="Load file"><icon></icon></button>
-				<label id="file-name" title="Current file">lorem_ipsum.mcl</label>
-			</button-group>
+		<bar-group class="bargroup middle">
+			<wwgroup>
+				<button id="load" title="Load file"><span class="wwcaption">Load file</span><icon></icon></button>
+				<label id="file-name" title="Current file"><span class="wwcaption">Current file</span> <span class="wwguitext">lorem_ipsum.mcl</span></label>
+			</wwgroup>
 		</bar-group>
-		<bar-group class="right">
-			<label id="framerate" title="Framerate">60</label>
+		<bar-group class="bargroup right">
+			<label id="framerate" title="Framerate"><span class="wwcaption">Framerate</span> <span class="wwguitext">60</span></label>
 		</bar-group>
 	</bar>
 </body>

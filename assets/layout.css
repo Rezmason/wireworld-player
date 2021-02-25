@@ -1,0 +1,62 @@
+html, body {
+	height: 100%;
+	overflow: hidden;
+	margin: 0;
+}
+
+html {
+	font-size: 16px;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+bar {
+	height: 1.5em;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: nowrap;
+	flex-shrink: 0;
+}
+
+bar.top {
+	order:1;
+}
+
+bar.bottom {
+	order:3;
+}
+
+bar-group {
+	display: flex;
+	align-items: center;
+}
+
+bar-group > * {
+	margin: 0 0.2em;
+}
+
+bar-group.left {
+	justify-content: flex-start;
+}
+
+bar-group.middle {
+	justify-content: center;
+}
+
+bar-group.right {
+	justify-content: flex-end;
+}
+
+drag-region {
+	order:2;
+	flex-grow: 1;
+	overflow: hidden;
+}
+
+wwgroup#tools, button#heatmap {
+	display: none;
+}
