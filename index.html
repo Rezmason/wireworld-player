@@ -35,7 +35,7 @@
 		<bar-group class="bargroup middle">
 			<wwgroup>
 				<button id="slow" title="Slow down"><span class="wwcaption">Slow down</span><icon></icon></button>
-				<input type="range" id="speed-slider" title="Adjust speed"><span class="wwcaption">Adjust speed</span></input>
+				<input type="range" id="speed-slider" min="0" max="1" value="0" step="any" title="Adjust speed"><span class="wwcaption">Adjust speed</span></input>
 				<button id="fast" title="Speed up"><span class="wwcaption">Speed up</span><icon></icon></button>
 			</wwgroup>
 			<button id="overdrive" title="Toggle overdrive"><span class="wwcaption">Toggle overdrive</span><icon></icon></button>
@@ -51,7 +51,7 @@
 			<wwgroup>
 				<button id="zoom-out" title="Zoom out"><span class="wwcaption">Zoom out</span><icon></icon></button>
 				<button id="reset-view" title="Reset view"><span class="wwcaption">Reset view</span><icon></icon></button>
-				<input type="range" id="zoom-slider" title="Adjust zoom"><span class="wwcaption">Adjust zoom</span></input>
+				<input type="range" id="zoom-slider" min="0" max="1" value="0" step="any" title="Adjust zoom"><span class="wwcaption">Adjust zoom</span></input>
 				<button id="zoom-in" title="Zoom in"><span class="wwcaption">Zoom in</span><icon></icon></button>
 			</wwgroup>
 			<label id="generation" title="Current generation"><span class="wwcaption">Current generation</span> <span class="wwguitext">123456789</span></label>

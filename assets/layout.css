@@ -57,6 +57,11 @@ drag-region {
 	overflow: hidden;
 }
 
+canvas#canvas {
+	image-rendering: pixelated;
+	transform-origin: top left;
+}
+
 wwgroup#tools, button#heatmap {
 	display: none;
 }
