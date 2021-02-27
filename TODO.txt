@@ -1,5 +1,21 @@
 TODO
 
+Milestone: key mapping
+	stop: `
+	step: period
+	play_pause: space
+
+	pan: arrow keys
+	pan faster: shift arrow keys
+
+	slow: [
+	fast: ]
+	overdrive: capital O
+
+	zoom_out: -
+	reset_view: 0
+	zoom_in: + or =
+
 Milestone: basic implementation
 Milestone: overdrive: move impl to worker, run it without limit
 Milestone: linked list impl
