@@ -15,10 +15,10 @@ const HEAD = Symbol.for("@");
 
 const maxArea = 2048 * 2048; // TODO: base this on something, anything
 
+let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
 let initZoom, initX, initY, x, y, zoom, scale, width, height, cells;
 let dragging, dragX, dragY, dragMouseX, dragMouseY;
 let zooming;
-let dragRegionBounds;
 
 const mclCharsToSymbols = {
 	["."]: DEAD,
@@ -90,12 +90,44 @@ const setPosition = (newX, newY) => {
 	canvas.style.transform = `translate(${x}px, ${y}px)`;
 }
 
-const setZoom = newZoom => {
+const setZoom = (newZoom, clientX, clientY) => {
+	const oldScale = scale;
 	zoom = Math.max(0, Math.min(1, newZoom));
 	scale = Math.pow(2, zoom * 4);
-	console.log(scale, scale == 1);
 	canvas.style.width = `${width * scale}px`;
 	canvas.style.height = `${height * scale}px`;
+	if (clientX != null && clientY != null) {
+		clientX -= dragRegionBounds.x + x;
+		clientY -= dragRegionBounds.y + y;
+		const newX = x + clientX - clientX * (scale / oldScale);
+		const newY = y + clientY - clientY * (scale / oldScale);
+		setPosition(newX, newY);
+	}
+}
+
+const recomputeInitialLayout = () => {
+	dragRegionBounds = dragRegion.getBoundingClientRect();
+	dragRegionCenterX = (dragRegionBounds.left + dragRegionBounds.right) / 2;
+	dragRegionCenterY = (dragRegionBounds.top + dragRegionBounds.bottom) / 2;
+
+	let initScale;
+	if (dragRegionBounds.width / dragRegionBounds.height > width / height) {
+		initScale = dragRegionBounds.height / height;
+	} else {
+		initScale = dragRegionBounds.width / width;
+	}
+
+	initScale = Math.max(1, initScale);
+
+	if (initScale < 1) {
+		initScale = 1 / Math.floor(1 / initScale);
+	} else {
+		initScale = Math.floor(initScale);
+	}
+
+	initX = (dragRegionBounds.width - width * initScale) / 2;
+	initY = (height > dragRegionBounds.height) ? 0 : (dragRegionBounds.height - height * initScale) / 2;
+	initZoom = Math.log2(initScale) / 4;
 }
 
 const init = async () => {
@@ -138,37 +170,16 @@ const init = async () => {
 
 	ctx.putImageData(imageData, 0, 0);
 
-	dragRegionBounds = dragRegion.getBoundingClientRect();
-
-	let initScale;
-	if (dragRegionBounds.width / dragRegionBounds.height > width / height) {
-		initScale = dragRegionBounds.height / height;
-	} else {
-		initScale = dragRegionBounds.width / width;
-	}
-
-	initScale = Math.max(1, initScale);
-
-	if (initScale < 1) {
-		initScale = 1 / Math.floor(1 / initScale);
-	} else {
-		initScale = Math.floor(initScale);
-	}
-
-	initX = (dragRegionBounds.width - width * initScale) / 2;
-	initY = (height > dragRegionBounds.height) ? 0 : (dragRegionBounds.height - height * initScale) / 2;
-
-	initZoom = Math.log2(initScale) / 4;
-
-	setPosition(initX, initY);
+	recomputeInitialLayout();
 	setZoom(initZoom);
+	setPosition(initX, initY);
 	sliders.zoom_slider.value = zoom;
 };
 
 init();
 
-const changeZoom = (amount) => {
-	setZoom(zoom + amount);
+const changeZoom = (amount, clientX, clientY) => {
+	setZoom(zoom + amount, clientX, clientY);
 	sliders.zoom_slider.value = zoom;
 }
 
@@ -176,20 +187,19 @@ const handleMouseWheel = ({target, clientX, clientY, deltaY}) => {
 	if (dragging) {
 		return;
 	}
+	const amount = deltaY * -0.0001;
 	if (target == sliders.zoom_slider) {
-		// TODO: scale from center of viewport
+		changeZoom(amount, dragRegionCenterX, dragRegionCenterY);
 	} else {
-		// TODO: scale from mouse position
+		changeZoom(amount, clientX, clientY);
 	}
-	changeZoom(deltaY * -0.0001);
 };
 
 dragRegion.addEventListener("mousewheel", handleMouseWheel);
 sliders.zoom_slider.addEventListener("mousewheel", handleMouseWheel);
 
 sliders.zoom_slider.addEventListener("input", e => {
-	// TODO: scale from center of viewport
-	setZoom(sliders.zoom_slider.valueAsNumber);
+	setZoom(sliders.zoom_slider.valueAsNumber, dragRegionCenterX, dragRegionCenterY);
 })
 
 dragRegion.addEventListener("mousedown", ({clientX, clientY, button}) => {
@@ -224,19 +234,22 @@ document.body.addEventListener("mouseleave", () => {
 });
 
 window.addEventListener("resize", () => {
-	dragRegionBounds = dragRegion.getBoundingClientRect();
+	const oldBounds = dragRegionBounds;
+	recomputeInitialLayout();
+	const diffX = dragRegionBounds.width - oldBounds.width;
+	const diffY = dragRegionBounds.height - oldBounds.height;
+	setPosition(x + diffX / 2, y + diffY / 2);
 })
 
 buttons.reset_view.addEventListener("click", () => {
-	sliders.zoom_slider.value = 0;
+	setZoom(initZoom, dragRegionCenterX, dragRegionCenterY);
 	setPosition(initX, initY);
-	setZoom(0);
+	sliders.zoom_slider.value = zoom;
 });
 
 const animateZoom = () => {
 	if (zooming) {
-		changeZoom(zooming);
-		// TODO: scale from center of viewport
+		changeZoom(zooming, dragRegionCenterX, dragRegionCenterY);
 		requestAnimationFrame(animateZoom);
 	}
 }
