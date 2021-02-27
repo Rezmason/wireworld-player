@@ -58,8 +58,8 @@ drag-region {
 }
 
 canvas#canvas {
-	image-rendering: pixelated;
 	image-rendering: optimizeSpeed;
+	image-rendering: pixelated;
 	transform-origin: top left;
 }
 
