@@ -1,3 +1,6 @@
+import { CellState, defaultFilePath } from "./data.js";
+import parseFile from "./parse.js";
+
 const buttons = Object.fromEntries(Array.from(document.querySelectorAll("button")).map(element => [element.id.replace(/-/g, "_"), element]));
 const labels = Object.fromEntries(Array.from(document.querySelectorAll("label")).map(element => [element.id.replace(/-/g, "_"), element]));
 const sliders = Object.fromEntries(Array.from(document.querySelectorAll("input[type=range]")).map(element => [element.id.replace(/-/g, "_"), element]));
@@ -8,81 +11,17 @@ labels.generation.querySelector(".wwguitext").textContent = "0";
 labels.file_name.querySelector(".wwguitext").textContent = "";
 labels.framerate.querySelector(".wwguitext").textContent = "120";
 
-const DEAD = Symbol.for(" ");
-const WIRE = Symbol.for("#");
-const TAIL = Symbol.for("~");
-const HEAD = Symbol.for("@");
-
-const maxArea = 2048 * 2048; // TODO: base this on something, anything
-
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
 let initZoom, initX, initY, x, y, zoom, scale, width, height, cells;
 let dragging, dragX, dragY, dragMouseX, dragMouseY;
 let zooming;
 
-const mclCharsToSymbols = {
-	["."]: DEAD,
-	["A"]: TAIL,
-	["B"]: HEAD,
-	["C"]: WIRE
-}
-
 const colorsByCellType = {
-	[DEAD]: [0x22, 0x44, 0x00, 0xff], /*[0x00, 0x00, 0x00, 0xff],*/
-	[WIRE]: [0x44, 0x88, 0x22, 0xff], /*[0x50, 0x50, 0x50, 0xff],*/
-	[TAIL]: [0xff, 0xdd, 0x22, 0xff], /*[0xff, 0xee, 0x00, 0xff],*/
-	[HEAD]: [0xff, 0xff, 0x44, 0xff], /*[0xff, 0x88, 0x00, 0xff],*/
+	[CellState.DEAD]: [0x22, 0x44, 0x00, 0xff], /*[0x00, 0x00, 0x00, 0xff],*/
+	[CellState.WIRE]: [0x44, 0x88, 0x22, 0xff], /*[0x50, 0x50, 0x50, 0xff],*/
+	[CellState.TAIL]: [0xff, 0xdd, 0x22, 0xff], /*[0xff, 0xee, 0x00, 0xff],*/
+	[CellState.HEAD]: [0xff, 0xff, 0x44, 0xff], /*[0xff, 0x88, 0x00, 0xff],*/
 }
-
-const parseTXT = (file) => {
-	const data = file.match(/^(\d+) +(\d+)\s*(.*)/ms);
-
-	if (data == null) {
-		return null;
-	}
-
-	return {
-		width: parseInt(data[1]),
-		height: parseInt(data[2]),
-		cells: data[3]
-		.split("\n")
-		.map(
-			line => line
-				.split("")
-				.map(char => Symbol.for(char))
-		)
-	};
-};
-
-const parseMCL = (file) => {
-	const data = file.match(/^#MCell.*#BOARD (\d+)x(\d+).*?(#L.*)/ms);
-
-	if (data == null) {
-		return null;
-	}
-
-	const cells = data[3]
-		.replace(/(#L |\$$|\r)/g, "")
-		.split("\n")
-		.filter(line => line.length > 0)
-		.map(
-			line => line
-				.match(/([0-9]+)?([^\d])/g)
-				.map(c => Array(c.length == 1 ? 1 : parseInt(c))
-					.fill(c[c.length - 1])
-				)
-		)
-		.flat(2)
-		.join("")
-		.split("$")
-		.map(line => line.split("").map(c => mclCharsToSymbols[c]));
-
-	return {
-		width: Math.max(...cells.map(line => line.length))/*parseInt(data[1])*/,
-		height: cells.length /*parseInt(data[2])*/,
-		cells
-	}
-};
 
 const setPosition = (newX, newY) => {
 	x = Math.floor(newX);
@@ -130,27 +69,13 @@ const recomputeInitialLayout = () => {
 	initZoom = Math.log2(initScale) / 4;
 }
 
-const init = async () => {
-	const path = "examples/mcl/owen_moore/computer_by_mark_owen_horizontal.mcl";
-	const file = await fetch(path).then(response => response.text());
-	// const file = await fetch("examples/mcl/owen_moore/computer_by_mark_owen.mcl").then(response => response.text());
-	// const file = await fetch("examples/mcl/test/tiny.mcl").then(response => response.text());
-
+const load = async (path) => {
 	labels.file_name.querySelector(".wwguitext").textContent = path.split("/").pop();
-
-	const data = parseMCL(file) ?? parseTXT(file);
-	if (data == null) {
-		return;
+	const file = await fetch(path);
+	if (!file.ok) {
+		throw new Error(`${file.status}: ${file.statusText}`);
 	}
-
-	width = data.width;
-	height = data.height;
-	cells = data.cells;
-
-	if (width * height > maxArea) {
-		// Bad time
-		return;
-	}
+	({width, height, cells} = await parseFile(await file.text()));
 
 	canvas.width = width;
 	canvas.height = height;
@@ -163,7 +88,7 @@ const init = async () => {
 	for (let i = 0; i < height; i++) {
 		if (cells[i] != null) {
 			for (let j = 0; j < width; j++) {
-				pixels.set(colorsByCellType[cells[i][j] ?? DEAD], (i * width + j) * 4);
+				pixels.set(colorsByCellType[cells[i][j] ?? CellState.DEAD], (i * width + j) * 4);
 			}
 		}
 	}
@@ -174,9 +99,7 @@ const init = async () => {
 	setZoom(initZoom);
 	setPosition(initX, initY);
 	sliders.zoom_slider.value = zoom;
-};
-
-init();
+}
 
 const changeZoom = (amount, clientX, clientY) => {
 	setZoom(zoom + amount, clientX, clientY);
@@ -265,3 +188,19 @@ buttons.zoom_out.addEventListener("mousedown", () => {
 	animateZoom();
 });
 buttons.zoom_out.addEventListener("mouseup", () => zooming = null);
+
+const init = async () => {
+
+	// TODO: show splash screen
+
+	try {
+		await load(defaultFilePath);
+	} catch (error) {
+		console.log(error);
+		return;
+	}
+
+	// TODO: hide splash screen
+};
+
+init();
