@@ -32,9 +32,9 @@ labels.file_name.setText("");
 labels.framerate.setText("");
 
 const setPosition = (newX, newY) => {
-	x = Math.floor(newX);
-	y = Math.floor(newY);
-	paper.style.transform = `translate(${x}px, ${y}px)`;
+	x = newX;
+	y = newY;
+	paper.style.transform = `translate(${Math.floor(x)}px, ${Math.floor(y)}px)`;
 }
 
 const setZoom = (newZoom, clientX, clientY) => {
