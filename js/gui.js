@@ -5,7 +5,7 @@ let initZoom, initX, initY, x, y, zoom, scale, width, height, cells;
 let dragging, dragX, dragY, dragMouseX, dragMouseY;
 let zooming;
 
-const colorsByCellType = {
+const colorsByCellState = {
 	[CellState.DEAD]: [0x22, 0x44, 0x00, 0xff], /*[0x00, 0x00, 0x00, 0xff],*/
 	[CellState.WIRE]: [0x44, 0x88, 0x22, 0xff], /*[0x50, 0x50, 0x50, 0xff],*/
 	[CellState.TAIL]: [0xff, 0xdd, 0x22, 0xff], /*[0xff, 0xee, 0x00, 0xff],*/
@@ -15,7 +15,8 @@ const colorsByCellType = {
 const buttons = Object.fromEntries(Array.from(document.querySelectorAll("button")).map(element => [element.id.replace(/-/g, "_"), element]));
 const labels = Object.fromEntries(Array.from(document.querySelectorAll("label")).map(element => [element.id.replace(/-/g, "_"), element]));
 const sliders = Object.fromEntries(Array.from(document.querySelectorAll("input[type=range]")).map(element => [element.id.replace(/-/g, "_"), element]));
-const canvas = document.querySelector("canvas#canvas");
+const paper = document.querySelector("drag-region paper");
+const canvases = Object.fromEntries(Array.from(document.querySelectorAll("canvas")).map(element => [element.id.replace(/-/g, "_"), element]));
 const dragRegion = document.querySelector("drag-region");
 
 Object.values(labels).forEach(label => {
@@ -33,15 +34,15 @@ labels.framerate.setText("");
 const setPosition = (newX, newY) => {
 	x = Math.floor(newX);
 	y = Math.floor(newY);
-	canvas.style.transform = `translate(${x}px, ${y}px)`;
+	paper.style.transform = `translate(${x}px, ${y}px)`;
 }
 
 const setZoom = (newZoom, clientX, clientY) => {
 	const oldScale = scale;
 	zoom = Math.max(0, Math.min(1, newZoom));
 	scale = Math.pow(2, zoom * 4);
-	canvas.style.width = `${width * scale}px`;
-	canvas.style.height = `${height * scale}px`;
+	paper.style.width = `${width * scale}px`;
+	paper.style.height = `${height * scale}px`;
 	if (clientX != null && clientY != null) {
 		clientX -= dragRegionBounds.x + x;
 		clientY -= dragRegionBounds.y + y;
@@ -168,26 +169,45 @@ const setFilePath = (path) => {
 	labels.file_name.setText(path);
 }
 
-const setCanvas = (data) => {
+const setPaper = (data) => {
 	({width, height, cells} = data);
 
-	canvas.width = width;
-	canvas.height = height;
-	const ctx = canvas.getContext("2d");
-	const imageData = ctx.createImageData(width, height);
-	const pixels = imageData.data;
+	canvases.lower.width = width;
+	canvases.lower.height = height;
+	canvases.upper.width = width;
+	canvases.upper.height = height;
 
-	pixels.fill(0xFF);
+	const lowerCtx = canvases.lower.getContext("2d");
+	const upperCtx = canvases.upper.getContext("2d");
+
+	const lowerData = lowerCtx.createImageData(width, height);
+	const lowerPixels = lowerData.data;
+	const upperData = upperCtx.createImageData(width, height);
+	const upperPixels = upperData.data;
+
+	const deadColor = colorsByCellState[CellState.DEAD];
+	const wireColor = colorsByCellState[CellState.WIRE];
+	const tailColor = colorsByCellState[CellState.TAIL];
+	const headColor = colorsByCellState[CellState.HEAD];
 
 	for (let i = 0; i < height; i++) {
 		if (cells[i] != null) {
 			for (let j = 0; j < width; j++) {
-				pixels.set(colorsByCellType[cells[i][j] ?? CellState.DEAD], (i * width + j) * 4);
+				const state = cells[i][j] ?? CellState.DEAD;
+				const index = (i * width + j) * 4;
+				lowerPixels.set(state === CellState.DEAD ? deadColor : wireColor, index);
+				if (state === CellState.TAIL) {
+					upperPixels.set(tailColor, index);
+				}
+				if (state === CellState.HEAD) {
+					upperPixels.set(headColor, index);
+				}
 			}
 		}
 	}
 
-	ctx.putImageData(imageData, 0, 0);
+	lowerCtx.putImageData(lowerData, 0, 0);
+	upperCtx.putImageData(upperData, 0, 0);
 
 	recomputeInitialLayout();
 	setZoom(initZoom);
@@ -197,5 +217,5 @@ const setCanvas = (data) => {
 
 export default {
 	setFilePath,
-	setCanvas
+	setPaper
 };

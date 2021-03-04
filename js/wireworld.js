@@ -11,7 +11,7 @@ const load = async (path) => {
 		throw new Error(`${file.status}: ${file.statusText}`);
 	}
 	data = await parseFile(await file.text());
-	gui.setCanvas(data);
+	gui.setPaper(data);
 }
 
 const init = async () => {
