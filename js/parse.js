@@ -2,7 +2,14 @@ import { CellState } from "./data.js";
 
 const maxLength = 2048; // TODO: base this on something, anything
 
-const mclCharsToSymbols = {
+const txtCharsToStates = {
+	[" "]: CellState.DEAD,
+	["#"]: CellState.WIRE,
+	["~"]: CellState.TAIL,
+	["@"]: CellState.HEAD
+};
+
+const mclCharsToStates = {
 	["."]: CellState.DEAD,
 	["A"]: CellState.TAIL,
 	["B"]: CellState.HEAD,
@@ -16,16 +23,14 @@ const parseTXT = (file) => {
 		return null;
 	}
 
+	const cells = data[3]
+		.split("\n")
+		.map(line => [...line].map(c => txtCharsToStates[c]));
+
 	return {
 		width: parseInt(data[1]),
 		height: parseInt(data[2]),
-		cells: data[3]
-		.split("\n")
-		.map(
-			line => line
-				.split("")
-				.map(char => Symbol.for(char))
-		)
+		cells
 	};
 };
 
@@ -43,14 +48,15 @@ const parseMCL = (file) => {
 		.map(
 			line => line
 				.match(/([0-9]+)?([^\d])/g)
-				.map(c => Array(c.length == 1 ? 1 : parseInt(c))
-					.fill(c[c.length - 1])
-				)
+				.map(c => "".padStart(
+					c.length == 1 ? 1 : parseInt(c),
+					c[c.length - 1]
+				))
 		)
-		.flat(2)
+		.flat()
 		.join("")
 		.split("$")
-		.map(line => line.split("").map(c => mclCharsToSymbols[c]));
+		.map(line => [...line].map(c => mclCharsToStates[c]));
 
 	return {
 		width: Math.max(...cells.map(line => line.length))/*parseInt(data[1])*/,
