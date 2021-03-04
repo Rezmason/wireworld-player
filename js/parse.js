@@ -25,7 +25,7 @@ const parseTXT = (file) => {
 
 	const cells = data[3]
 		.split("\n")
-		.map(line => [...line].map(c => txtCharsToStates[c]));
+		.map(line => [...line].map(c => txtCharsToStates[c] ?? CellState.DEAD));
 
 	return {
 		width: parseInt(data[1]),
@@ -56,7 +56,7 @@ const parseMCL = (file) => {
 		.flat()
 		.join("")
 		.split("$")
-		.map(line => [...line].map(c => mclCharsToStates[c]));
+		.map(line => [...line].map(c => mclCharsToStates[c] ?? CellState.DEAD));
 
 	return {
 		width: Math.max(...cells.map(line => line.length))/*parseInt(data[1])*/,
