@@ -1,5 +1,7 @@
 TODO
 
+Multitouch gesture that pans and zooms
+
 Milestone: key mapping
 	stop: `
 	step: period
@@ -26,12 +28,6 @@ Milestone: webassembly worker
 Milestone: drag-and-drop themes
 	Merveilles themes
 	Old Wireworld themes
-
-Milestone: mobile usability
-	Media queries
-	Suppress standard scroll behavior
-	Multitouch gesture that pans, zooms and shrinks
-	Maximum/minimum zoom elasticity
 
 How about an animated favicon?
 	But only if the sim is running

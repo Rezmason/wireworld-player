@@ -4,6 +4,12 @@ let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
 let initZoom, initX, initY, x, y, zoom, scale, width, height, cells;
 let dragging, dragX, dragY, dragMouseX, dragMouseY;
 let zooming;
+let dragTouchID;
+
+const preventTouchDefault = func => event => {
+	event.preventDefault();
+	func(event);
+}
 
 const colorsByCellState = {
 	[CellState.DEAD]: [0x22, 0x44, 0x00, 0xff], /*[0x00, 0x00, 0x00, 0xff],*/
@@ -101,23 +107,15 @@ sliders.zoom_slider.addEventListener("input", e => {
 	setZoom(sliders.zoom_slider.valueAsNumber, dragRegionCenterX, dragRegionCenterY);
 })
 
-dragRegion.addEventListener("mousedown", ({clientX, clientY, button}) => {
-	if (button != 0) {
-		return;
-	}
-
+const beginDrag = (clientX, clientY) => {
 	dragging = true;
 	dragX = x;
 	dragY = y;
 	dragMouseX = clientX;
 	dragMouseY = clientY;
-});
+};
 
-dragRegion.addEventListener("mouseup", () => {
-	dragging = false;
-});
-
-dragRegion.addEventListener("mousemove", ({clientX, clientY}) => {
+const updateDrag = (clientX, clientY) => {
 	if (!dragging) {
 		return;
 	}
@@ -125,7 +123,55 @@ dragRegion.addEventListener("mousemove", ({clientX, clientY}) => {
 		clientX - dragMouseX + dragX,
 		clientY - dragMouseY + dragY
 	)
+};
+
+const endDrag = () => {
+	dragging = false;
+	dragTouchID = null;
+}
+
+dragRegion.addEventListener("mousedown", ({clientX, clientY, button}) => {
+	if (button == 0 && !dragging) {
+		beginDrag(clientX, clientY);
+	}
 });
+dragRegion.addEventListener("mouseup", endDrag);
+dragRegion.addEventListener("mousemove", ({clientX, clientY}) => updateDrag(clientX, clientY));
+
+
+dragRegion.addEventListener("touchstart", preventTouchDefault(({changedTouches}) => {
+	if (dragTouchID == null && !dragging) {
+		const touch = changedTouches[0];
+		dragTouchID = touch.identifier;
+		beginDrag(touch.clientX, touch.clientY);
+	}
+}));
+
+const findTouch = (touchList, test) => {
+	const len = touchList.length;
+	for (let i = 0; i < len; i++) {
+		const touch = touchList.item(i);
+		if (test(touch)) {
+			return touch;
+		}
+	}
+	return null;
+}
+
+dragRegion.addEventListener("touchmove", preventTouchDefault(({changedTouches}) => {
+	const touch = findTouch(changedTouches, touch => touch.identifier === dragTouchID);
+	if (touch != null && dragging) {
+		updateDrag(touch.clientX, touch.clientY);
+	}
+}));
+
+dragRegion.addEventListener("touchend", preventTouchDefault(({changedTouches}) => {
+	const touch = findTouch(changedTouches, touch => touch.identifier === dragTouchID);
+	if (touch != null && dragging) {
+		endDrag();
+	}
+}));
+
 
 document.body.addEventListener("mouseleave", () => {
 	dragging = false;
@@ -153,17 +199,21 @@ const animateZoom = () => {
 	}
 }
 
-buttons.zoom_in.addEventListener("mousedown", () => {
-	zooming = 0.004;
+const beginAnimatedZoom = (amount) => () => {
+	zooming = amount;
 	animateZoom();
-});
-buttons.zoom_in.addEventListener("mouseup", () => zooming = null);
+};
 
-buttons.zoom_out.addEventListener("mousedown", () => {
-	zooming = -0.004;
-	animateZoom();
-});
-buttons.zoom_out.addEventListener("mouseup", () => zooming = null);
+const endAnimatedZoom = () => zooming = null;
+
+buttons.zoom_in.addEventListener("mousedown", beginAnimatedZoom(0.004));
+buttons.zoom_in.addEventListener("touchstart", preventTouchDefault(beginAnimatedZoom(0.004)));
+buttons.zoom_out.addEventListener("mousedown", beginAnimatedZoom(-0.004));
+buttons.zoom_out.addEventListener("touchstart", preventTouchDefault(beginAnimatedZoom(-0.004)));
+
+document.body.addEventListener("mouseup", endAnimatedZoom);
+document.body.addEventListener("touchend", endAnimatedZoom);
+document.body.addEventListener("mouseleave", endAnimatedZoom);
 
 const setFilePath = (path) => {
 	labels.file_name.setText(path);

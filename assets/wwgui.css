@@ -51,8 +51,14 @@
 	/*filter: contrast(0) brightness(2);*/
 }
 
-.wwgui button:hover {
-	background-color: var(--element-bg-hover);
+@media (any-hover: hover) {
+	.wwgui button:hover {
+		background-color: var(--element-bg-hover);
+	}
+
+	.wwgui button:active {
+		background-color: var(--element-bg-active);
+	}
 }
 
 .wwgui button:focus {
@@ -69,11 +75,6 @@
   box-shadow: inset 0 0 0 0.125em var(--element-focus);
   outline: 0;
 }
-
-.wwgui button:active {
-	background-color: var(--element-bg-active);
-}
-
 
 /* label */
 
@@ -127,8 +128,12 @@
 	cursor: grab;
 }
 
-.wwgui input[type=range]:hover {
-	background-color: var(--element-bg-hover);
+@media (any-hover: hover) {
+
+	.wwgui input[type=range]:hover {
+		background-color: var(--element-bg-hover);
+	}
+
 }
 
 .wwgui input[type=range]:focus {
