@@ -5,9 +5,11 @@ const CellState = Object.fromEntries([
 	"DEAD"
 ].map((name, index) => [name, index]));
 
-const defaultFilePath = "examples/mcl/owen_moore/computer_by_mark_owen_horizontal.mcl";
+const defaultLandscapeFilePath = "examples/mcl/owen_moore/computer_by_mark_owen_horizontal.mcl";
+const defaultPortraitFilePath = "examples/txt/owen_moore/computer_by_mark_owen_vertical.mcl";
 
 export {
 	CellState,
-	defaultFilePath
+	defaultLandscapeFilePath,
+	defaultPortraitFilePath
 };

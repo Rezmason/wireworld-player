@@ -1,4 +1,4 @@
-import { defaultFilePath } from "./data.js";
+import { defaultLandscapeFilePath, defaultPortraitFilePath } from "./data.js";
 import gui from "./gui.js";
 import parseFile from "./parse.js";
 
@@ -18,8 +18,14 @@ const init = async () => {
 
 	// TODO: show splash screen
 
+	const isPortrait = (screen.orientation?.type ?? "landscape-primary").startsWith("portrait");
+	// const path = isPortrait ? defaultPortraitFilePath : defaultLandscapeFilePath;
+
+	// const path = "examples/mcl/owen_moore/computer_by_mark_owen_vertical.mcl";
+	const path = "examples/mcl/owen_moore/computer_by_mark_owen_horizontal.mcl";
+
 	try {
-		await load(defaultFilePath);
+		await load(path);
 	} catch (error) {
 		console.log(error);
 		return;

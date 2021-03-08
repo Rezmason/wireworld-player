@@ -23,6 +23,10 @@ Milestone: loading
 	Support drag-and-drop
 Milestone: webassembly worker
 
+Milestone: reformat all examples
+	Move everything to RLE I guess
+	Who can I talk to about this?
+
 Milestone: drag-and-drop themes
 	Merveilles themes
 	Old Wireworld themes
