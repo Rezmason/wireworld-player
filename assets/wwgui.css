@@ -1,64 +1,64 @@
 .wwgui {
-	/* theme */
-	--bg: #222;
-	--element-bg: #999;
-	--element-bg-hover: #DDD;
-	--element-bg-active: #666;
-	--element-fg: #222;
-	--element-focus: #FFF;
+  /* theme */
+  --bg: #222;
+  --element-bg: #999;
+  --element-bg-hover: #ddd;
+  --element-bg-active: #666;
+  --element-fg: #222;
+  --element-focus: #fff;
 
-	/* basics */
-	background: var(--bg);
-	color: var(--element-bg);
-	font-family: monospace;
-	font-size: 1.5em;
-	font-weight: bold;
+  /* basics */
+  background: var(--bg);
+  color: var(--element-bg);
+  font-family: monospace;
+  font-size: 1.5em;
+  font-weight: bold;
 
-	/* prevent selection, this is a UI not a text region */
-	user-select: none;
-	-webkit-user-select: none;
+  /* prevent selection, this is a UI not a text region */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .wwgui .wwcaption {
-	display: none;
+  display: none;
 }
 
 /* button */
 
 .wwgui button {
-	/* unset */
-	border: unset;
-	padding: unset;
-	font-size: unset;
+  /* unset */
+  border: unset;
+  padding: unset;
+  font-size: unset;
 
-	/* styling */
-	width: 1em;
-	height: 1em;
-	border-radius: 0.5em;
-	background-color: var(--element-bg);
-	cursor: pointer;
-	/*filter: invert();*/
+  /* styling */
+  width: 1em;
+  height: 1em;
+  border-radius: 0.5em;
+  background-color: var(--element-bg);
+  cursor: pointer;
+  /*filter: invert();*/
 }
 
 .wwgui button icon {
-	display: inline-block;
-	width: 100%;
-	height: 100%;
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-position: center center;
-	filter: contrast(0) brightness(0.25);
-	/*filter: contrast(0) brightness(2);*/
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  filter: contrast(0) brightness(0.25);
+  /*filter: contrast(0) brightness(2);*/
 }
 
 @media (any-hover: hover) {
-	.wwgui button:hover {
-		background-color: var(--element-bg-hover);
-	}
+  .wwgui button:hover {
+    background-color: var(--element-bg-hover);
+  }
 
-	.wwgui button:active {
-		background-color: var(--element-bg-active);
-	}
+  .wwgui button:active {
+    background-color: var(--element-bg-active);
+  }
 }
 
 .wwgui button:focus {
@@ -79,101 +79,99 @@
 /* label */
 
 .wwgui label {
-	/*
+  /*
 		unset— except, I guess browsers
 		don't do weird things to labels in the first place
 	*/
 
-	/* prevent selection, this is a UI not a text region */
-	user-select: none;
-	-webkit-user-select: none;
+  /* prevent selection, this is a UI not a text region */
+  user-select: none;
+  -webkit-user-select: none;
 
-	font-size: 0.75em;
+  font-size: 0.75em;
 }
 
 /* slider, aka range-type input */
 
-.wwgui input[type=range] {
-	/* unset */
-	-webkit-appearance: unset;
-	font-size: unset;
+.wwgui input[type="range"] {
+  /* unset */
+  -webkit-appearance: unset;
+  font-size: unset;
 
-	width: 5em;
-	height: 1em;
-	background: var(--element-bg-active);
-	padding: 0 0.1em;
+  width: 5em;
+  height: 1em;
+  background: var(--element-bg-active);
+  padding: 0 0.1em;
 }
 
-.wwgui input[type=range]::-webkit-slider-thumb {
-	/* unset */
+.wwgui input[type="range"]::-webkit-slider-thumb {
+  /* unset */
   -webkit-appearance: unset;
 
   background: var(--element-fg);
-	border-radius: 0.1em;
-	margin: 0;
-	padding: 0;
-	width: 1.5em;
-	height: 0.8em;
-	cursor: grab;
+  border-radius: 0.1em;
+  margin: 0;
+  padding: 0;
+  width: 1.5em;
+  height: 0.8em;
+  cursor: grab;
 }
 
-.wwgui input[type=range]::-moz-range-thumb {
-	/* unset */
+.wwgui input[type="range"]::-moz-range-thumb {
+  /* unset */
   border: unset;
 
   background: var(--element-fg);
-	border-radius: 0.1em;
-	width: 1.5em;
-	height: 0.8em;
-	cursor: grab;
+  border-radius: 0.1em;
+  width: 1.5em;
+  height: 0.8em;
+  cursor: grab;
 }
 
 @media (any-hover: hover) {
-
-	.wwgui input[type=range]:hover {
-		background-color: var(--element-bg-hover);
-	}
-
+  .wwgui input[type="range"]:hover {
+    background-color: var(--element-bg-hover);
+  }
 }
 
-.wwgui input[type=range]:focus {
-	outline: none;
+.wwgui input[type="range"]:focus {
+  outline: none;
 }
 
-.wwgui input[type=range]::-webkit-slider-thumb:active {
-	cursor: grabbing;
+.wwgui input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
 }
 
-.wwgui input[type=range]:focus::-webkit-slider-thumb {
+.wwgui input[type="range"]:focus::-webkit-slider-thumb {
   box-shadow: inset 0 0 0 0.125em var(--element-focus);
   outline: 0;
 }
 
-.wwgui input[type=range]:focus:not(:focus-visible)::-webkit-slider-thumb {
+.wwgui input[type="range"]:focus:not(:focus-visible)::-webkit-slider-thumb {
   box-shadow: none;
   outline: 0;
 }
 
-.wwgui input[type=range]:focus-visible::-webkit-slider-thumb {
+.wwgui input[type="range"]:focus-visible::-webkit-slider-thumb {
   box-shadow: inset 0 0 0 0.125em var(--element-focus);
   outline: 0;
 }
 
-.wwgui input[type=range]::-moz-range-thumb:active {
-	cursor: grabbing;
+.wwgui input[type="range"]::-moz-range-thumb:active {
+  cursor: grabbing;
 }
 
-.wwgui input[type=range]:focus::-moz-range-thumb {
+.wwgui input[type="range"]:focus::-moz-range-thumb {
   box-shadow: inset 0 0 0 0.125em var(--element-focus);
   outline: 0;
 }
 
-.wwgui input[type=range]:focus:not(:focus-visible)::-moz-range-thumb {
+.wwgui input[type="range"]:focus:not(:focus-visible)::-moz-range-thumb {
   box-shadow: none;
   outline: 0;
 }
 
-.wwgui input[type=range]:focus-visible::-moz-range-thumb {
+.wwgui input[type="range"]:focus-visible::-moz-range-thumb {
   box-shadow: inset 0 0 0 0.125em var(--element-focus);
   outline: 0;
 }
@@ -181,48 +179,49 @@
 /* wwgroup and its effects on its children's styles */
 
 .wwgui wwgroup {
-	display: flex;
-	align-items: stretch;
+  display: flex;
+  align-items: stretch;
 }
 
 .wwgui wwgroup > * {
-	margin: 0 max(1px, 0.025em);
+  margin: 0 max(1px, 0.025em);
 }
 
 .wwgui wwgroup > *:first-child {
-	border-radius: 1em 0 0 1em;
+  border-radius: 1em 0 0 1em;
 }
 
 .wwgui wwgroup > *:first-child icon {
-	background-position: 60%;
+  background-position: 60%;
 }
 
 .wwgui wwgroup > *:last-child {
-	border-radius: 0 1em 1em 0;
+  border-radius: 0 1em 1em 0;
 }
 
 .wwgui wwgroup > *:last-child icon {
-	background-position: 40%;
+  background-position: 40%;
 }
 
 .wwgui wwgroup > label {
-	background: var(--element-bg);
-	color: var(--element-fg);
-	padding: 0 0.5em;
+  background: var(--element-bg);
+  color: var(--element-fg);
+  padding: 0 0.5em;
 }
 
 .wwgui wwgroup > button {
-	border-radius: 0;
-	width: 1.2em;
+  border-radius: 0;
+  width: 1.2em;
 }
 
 /* drag region */
 
 .wwdragregion {
-	background: repeating-conic-gradient(#555 0% 25%, #333 0% 50%) 0 0 / 0.75rem 0.75rem;
-	cursor: grab;
+  background: repeating-conic-gradient(#555 0% 25%, #333 0% 50%) 0 0 / 0.75rem
+    0.75rem;
+  cursor: grab;
 }
 
 .wwdragregion:active {
-	cursor: grabbing;
+  cursor: grabbing;
 }

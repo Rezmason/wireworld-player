@@ -1,8 +1,6 @@
 const preventTouchDefault = func => event => {
-	event.preventDefault();
-	func(event);
-}
-
-export {
-	preventTouchDefault
+  event.preventDefault();
+  func(event);
 };
+
+export { preventTouchDefault };
