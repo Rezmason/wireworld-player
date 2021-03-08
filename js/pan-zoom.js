@@ -70,7 +70,7 @@ const recomputeInitialLayout = () => {
 	initY = (height > dragRegionBounds.height) ? 0 : (dragRegionBounds.height - height * initScale) / 2;
 }
 
-const handleMouseWheel = ({target, clientX, clientY, deltaY}) => {
+const onWheel = ({target, clientX, clientY, deltaY}) => {
 	const amount = deltaY * -0.0001;
 	if (zoom + amount > maxZoom || zoom + amount < minZoom) {
 		return;
@@ -87,8 +87,8 @@ const handleMouseWheel = ({target, clientX, clientY, deltaY}) => {
 	}
 };
 
-dragRegion.addEventListener("mousewheel", handleMouseWheel);
-zoomSlider.addEventListener("mousewheel", handleMouseWheel);
+dragRegion.addEventListener("wheel", onWheel);
+zoomSlider.addEventListener("wheel", onWheel);
 
 zoomSlider.addEventListener("input", e => {
 	setZoom(zoomSlider.valueAsNumber, dragRegionCenterX, dragRegionCenterY);

@@ -73,7 +73,6 @@ const setPaper = (data) => {
 	lowerCtx.putImageData(lowerData, 0, 0);
 	upperCtx.putImageData(upperData, 0, 0);
 
-	console.log(width, height);
 	setPanZoomSize(width, height);
 }
 
