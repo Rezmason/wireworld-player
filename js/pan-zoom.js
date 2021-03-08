@@ -15,6 +15,12 @@ const zoomSlider = document.querySelector("input#zoom-slider");
 const paper = document.querySelector("drag-region paper");
 const dragRegion = document.querySelector("drag-region");
 
+const wheelDeltaMagnifiers = {
+	[0]: 1,
+	[1]: 40,
+	[2]: 40 // TODO: find an example
+}
+
 const setPosition = (newX, newY) => {
 	x = newX;
 	y = newY;
@@ -70,8 +76,8 @@ const recomputeInitialLayout = () => {
 	initY = (height > dragRegionBounds.height) ? 0 : (dragRegionBounds.height - height * initScale) / 2;
 }
 
-const onWheel = ({target, clientX, clientY, deltaY}) => {
-	const amount = deltaY * -0.0001;
+const onWheel = ({target, clientX, clientY, deltaY, deltaMode}) => {
+	const amount = deltaY * -0.0001 * (wheelDeltaMagnifiers[deltaMode] ?? 0);
 	if (zoom + amount > maxZoom || zoom + amount < minZoom) {
 		return;
 	}
