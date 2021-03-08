@@ -1,10 +1,12 @@
 import { CellState } from "./data.js";
 
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
-let initZoom, initX, initY, x, y, zoom, scale, width, height, cells;
-let dragging, dragX, dragY, dragMouseX, dragMouseY;
-let zooming;
-let dragTouchID;
+const minZoom = 0, maxZoom = 1, minScale = 2 ** (4 * minZoom), maxScale = 2 ** (4 * maxZoom);
+let initScale, initX, initY, x, y, zoom, scale, width, height, cells;
+let animatedZoomDelta;
+let panning, panStartX, panStartY, panStartScale, panStartTouchAverage, panStartTouchDistance;
+let touch1, touch2, mouseTouch;
+let paperTransform;
 
 const preventTouchDefault = func => event => {
 	event.preventDefault();
@@ -40,37 +42,47 @@ labels.framerate.setText("");
 const setPosition = (newX, newY) => {
 	x = newX;
 	y = newY;
-	paper.style.transform = `translate(${Math.floor(x)}px, ${Math.floor(y)}px)`;
-}
-
-const setZoom = (newZoom, clientX, clientY) => {
-	const oldScale = scale;
-	zoom = Math.max(0, Math.min(1, newZoom));
-	scale = Math.pow(2, zoom * 4);
-	paper.style.width = `${width * scale}px`;
-	paper.style.height = `${height * scale}px`;
-	if (clientX != null && clientY != null) {
-		clientX -= dragRegionBounds.x + x;
-		clientY -= dragRegionBounds.y + y;
-		const newX = x + clientX - clientX * (scale / oldScale);
-		const newY = y + clientY - clientY * (scale / oldScale);
-		setPosition(newX, newY);
+	const newTransform = `translate(${Math.floor(x)}px, ${Math.floor(y)}px)`;
+	if (paperTransform !== newTransform) {
+		paperTransform = newTransform;
+		paper.style.transform = paperTransform;
 	}
 }
+
+const setScale = (newScale) => {
+	newScale = Math.min(maxScale, Math.max(minScale, newScale));
+	if (newScale === scale) {
+		return;
+	}
+	scale = newScale;
+	zoom = Math.log2(scale) / 4;
+	sliders.zoom_slider.value = zoom;
+	paper.style.width = `${width * scale}px`;
+	paper.style.height = `${height * scale}px`;
+}
+
+const transform = (startX, startY, srcX, srcY, srcScale, dstX, dstY, dstScale) => {
+	setScale(dstScale);
+	setPosition(
+		(dstX - dragRegionBounds.x) + (startX - (srcX - dragRegionBounds.x)) * (scale / srcScale),
+		(dstY - dragRegionBounds.y) + (startY - (srcY - dragRegionBounds.y)) * (scale / srcScale)
+	);
+}
+
+const setZoom = (newZoom, clientX, clientY) => transform(x, y, clientX, clientY, scale, clientX, clientY, 2 ** (newZoom * 4));
 
 const recomputeInitialLayout = () => {
 	dragRegionBounds = dragRegion.getBoundingClientRect();
 	dragRegionCenterX = (dragRegionBounds.left + dragRegionBounds.right) / 2;
 	dragRegionCenterY = (dragRegionBounds.top + dragRegionBounds.bottom) / 2;
 
-	let initScale;
 	if (dragRegionBounds.width / dragRegionBounds.height > width / height) {
 		initScale = dragRegionBounds.height / height;
 	} else {
 		initScale = dragRegionBounds.width / width;
 	}
 
-	initScale = Math.max(1, initScale);
+	initScale = Math.max(minScale, Math.min(maxScale, initScale));
 
 	if (initScale < 1) {
 		initScale = 1 / Math.floor(1 / initScale);
@@ -80,23 +92,22 @@ const recomputeInitialLayout = () => {
 
 	initX = (dragRegionBounds.width - width * initScale) / 2;
 	initY = (height > dragRegionBounds.height) ? 0 : (dragRegionBounds.height - height * initScale) / 2;
-	initZoom = Math.log2(initScale) / 4;
-}
-
-const changeZoom = (amount, clientX, clientY) => {
-	setZoom(zoom + amount, clientX, clientY);
-	sliders.zoom_slider.value = zoom;
 }
 
 const handleMouseWheel = ({target, clientX, clientY, deltaY}) => {
-	if (dragging) {
+	const amount = deltaY * -0.0001;
+	if (zoom + amount > maxZoom || zoom + amount < minZoom) {
 		return;
 	}
-	const amount = deltaY * -0.0001;
-	if (target == sliders.zoom_slider) {
-		changeZoom(amount, dragRegionCenterX, dragRegionCenterY);
+	endPan();
+	if (target === sliders.zoom_slider) {
+		setZoom(zoom + amount, dragRegionCenterX, dragRegionCenterY);
 	} else {
-		changeZoom(amount, clientX, clientY);
+		setZoom(zoom + amount, clientX, clientY);
+	}
+	if (mouseTouch != null) {
+		touch1 = mouseTouch;
+		beginPan();
 	}
 };
 
@@ -107,76 +118,126 @@ sliders.zoom_slider.addEventListener("input", e => {
 	setZoom(sliders.zoom_slider.valueAsNumber, dragRegionCenterX, dragRegionCenterY);
 })
 
-const beginDrag = (clientX, clientY) => {
-	dragging = true;
-	dragX = x;
-	dragY = y;
-	dragMouseX = clientX;
-	dragMouseY = clientY;
+const distanceBetweenTouches = () => touch2 == null ? 1 : ((touch1.clientX - touch2.clientX) ** 2 + (touch1.clientY - touch2.clientY) ** 2) ** 0.5;
+
+const averageBetwenTouches = () =>
+	touch2 == null
+	? {clientX: touch1.clientX, clientY: touch1.clientY}
+	: {
+		clientX: (touch1.clientX + touch2.clientX) / 2,
+		clientY: (touch1.clientY + touch2.clientY) / 2
+	};
+
+const beginPan = () => {
+	panning = true;
+	panStartX = x;
+	panStartY = y;
+	panStartScale = scale;
+	panStartTouchDistance = distanceBetweenTouches();
+	panStartTouchAverage = averageBetwenTouches();
 };
 
-const updateDrag = (clientX, clientY) => {
-	if (!dragging) {
-		return;
+const updatePan = () => {
+	const dstScale = panStartScale * distanceBetweenTouches() / panStartTouchDistance;
+	const average = averageBetwenTouches();
+	transform(panStartX, panStartY, panStartTouchAverage.clientX, panStartTouchAverage.clientY, panStartScale, average.clientX, average.clientY, dstScale);
+}
+
+const endPan = () => {
+	panning = false;
+	touch1 = null;
+	touch2 = null;
+}
+
+const addTouch = (touch) => {
+	if (touch1 == null) {
+		touch1 = touch;
+	} else if (touch2 == null) {
+		touch2 = touch;
 	}
-	setPosition(
-		clientX - dragMouseX + dragX,
-		clientY - dragMouseY + dragY
-	)
+	beginPan();
+}
+
+const removeTouch = (touch) => {
+	const isTouch1 = touch1.identifier === touch.identifier;
+	const isTouch2 = touch2 != null && touch2.identifier === touch.identifier;
+	if (isTouch1 || isTouch2) {
+		if (isTouch1) {
+			touch1 = touch2;
+		}
+		touch2 = null;
+		if (touch1 == null) {
+			endPan();
+		} else {
+			beginPan();
+		}
+	}
 };
 
-const endDrag = () => {
-	dragging = false;
-	dragTouchID = null;
+const eachTouch = (touchList, func) => {
+	const len = touchList.length;
+	for (let i = 0; i < len; i++) {
+		func(touchList.item(i));
+	}
 }
 
 dragRegion.addEventListener("mousedown", ({clientX, clientY, button}) => {
-	if (button == 0 && !dragging) {
-		beginDrag(clientX, clientY);
+	if (button !== 0) {
+		return;
 	}
+	mouseTouch = {identifier: "mouse", clientX, clientY};
+	addTouch(mouseTouch);
 });
-dragRegion.addEventListener("mouseup", endDrag);
-dragRegion.addEventListener("mousemove", ({clientX, clientY}) => updateDrag(clientX, clientY));
 
+dragRegion.addEventListener("mouseup", ({button}) => {
+	if (button !== 0) {
+		return;
+	}
+	removeTouch(mouseTouch);
+	mouseTouch = null;
+});
+
+dragRegion.addEventListener("mousemove", ({clientX, clientY}) => {
+	if (mouseTouch == null) {
+		return;
+	}
+	mouseTouch.clientX = clientX;
+	mouseTouch.clientY = clientY;
+	updatePan();
+});
 
 dragRegion.addEventListener("touchstart", preventTouchDefault(({changedTouches}) => {
-	if (dragTouchID == null && !dragging) {
-		const touch = changedTouches[0];
-		dragTouchID = touch.identifier;
-		beginDrag(touch.clientX, touch.clientY);
-	}
+	eachTouch(changedTouches, addTouch);
 }));
 
-const findTouch = (touchList, test) => {
-	const len = touchList.length;
-	for (let i = 0; i < len; i++) {
-		const touch = touchList.item(i);
-		if (test(touch)) {
-			return touch;
-		}
-	}
-	return null;
-}
-
 dragRegion.addEventListener("touchmove", preventTouchDefault(({changedTouches}) => {
-	const touch = findTouch(changedTouches, touch => touch.identifier === dragTouchID);
-	if (touch != null && dragging) {
-		updateDrag(touch.clientX, touch.clientY);
+	if (!panning || touch1 == null) {
+		return;
 	}
+
+	eachTouch(changedTouches, (touch) => {
+		if (touch1.identifier === touch.identifier) {
+			touch1 = touch;
+		} else if (touch2 != null && touch2.identifier === touch.identifier) {
+			touch2 = touch;
+		}
+	});
+
+	updatePan();
 }));
 
 dragRegion.addEventListener("touchend", preventTouchDefault(({changedTouches}) => {
-	const touch = findTouch(changedTouches, touch => touch.identifier === dragTouchID);
-	if (touch != null && dragging) {
-		endDrag();
-	}
+	eachTouch(changedTouches, removeTouch);
 }));
 
+const endGestures = () => {
+	endPan();
+	mouseTouch = null;
+	animatedZoomDelta = 0;
+}
 
-document.body.addEventListener("mouseleave", () => {
-	dragging = false;
-	zooming = 0;
-});
+document.body.addEventListener("mouseleave", endGestures);
+window.addEventListener("blur", endGestures);
 
 window.addEventListener("resize", () => {
 	const oldBounds = dragRegionBounds;
@@ -187,24 +248,23 @@ window.addEventListener("resize", () => {
 })
 
 buttons.reset_view.addEventListener("click", () => {
-	setZoom(initZoom, dragRegionCenterX, dragRegionCenterY);
+	setScale(initScale);
 	setPosition(initX, initY);
-	sliders.zoom_slider.value = zoom;
 });
 
 const animateZoom = () => {
-	if (zooming) {
-		changeZoom(zooming, dragRegionCenterX, dragRegionCenterY);
+	if (animatedZoomDelta) {
+		setZoom(zoom + animatedZoomDelta, dragRegionCenterX, dragRegionCenterY);
 		requestAnimationFrame(animateZoom);
 	}
 }
 
 const beginAnimatedZoom = (amount) => () => {
-	zooming = amount;
+	animatedZoomDelta = amount;
 	animateZoom();
 };
 
-const endAnimatedZoom = () => zooming = null;
+const endAnimatedZoom = () => animatedZoomDelta = null;
 
 buttons.zoom_in.addEventListener("mousedown", beginAnimatedZoom(0.004));
 buttons.zoom_in.addEventListener("touchstart", preventTouchDefault(beginAnimatedZoom(0.004)));
@@ -260,9 +320,8 @@ const setPaper = (data) => {
 	upperCtx.putImageData(upperData, 0, 0);
 
 	recomputeInitialLayout();
-	setZoom(initZoom);
+	setScale(initScale);
 	setPosition(initX, initY);
-	sliders.zoom_slider.value = zoom;
 }
 
 export default {

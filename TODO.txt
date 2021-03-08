@@ -1,7 +1,5 @@
 TODO
 
-Multitouch gesture that pans and zooms
-
 Milestone: key mapping
 	stop: `
 	step: period
