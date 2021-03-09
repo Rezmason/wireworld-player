@@ -1,8 +1,8 @@
 import { CellState } from "./data.js";
-import { preventTouchDefault } from "./utils.js";
+import { preventTouchDefault } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
-let width, height, cells;
+const events = new EventTarget();
 
 const colorsByCellState = {
   [CellState.DEAD]: [0x22, 0x44, 0x00, 0xff] /*[0x00, 0x00, 0x00, 0xff],*/,
@@ -11,31 +11,18 @@ const colorsByCellState = {
   [CellState.HEAD]: [0xff, 0xff, 0x44, 0xff] /*[0xff, 0x88, 0x00, 0xff],*/
 };
 
-const buttons = Object.fromEntries(
-  Array.from(document.querySelectorAll("button")).map(element => [
+const collectUI = query => Object.fromEntries(
+  Array.from(document.querySelectorAll(query)).map(element => [
     element.id.replace(/-/g, "_"),
     element
   ])
 );
-const labels = Object.fromEntries(
-  Array.from(document.querySelectorAll("label")).map(element => [
-    element.id.replace(/-/g, "_"),
-    element
-  ])
-);
-const sliders = Object.fromEntries(
-  Array.from(document.querySelectorAll("input[type=range]")).map(element => [
-    element.id.replace(/-/g, "_"),
-    element
-  ])
-);
+
+const buttons = collectUI("button");
+const labels = collectUI("label");
+const rangeInputs = collectUI("input[type=range]");
 const paper = document.querySelector("drag-region paper");
-const canvases = Object.fromEntries(
-  Array.from(document.querySelectorAll("canvas")).map(element => [
-    element.id.replace(/-/g, "_"),
-    element
-  ])
-);
+const canvases = collectUI("canvas");
 
 Object.values(labels).forEach(label => {
   const textSpan = label.querySelector(".wwguitext");
@@ -43,18 +30,20 @@ Object.values(labels).forEach(label => {
     textSpan.textContent = text;
     label.text = text;
   };
+  label.setText("");
 });
 
-labels.generation.setText("");
-labels.file_name.setText("");
-labels.framerate.setText("");
+Object.entries(buttons).forEach(([id, button]) => {
+  const event = new Event(id);
+  button.addEventListener("click", () => events.dispatchEvent(event));
+});
 
 const setFilePath = path => {
   labels.file_name.setText(path);
 };
 
 const setPaper = data => {
-  ({ width, height, cells } = data);
+  const {width, height, cells} = data;
 
   canvases.lower.width = width;
   canvases.lower.height = height;
@@ -101,5 +90,6 @@ const setPaper = data => {
 
 export default {
   setFilePath,
-  setPaper
+  setPaper,
+  events
 };

@@ -14,6 +14,20 @@ const load = async path => {
   gui.setPaper(data);
 };
 
+const listen = (name, func) => gui.events.addEventListener(name, func);
+
+listen("stop", _ => _);
+listen("play_pause", _ => _);
+listen("step", _ => _);
+
+listen("overdrive", _ => _);
+
+listen("snapshot", _ => _);
+listen("help", _ => _);
+listen("about", _ => _);
+
+listen("load", _ => _);
+
 const init = async () => {
   // TODO: show splash screen
 

@@ -1,4 +1,4 @@
-import { preventTouchDefault } from "./utils.js";
+import { preventTouchDefault } from "./gui-utils.js";
 
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
 const minZoom = 0,
@@ -19,7 +19,7 @@ let paperTransform;
 const zoomInButton = document.querySelector("button#zoom-in");
 const zoomOutButton = document.querySelector("button#zoom-out");
 const resetViewButton = document.querySelector("button#reset-view");
-const zoomSlider = document.querySelector("input#zoom-slider");
+const zoomRangeInput = document.querySelector("input#zoom");
 const paper = document.querySelector("drag-region paper");
 const dragRegion = document.querySelector("drag-region");
 
@@ -46,7 +46,7 @@ const setScale = newScale => {
   }
   scale = newScale;
   zoom = Math.log2(scale) / 4;
-  zoomSlider.value = zoom;
+  zoomRangeInput.value = zoom;
   paper.style.width = `${width * scale}px`;
   paper.style.height = `${height * scale}px`;
 };
@@ -116,7 +116,7 @@ const onWheel = ({ target, clientX, clientY, deltaY, deltaMode }) => {
     return;
   }
   endPan();
-  if (target === zoomSlider) {
+  if (target === zoomRangeInput) {
     setZoom(zoom + amount, dragRegionCenterX, dragRegionCenterY);
   } else {
     setZoom(zoom + amount, clientX, clientY);
@@ -128,10 +128,10 @@ const onWheel = ({ target, clientX, clientY, deltaY, deltaMode }) => {
 };
 
 dragRegion.addEventListener("wheel", onWheel);
-zoomSlider.addEventListener("wheel", onWheel);
+zoomRangeInput.addEventListener("wheel", onWheel);
 
-zoomSlider.addEventListener("input", e => {
-  setZoom(zoomSlider.valueAsNumber, dragRegionCenterX, dragRegionCenterY);
+zoomRangeInput.addEventListener("input", e => {
+  setZoom(zoomRangeInput.valueAsNumber, dragRegionCenterX, dragRegionCenterY);
 });
 
 const distanceBetweenTouches = () =>
