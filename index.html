@@ -1,134 +1,134 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1 user-scalable=no"
-    />
-    <title>Wireworld Player</title>
-    <link rel="shortcut icon" href="assets/favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="assets/layout.css" />
-    <link rel="stylesheet" type="text/css" href="assets/wwgui.css" />
-    <link rel="stylesheet" type="text/css" href="assets/wwicons.css" />
-    <script type="module">
-      const params = new URL(document.location).searchParams;
-      if (params.has("a11y") || params.has("accessibility")) {
-        document.body.classList.remove("wwgui");
-      }
-    </script>
-    <script type="module" src="js/wireworld.js"></script>
-  </head>
-  <body class="wwgui">
-    <drag-region class="wwdragregion">
-      <paper>
-        <canvas id="lower"></canvas>
-        <canvas id="upper"></canvas>
-      </paper>
-    </drag-region>
-    <bar class="top">
-      <bar-group class="bargroup left">
-        <wwgroup>
-          <button id="stop" title="Reset">
-            <span class="wwcaption">Reset</span><icon></icon>
-          </button>
-          <button id="play-pause" title="Play / Pause">
-            <span class="wwcaption">Play / Pause</span><icon></icon>
-          </button>
-          <button id="step" title="Step">
-            <span class="wwcaption">Step</span><icon></icon>
-          </button>
-        </wwgroup>
-        <button id="heatmap" title="Toggle heat vision">
-          <span class="wwcaption">Toggle heat vision</span><icon></icon>
-        </button>
-        <wwgroup id="tools">
-          <button id="hand-tool" title="Hand tool">
-            <span class="wwcaption">Hand tool</span><icon></icon>
-          </button>
-          <button id="eraser-tool" title="Eraser tool">
-            <span class="wwcaption">Eraser tool</span><icon></icon>
-          </button>
-        </wwgroup>
-      </bar-group>
-      <bar-group class="bargroup middle">
-        <wwgroup>
-          <button id="slow" title="Slow down">
-            <span class="wwcaption">Slow down</span><icon></icon>
-          </button>
-          <input
-            type="range"
-            id="speed"
-            min="0"
-            max="1"
-            value="0"
-            step="any"
-            title="Adjust speed"
-          />
-          <button id="fast" title="Speed up">
-            <span class="wwcaption">Speed up</span><icon></icon>
-          </button>
-        </wwgroup>
-        <button id="overdrive" title="Toggle overdrive">
-          <span class="wwcaption">Toggle overdrive</span><icon></icon>
-        </button>
-      </bar-group>
-      <bar-group class="bargroup right">
-        <button id="snapshot" title="Save picture">
-          <span class="wwcaption">Save picture</span><icon></icon>
-        </button>
-        <button id="help" title="Help!">
-          <span class="wwcaption">Help!</span><icon></icon>
-        </button>
-        <button id="about" title="About Wireworld player">
-          <span class="wwcaption">About Wireworld player</span><icon></icon>
-        </button>
-      </bar-group>
-    </bar>
-    <bar class="bottom">
-      <bar-group class="bargroup left">
-        <wwgroup>
-          <button id="zoom-out" title="Zoom out">
-            <span class="wwcaption">Zoom out</span><icon></icon>
-          </button>
-          <button id="reset-view" title="Reset view">
-            <span class="wwcaption">Reset view</span><icon></icon>
-          </button>
-          <input
-            type="range"
-            id="zoom"
-            min="0"
-            max="1"
-            value="0"
-            step="any"
-            title="Adjust zoom"
-          />
-          <button id="zoom-in" title="Zoom in">
-            <span class="wwcaption">Zoom in</span><icon></icon>
-          </button>
-        </wwgroup>
-        <label id="generation" title="Current generation"
-          ><span class="wwcaption">Current generation</span>
-          <span class="wwguitext"></span
-        ></label>
-      </bar-group>
-      <bar-group class="bargroup middle">
-        <wwgroup>
-          <button id="load" title="Load file">
-            <span class="wwcaption">Load file</span><icon></icon>
-          </button>
-          <label id="file-name" title="Current file"
-            ><span class="wwcaption">Current file</span>
-            <span class="wwguitext"></span
-          ></label>
-        </wwgroup>
-      </bar-group>
-      <bar-group class="bargroup right">
-        <label id="framerate" title="Framerate"
-          ><span class="wwcaption">Framerate</span>
-          <span class="wwguitext"></span
-        ></label>
-      </bar-group>
-    </bar>
-  </body>
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1 user-scalable=no"
+		/>
+		<title>Wireworld Player</title>
+		<link rel="shortcut icon" href="assets/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="assets/layout.css" />
+		<link rel="stylesheet" type="text/css" href="assets/wwgui.css" />
+		<link rel="stylesheet" type="text/css" href="assets/wwicons.css" />
+		<script type="module">
+			const params = new URL(document.location).searchParams;
+			if (params.has("a11y") || params.has("accessibility")) {
+				document.body.classList.remove("wwgui");
+			}
+		</script>
+		<script type="module" src="js/wireworld.js"></script>
+	</head>
+	<body class="wwgui">
+		<drag-region class="wwdragregion">
+			<paper>
+				<canvas id="lower"></canvas>
+				<canvas id="upper"></canvas>
+			</paper>
+		</drag-region>
+		<bar class="top">
+			<bar-group class="bargroup left">
+				<wwgroup>
+					<button id="stop" title="Reset">
+						<span class="wwcaption">Reset</span><icon></icon>
+					</button>
+					<button id="play-pause" title="Play / Pause">
+						<span class="wwcaption">Play / Pause</span><icon></icon>
+					</button>
+					<button id="step" title="Step">
+						<span class="wwcaption">Step</span><icon></icon>
+					</button>
+				</wwgroup>
+				<button id="heatmap" title="Toggle heat vision">
+					<span class="wwcaption">Toggle heat vision</span><icon></icon>
+				</button>
+				<wwgroup id="tools">
+					<button id="hand-tool" title="Hand tool">
+						<span class="wwcaption">Hand tool</span><icon></icon>
+					</button>
+					<button id="eraser-tool" title="Eraser tool">
+						<span class="wwcaption">Eraser tool</span><icon></icon>
+					</button>
+				</wwgroup>
+			</bar-group>
+			<bar-group class="bargroup middle">
+				<wwgroup>
+					<button id="slow" title="Slow down">
+						<span class="wwcaption">Slow down</span><icon></icon>
+					</button>
+					<input
+						type="range"
+						id="speed"
+						min="0"
+						max="1"
+						value="0"
+						step="any"
+						title="Adjust speed"
+					/>
+					<button id="fast" title="Speed up">
+						<span class="wwcaption">Speed up</span><icon></icon>
+					</button>
+				</wwgroup>
+				<button id="overdrive" title="Toggle overdrive">
+					<span class="wwcaption">Toggle overdrive</span><icon></icon>
+				</button>
+			</bar-group>
+			<bar-group class="bargroup right">
+				<button id="snapshot" title="Save picture">
+					<span class="wwcaption">Save picture</span><icon></icon>
+				</button>
+				<button id="help" title="Help!">
+					<span class="wwcaption">Help!</span><icon></icon>
+				</button>
+				<button id="about" title="About Wireworld player">
+					<span class="wwcaption">About Wireworld player</span><icon></icon>
+				</button>
+			</bar-group>
+		</bar>
+		<bar class="bottom">
+			<bar-group class="bargroup left">
+				<wwgroup>
+					<button id="zoom-out" title="Zoom out">
+						<span class="wwcaption">Zoom out</span><icon></icon>
+					</button>
+					<button id="reset-view" title="Reset view">
+						<span class="wwcaption">Reset view</span><icon></icon>
+					</button>
+					<input
+						type="range"
+						id="zoom"
+						min="0"
+						max="1"
+						value="0"
+						step="any"
+						title="Adjust zoom"
+					/>
+					<button id="zoom-in" title="Zoom in">
+						<span class="wwcaption">Zoom in</span><icon></icon>
+					</button>
+				</wwgroup>
+				<label id="generation" title="Current generation"
+					><span class="wwcaption">Current generation</span>
+					<span class="wwguitext"></span
+				></label>
+			</bar-group>
+			<bar-group class="bargroup middle">
+				<wwgroup>
+					<button id="load" title="Load file">
+						<span class="wwcaption">Load file</span><icon></icon>
+					</button>
+					<label id="file-name" title="Current file"
+						><span class="wwcaption">Current file</span>
+						<span class="wwguitext"></span
+					></label>
+				</wwgroup>
+			</bar-group>
+			<bar-group class="bargroup right">
+				<label id="framerate" title="Framerate"
+					><span class="wwcaption">Framerate</span>
+					<span class="wwguitext"></span
+				></label>
+			</bar-group>
+		</bar>
+	</body>
 </html>
