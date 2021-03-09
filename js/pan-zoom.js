@@ -1,12 +1,13 @@
-import { preventTouchDefault } from "./gui-utils.js";
+import {
+  makeSlider,
+  wheelDeltaMagnifiers,
+  preventTouchDefault
+} from "./gui-utils.js";
 
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
-const minZoom = 0,
-  maxZoom = 1,
-  minScale = 2 ** (4 * minZoom),
-  maxScale = 2 ** (4 * maxZoom);
-let initScale, initX, initY, x, y, zoom, scale, width, height, cells;
-let animatedZoomDelta;
+const minScale = 2 ** (4 * 0),
+  maxScale = 2 ** (4 * 1);
+let initScale, initX, initY, x, y, scale, width, height, cells;
 let panning,
   panStartX,
   panStartY,
@@ -16,18 +17,16 @@ let panning,
 let touch1, touch2, mouseTouch;
 let paperTransform;
 
-const zoomInButton = document.querySelector("button#zoom-in");
-const zoomOutButton = document.querySelector("button#zoom-out");
 const resetViewButton = document.querySelector("button#reset-view");
-const zoomRangeInput = document.querySelector("input#zoom");
 const paper = document.querySelector("drag-region paper");
 const dragRegion = document.querySelector("drag-region");
 
-const wheelDeltaMagnifiers = {
-  [0]: 1,
-  [1]: 40,
-  [2]: 40 // TODO: find an example
-};
+const zoomSlider = makeSlider(
+  document.querySelector("button#zoom-in"),
+  document.querySelector("button#zoom-out"),
+  document.querySelector("input#zoom"),
+  0.004
+);
 
 const setPosition = (newX, newY) => {
   x = newX;
@@ -45,8 +44,7 @@ const setScale = newScale => {
     return;
   }
   scale = newScale;
-  zoom = Math.log2(scale) / 4;
-  zoomRangeInput.value = zoom;
+  zoomSlider.value = Math.log2(scale) / 4;
   paper.style.width = `${width * scale}px`;
   paper.style.height = `${height * scale}px`;
 };
@@ -110,17 +108,23 @@ const recomputeInitialLayout = () => {
       : (dragRegionBounds.height - height * initScale) / 2;
 };
 
-const onWheel = ({ target, clientX, clientY, deltaY, deltaMode }) => {
+zoomSlider.addEventListener("change", () => {
+  endPan();
+  setZoom(zoomSlider.value, dragRegionCenterX, dragRegionCenterY);
+  if (mouseTouch != null) {
+    touch1 = mouseTouch;
+    beginPan();
+  }
+});
+
+const onWheel = ({ clientX, clientY, deltaY, deltaMode }) => {
   const amount = deltaY * -0.0001 * (wheelDeltaMagnifiers[deltaMode] ?? 0);
-  if (zoom + amount > maxZoom || zoom + amount < minZoom) {
+  if (!zoomSlider.setValue(zoomSlider.value + amount)) {
     return;
   }
+
   endPan();
-  if (target === zoomRangeInput) {
-    setZoom(zoom + amount, dragRegionCenterX, dragRegionCenterY);
-  } else {
-    setZoom(zoom + amount, clientX, clientY);
-  }
+  setZoom(zoomSlider.value, clientX, clientY);
   if (mouseTouch != null) {
     touch1 = mouseTouch;
     beginPan();
@@ -128,11 +132,6 @@ const onWheel = ({ target, clientX, clientY, deltaY, deltaMode }) => {
 };
 
 dragRegion.addEventListener("wheel", onWheel);
-zoomRangeInput.addEventListener("wheel", onWheel);
-
-zoomRangeInput.addEventListener("input", e => {
-  setZoom(zoomRangeInput.valueAsNumber, dragRegionCenterX, dragRegionCenterY);
-});
 
 const distanceBetweenTouches = () =>
   touch2 == null
@@ -273,7 +272,6 @@ dragRegion.addEventListener(
 const endGestures = () => {
   endPan();
   mouseTouch = null;
-  animatedZoomDelta = 0;
 };
 
 document.body.addEventListener("mouseleave", endGestures);
@@ -291,35 +289,6 @@ resetViewButton.addEventListener("click", () => {
   setScale(initScale);
   setPosition(initX, initY);
 });
-
-const animateZoom = () => {
-  if (animatedZoomDelta) {
-    setZoom(zoom + animatedZoomDelta, dragRegionCenterX, dragRegionCenterY);
-    requestAnimationFrame(animateZoom);
-  }
-};
-
-const beginAnimatedZoom = amount => () => {
-  animatedZoomDelta = amount;
-  animateZoom();
-};
-
-const endAnimatedZoom = () => (animatedZoomDelta = null);
-
-zoomInButton.addEventListener("mousedown", beginAnimatedZoom(0.004));
-zoomInButton.addEventListener(
-  "touchstart",
-  preventTouchDefault(beginAnimatedZoom(0.004))
-);
-zoomOutButton.addEventListener("mousedown", beginAnimatedZoom(-0.004));
-zoomOutButton.addEventListener(
-  "touchstart",
-  preventTouchDefault(beginAnimatedZoom(-0.004))
-);
-
-document.body.addEventListener("mouseup", endAnimatedZoom);
-document.body.addEventListener("touchend", endAnimatedZoom);
-document.body.addEventListener("mouseleave", endAnimatedZoom);
 
 const setPanZoomSize = (_width, _height) => {
   width = _width;

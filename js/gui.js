@@ -11,12 +11,13 @@ const colorsByCellState = {
   [CellState.HEAD]: [0xff, 0xff, 0x44, 0xff] /*[0xff, 0x88, 0x00, 0xff],*/
 };
 
-const collectUI = query => Object.fromEntries(
-  Array.from(document.querySelectorAll(query)).map(element => [
-    element.id.replace(/-/g, "_"),
-    element
-  ])
-);
+const collectUI = query =>
+  Object.fromEntries(
+    Array.from(document.querySelectorAll(query)).map(element => [
+      element.id.replace(/-/g, "_"),
+      element
+    ])
+  );
 
 const buttons = collectUI("button");
 const labels = collectUI("label");
@@ -43,7 +44,7 @@ const setFilePath = path => {
 };
 
 const setPaper = data => {
-  const {width, height, cells} = data;
+  const { width, height, cells } = data;
 
   canvases.lower.width = width;
   canvases.lower.height = height;
