@@ -1,5 +1,5 @@
 import { CellState } from "./data.js";
-import { preventTouchDefault } from "./gui-utils.js";
+import { makeSlider } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
 const events = new EventTarget();
@@ -24,6 +24,8 @@ const labels = collectUI("label");
 const rangeInputs = collectUI("input[type=range]");
 const paper = document.querySelector("drag-region paper");
 const canvases = collectUI("canvas");
+
+const speedSlider = makeSlider(buttons.fast, buttons.slow, rangeInputs.speed);
 
 Object.values(labels).forEach(label => {
 	const textSpan = label.querySelector(".wwguitext");

@@ -7,9 +7,28 @@ const wheelDeltaMagnifiers = {
 const preventTouchDefault = func => event => {
 	event.preventDefault();
 	func(event);
+}
+
+const listenForWheel = (target, func) => {
+	target.addEventListener("wheel", event => {
+		const magnifier = (wheelDeltaMagnifiers[event.deltaMode] ?? 0) / 10000;
+		func({
+			target,
+			clientX: event.clientX,
+			clientY: event.clientY,
+			deltaX: event.deltaX * magnifier,
+			deltaY: event.deltaY * magnifier,
+			deltaZ: event.deltaZ * magnifier
+		});
+	});
 };
 
-const makeSlider = (upButton, downButton, rangeInput, speed) => {
+const makeSlider = (
+	decreaseButton,
+	increaseButton,
+	rangeInput,
+	speed = 0.01
+) => {
 	const event = new Event("change");
 	const slider = new EventTarget();
 	const dispatch = () => slider.dispatchEvent(event);
@@ -38,14 +57,11 @@ const makeSlider = (upButton, downButton, rangeInput, speed) => {
 		set: _value => setValue(_value)
 	});
 
-	const onWheel = ({ target, deltaY, deltaMode }) => {
-		const amount = deltaY * -0.0001 * (wheelDeltaMagnifiers[deltaMode] ?? 0);
-		if (setValue(value + amount)) {
+	listenForWheel(rangeInput, ({ deltaY }) => {
+		if (setValue(value - deltaY)) {
 			dispatch();
 		}
-	};
-
-	rangeInput.addEventListener("wheel", onWheel);
+	});
 
 	rangeInput.addEventListener("input", e => {
 		if (setValue(rangeInput.valueAsNumber)) {
@@ -62,23 +78,21 @@ const makeSlider = (upButton, downButton, rangeInput, speed) => {
 		}
 	};
 
-	const beginAnimatedSlider = amount => () => {
+	const beginAnimatedSlider = amount => event => {
+		event.preventDefault();
 		animatedDelta = amount;
 		animateSlider();
 	};
 
-	const endAnimatedSlider = () => (animatedDelta = 0);
+	const endAnimatedSlider = event => {
+		event.preventDefault();
+		animatedDelta = 0;
+	};
 
-	upButton.addEventListener("mousedown", beginAnimatedSlider(speed));
-	upButton.addEventListener(
-		"touchstart",
-		preventTouchDefault(beginAnimatedSlider(speed))
-	);
-	downButton.addEventListener("mousedown", beginAnimatedSlider(-speed));
-	downButton.addEventListener(
-		"touchstart",
-		preventTouchDefault(beginAnimatedSlider(-speed))
-	);
+	decreaseButton.addEventListener("mousedown", beginAnimatedSlider(speed));
+	decreaseButton.addEventListener("touchstart", beginAnimatedSlider(speed));
+	increaseButton.addEventListener("mousedown", beginAnimatedSlider(-speed));
+	increaseButton.addEventListener("touchstart", beginAnimatedSlider(-speed));
 
 	document.body.addEventListener("mouseup", endAnimatedSlider);
 	document.body.addEventListener("touchend", endAnimatedSlider);
@@ -88,4 +102,4 @@ const makeSlider = (upButton, downButton, rangeInput, speed) => {
 	return slider;
 };
 
-export { makeSlider, wheelDeltaMagnifiers, preventTouchDefault };
+export { makeSlider, listenForWheel, preventTouchDefault };

@@ -1,6 +1,6 @@
 import {
 	makeSlider,
-	wheelDeltaMagnifiers,
+	listenForWheel,
 	preventTouchDefault
 } from "./gui-utils.js";
 
@@ -25,7 +25,7 @@ const zoomSlider = makeSlider(
 	document.querySelector("button#zoom-in"),
 	document.querySelector("button#zoom-out"),
 	document.querySelector("input#zoom"),
-	0.004
+	0.005
 );
 
 const setPosition = (newX, newY) => {
@@ -118,11 +118,9 @@ zoomSlider.addEventListener("change", () => {
 });
 
 const onWheel = ({ clientX, clientY, deltaY, deltaMode }) => {
-	const amount = deltaY * -0.0001 * (wheelDeltaMagnifiers[deltaMode] ?? 0);
-	if (!zoomSlider.setValue(zoomSlider.value + amount)) {
+	if (!zoomSlider.setValue(zoomSlider.value - deltaY)) {
 		return;
 	}
-
 	endPan();
 	setZoom(zoomSlider.value, clientX, clientY);
 	if (mouseTouch != null) {
@@ -131,7 +129,7 @@ const onWheel = ({ clientX, clientY, deltaY, deltaMode }) => {
 	}
 };
 
-dragRegion.addEventListener("wheel", onWheel);
+listenForWheel(dragRegion, onWheel);
 
 const distanceBetweenTouches = () =>
 	touch2 == null

@@ -1,5 +1,10 @@
 TODO
 
+Milestone: "This is a work in progress" popup
+	Link to the repo
+	Link to the stream
+	Link to the YouTube channel
+
 Milestone: key mapping
 	stop: `
 	step: period
@@ -17,7 +22,8 @@ Milestone: key mapping
 	zoom_in: + or =
 
 Milestone: basic implementation
-Milestone: overdrive: move impl to worker, run it without limit
+Milestone: move impl to worker
+Milestone: overdrive, run worker without limit
 Milestone: linked list impl
 Milestone: loading
 	Support drag-and-drop
