@@ -1,7 +1,8 @@
 import {
 	makeSlider,
 	listenForWheel,
-	preventTouchDefault
+	preventTouchDefault,
+	mapKeyToMouseEvent
 } from "./gui-utils.js";
 
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
@@ -22,10 +23,12 @@ const paper = document.querySelector("drag-region paper");
 const dragRegion = document.querySelector("drag-region");
 
 const zoomSlider = makeSlider(
-	document.querySelector("button#zoom-in"),
 	document.querySelector("button#zoom-out"),
+	document.querySelector("button#zoom-in"),
 	document.querySelector("input#zoom"),
-	0.005
+	0.005,
+	"Minus",
+	"Equal"
 );
 
 const setPosition = (newX, newY) => {
@@ -187,6 +190,9 @@ const addTouch = touch => {
 };
 
 const removeTouch = touch => {
+	if (touch == null) {
+		return;
+	}
 	const isTouch1 = touch1.identifier === touch.identifier;
 	const isTouch2 = touch2 != null && touch2.identifier === touch.identifier;
 	if (isTouch1 || isTouch2) {
@@ -287,6 +293,8 @@ resetViewButton.addEventListener("click", () => {
 	setScale(initScale);
 	setPosition(initX, initY);
 });
+
+mapKeyToMouseEvent(resetViewButton, "Digit0");
 
 const setPanZoomSize = (_width, _height) => {
 	width = _width;

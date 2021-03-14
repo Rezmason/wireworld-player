@@ -1,13 +1,19 @@
 import { CellState } from "./data.js";
-import { makeSlider } from "./gui-utils.js";
+import { makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
 const initialState = {
-	// TODO
+	playing: false,
+	playingUnderPopup: false,
+	turbo: false,
+	speed: 0,
+	currentPopup: null,
 };
 
+const state = {};
 const events = new EventTarget();
-let state;
+const stateChangedEvent = new Event("statechanged");
+const advanceEvent = new Event("advance");
 
 
 const colorsByCellState = {
@@ -30,8 +36,33 @@ const labels = collectUI("label");
 const rangeInputs = collectUI("input[type=range]");
 const paper = document.querySelector("drag-region paper");
 const canvases = collectUI("canvas");
+const popups = collectUI("popup");
 
-const speedSlider = makeSlider(buttons.fast, buttons.slow, rangeInputs.speed);
+const hidePopup = () => {
+	if (state.currentPopup != null) {
+		state.currentPopup.classList.remove("onscreen");
+		state.currentPopup = null;
+		state.playing = state.playingUnderPopup;
+		state.playingUnderPopup = false;
+		events.dispatchEvent(stateChangedEvent);	
+	}
+};
+
+const showPopup = (popup) => {
+	hidePopup();
+	state.playingUnderPopup = state.playing;
+	state.playing = false;
+	state.currentPopup = popup;
+	popup.classList.add("onscreen");
+	events.dispatchEvent(stateChangedEvent);
+};
+
+const speedSlider = makeSlider(buttons.slow, buttons.fast, rangeInputs.speed, 0.01, "BracketLeft", "BracketRight");
+speedSlider.addEventListener("change", () => {
+	console.log(speedSlider.value);
+	state.speed = speedSlider.value;
+	events.dispatchEvent(stateChangedEvent);
+});
 
 Object.values(labels).forEach(label => {
 	const textSpan = label.querySelector(".wwguitext");
@@ -42,10 +73,50 @@ Object.values(labels).forEach(label => {
 	label.setText("");
 });
 
-Object.entries(buttons).forEach(([id, button]) => {
-	const event = new Event(id);
-	button.addEventListener("click", () => events.dispatchEvent(event));
+const listenToButton = (id, keyMapping, func) => {
+	const button = buttons[id];
+	button.addEventListener("click", func);
+	if (keyMapping != null) {
+		mapKeyToMouseEvent(button, keyMapping);
+	}
+};
+
+listenToButton("stop", "Backquote", () => {
+	showPopup("confirm_reset");
+	// TODO: dispatch change in popup button handlers
 });
+
+listenToButton("play_pause", "Space", () => {
+	state.playing = !state.playing;
+	events.dispatchEvent(stateChangedEvent);
+});
+
+listenToButton("step", "Period", () => {
+	events.dispatchEvent(advanceEvent);
+});
+
+listenToButton("turbo", "KeyT", () => {
+	state.turbo = !state.turbo;
+	buttons.turbo.classList.toggle("checked", state.turbo);
+	events.dispatchEvent(stateChangedEvent);
+});
+
+listenToButton("snapshot", null, () => {
+	// TODO: copy current canvas to a PNG and download it
+});
+
+listenToButton("help", null, () => {
+	showPopup("help");
+});
+
+listenToButton("about", null, () => {
+	showPopup("about");
+});
+
+listenToButton("load", "KeyL", () => {
+	showPopup("load");
+});
+
 
 const setFilePath = path => {
 	labels.file_name.setText(path);
@@ -98,17 +169,21 @@ const setPaper = data => {
 };
 
 const reset = (path) => {
-	state = {...initialState};
+	Object.assign(state, initialState);
 	setFilePath(path.split("/").pop());
 }
 
 const showSplashPopup = () => {
-	// TODO
+	showPopup(popups.splash);
 };
 
 const hideSplashPopup = () => {
-	// TODO	
+	if (state.currentPopup === popups.splash) {
+		hidePopup();
+	}	
 };
+
+reset("");
 
 export default {
 	reset,

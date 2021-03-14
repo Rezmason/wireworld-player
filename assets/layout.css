@@ -77,3 +77,11 @@ wwgroup#tools,
 button#heatmap {
 	display: none;
 }
+
+popup {
+	display: none;
+}
+
+popup.onscreen {
+	display: block;
+}

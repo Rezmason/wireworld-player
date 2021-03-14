@@ -2,6 +2,8 @@ TODO
 
 Milestone: popup system
 	CSS
+		popup-root should be over everything
+			move existing UI to a new node under body
 		display: none class
 	Underlayer that fades
 	The sim pauses anytime there's a popup
@@ -12,22 +14,6 @@ Milestone: popup system
 		Link to the stream
 		Link to the YouTube channel
 
-Milestone: key mapping
-	stop: "Backquote"
-	step: "Period"
-	play_pause: "Space"
-
-	pan: "Arrow(Left, Right, Up, Down)"
-	pan faster: [shift arrow keys]
-
-	slow: "BrackletLeft"
-	fast: "BracketRight"
-	turbo: "KeyT"
-
-	zoom_out: "Minus"
-	reset_view: "Digit0"
-	zoom_in: "Equal"
-
 Milestone: basic implementation
 Milestone: move impl to worker
 Milestone: turbo, run worker without limit
@@ -36,9 +22,17 @@ Milestone: loading
 	Support drag-and-drop
 Milestone: webassembly worker
 
+Milestone: administrative
+	Update about popup
+	Update help popup
+
 Milestone: reformat all examples
 	Move everything to RLE I guess
 	Who can I talk to about this?
+
+Milestone: pan with arrow keys
+	pan: "Arrow(Left, Right, Up, Down)"
+	pan faster: [shift arrow keys]
 
 Milestone: drag-and-drop themes
 	Merveilles themes
@@ -47,7 +41,3 @@ Milestone: drag-and-drop themes
 How about an animated favicon?
 	But only if the sim is running
 	That'd be pretty neat
-
-Milestone: administrative
-	About box
-	Help box

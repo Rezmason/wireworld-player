@@ -37,7 +37,6 @@
 	border-radius: 0.5em;
 	background-color: var(--element-bg);
 	cursor: pointer;
-	/*filter: invert();*/
 }
 
 .wwgui button icon {
@@ -48,7 +47,25 @@
 	background-repeat: no-repeat;
 	background-position: center center;
 	filter: contrast(0) brightness(0.25);
-	/*filter: contrast(0) brightness(2);*/
+}
+
+.wwgui button.checked {
+	filter: contrast(0.75) brightness(3);
+	will-change: transform;
+}
+
+.wwgui button.checked#turbo {
+	animation: fullturn 0.6s linear infinite;
+}
+
+@keyframes fullturn {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (any-hover: hover) {

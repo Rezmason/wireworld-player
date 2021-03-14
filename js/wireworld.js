@@ -5,6 +5,14 @@ import parseFile from "./parse.js";
 const loadedFiles = new Map();
 let data, path;
 
+gui.events.addEventListener("statechanged", () => {
+	// TODO
+});
+
+gui.events.addEventListener("advance", () => {
+	// TODO
+});
+
 const load = async path => {
 	gui.reset(path);
 	if (!loadedFiles.has(path)) {

@@ -23,11 +23,32 @@ const listenForWheel = (target, func) => {
 	});
 };
 
+const mapKeyToMouseEvent = (button, keyCode, upDownEvents = false) => {
+	document.addEventListener("keydown", ({code, repeat, metaKey, ctrlKey}) => {
+		if (repeat || metaKey || ctrlKey) {
+			return;
+		}
+		if (code === keyCode) {
+			button.dispatchEvent(new MouseEvent(upDownEvents ? "mousedown" : "click"));
+		}
+	})
+
+	if (upDownEvents) {
+		document.addEventListener("keyup", ({code}) => {
+			if (code === keyCode) {
+				button.dispatchEvent(new MouseEvent("mouseup"));
+			}
+		})
+	}
+};
+
 const makeSlider = (
 	decreaseButton,
 	increaseButton,
 	rangeInput,
-	speed = 0.01
+	speed = 0.01,
+	decreaseKeyMapping = null,
+	increaseKeyMapping = null
 ) => {
 	const event = new Event("change");
 	const slider = new EventTarget();
@@ -88,17 +109,34 @@ const makeSlider = (
 		animatedDelta = 0;
 	};
 
-	decreaseButton.addEventListener("mousedown", beginAnimatedSlider(speed));
-	decreaseButton.addEventListener("touchstart", beginAnimatedSlider(speed));
-	increaseButton.addEventListener("mousedown", beginAnimatedSlider(-speed));
-	increaseButton.addEventListener("touchstart", beginAnimatedSlider(-speed));
+	if (typeof speed !== "number") {
+		speed = 0.01;
+	}
+
+	decreaseButton.addEventListener("mousedown", beginAnimatedSlider(-speed));
+	decreaseButton.addEventListener("touchstart", beginAnimatedSlider(-speed));
+	decreaseButton.addEventListener("mouseup", endAnimatedSlider);
+	decreaseButton.addEventListener("touchend", endAnimatedSlider);
+
+	increaseButton.addEventListener("mousedown", beginAnimatedSlider(speed));
+	increaseButton.addEventListener("touchstart", beginAnimatedSlider(speed));
+	increaseButton.addEventListener("mouseup", endAnimatedSlider);
+	increaseButton.addEventListener("touchend", endAnimatedSlider);
 
 	document.body.addEventListener("mouseup", endAnimatedSlider);
 	document.body.addEventListener("touchend", endAnimatedSlider);
 	document.body.addEventListener("mouseleave", endAnimatedSlider);
 	window.addEventListener("blur", endAnimatedSlider);
 
+	if (decreaseKeyMapping != null) {
+		mapKeyToMouseEvent(decreaseButton, decreaseKeyMapping, true);
+	}
+
+	if (increaseKeyMapping != null) {
+		mapKeyToMouseEvent(increaseButton, increaseKeyMapping, true);
+	}
+
 	return slider;
 };
 
-export { makeSlider, listenForWheel, preventTouchDefault };
+export { makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };
