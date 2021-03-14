@@ -85,7 +85,6 @@ const makeSlider = (
 	};
 
 	const endAnimatedSlider = event => {
-		event.preventDefault();
 		animatedDelta = 0;
 	};
 
