@@ -25,7 +25,7 @@
 .wwgui button#eraser-tool icon { background-image: url(./symbols/eraser-tool.svg);}
 .wwgui button#slow icon { background-image: url(./symbols/slower.svg);}
 .wwgui button#fast icon { background-image: url(./symbols/faster.svg);}
-.wwgui button#overdrive icon { background-image: url(./symbols/overdrive.svg);}
+.wwgui button#turbo icon { background-image: url(./symbols/turbo.svg);}
 .wwgui button#snapshot icon { background-image: url(./symbols/snapshot.svg);}
 .wwgui button#help icon { background-image: url(./symbols/help.svg);}
 .wwgui button#about icon { background-image: url(./symbols/ww_about.svg);}
