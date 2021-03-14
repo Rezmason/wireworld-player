@@ -2,7 +2,13 @@ import { CellState } from "./data.js";
 import { makeSlider } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
+const initialState = {
+	// TODO
+};
+
 const events = new EventTarget();
+let state;
+
 
 const colorsByCellState = {
 	[CellState.DEAD]: [0x22, 0x44, 0x00, 0xff] /*[0x00, 0x00, 0x00, 0xff],*/,
@@ -91,8 +97,24 @@ const setPaper = data => {
 	setPanZoomSize(width, height);
 };
 
+const reset = (path) => {
+	state = {...initialState};
+	setFilePath(path.split("/").pop());
+}
+
+const showSplashPopup = () => {
+	// TODO
+};
+
+const hideSplashPopup = () => {
+	// TODO	
+};
+
 export default {
-	setFilePath,
+	reset,
 	setPaper,
-	events
+	events,
+	state,
+	showSplashPopup,
+	hideSplashPopup
 };

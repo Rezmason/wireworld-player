@@ -2,51 +2,41 @@ import { defaultLandscapeFilePath, defaultPortraitFilePath } from "./data.js";
 import gui from "./gui.js";
 import parseFile from "./parse.js";
 
-let data;
+const loadedFiles = new Map();
+let data, path;
 
 const load = async path => {
-	gui.setFilePath(path.split("/").pop());
-	const file = await fetch(path);
-	if (!file.ok) {
-		throw new Error(`${file.status}: ${file.statusText}`);
+	gui.reset(path);
+	if (!loadedFiles.has(path)) {
+		const file = await fetch(path);
+		if (!file.ok) {
+			throw new Error(`${file.status}: ${file.statusText}`);
+		}
+		loadedFiles.set(path, await parseFile(await file.text()));
 	}
-	data = await parseFile(await file.text());
-	gui.setPaper(data);
+	return loadedFiles.get(path);
 };
 
-const listen = (name, func) => gui.events.addEventListener(name, func);
+const isPortrait = (
+	screen.orientation?.type ?? "landscape-primary"
+).startsWith("portrait");
 
-listen("stop", _ => _);
-listen("play_pause", _ => _);
-listen("step", _ => _);
-
-listen("overdrive", _ => _);
-
-listen("snapshot", _ => _);
-listen("help", _ => _);
-listen("about", _ => _);
-
-listen("load", _ => _);
+const defaultPath = isPortrait ? defaultPortraitFilePath : defaultLandscapeFilePath;
 
 const init = async () => {
-	// TODO: show splash screen
+	gui.showSplashPopup();
 
-	const isPortrait = (
-		screen.orientation?.type ?? "landscape-primary"
-	).startsWith("portrait");
-	// const path = isPortrait ? defaultPortraitFilePath : defaultLandscapeFilePath;
-
-	// const path = "examples/mcl/owen_moore/computer_by_mark_owen_vertical.mcl";
-	const path = "examples/mcl/owen_moore/computer_by_mark_owen_horizontal.mcl";
-
+	path = defaultPath;
 	try {
-		await load(path);
+		data = await load(path);
+		gui.setPaper(data);
+		gui.hideSplashPopup();
 	} catch (error) {
 		console.log(error);
+		// TODO: show different error messages based on the error.
+		showErrorPopup(`Load failed.`, `Couldn't load "${path.split("/").pop()}".`);
 		return;
 	}
-
-	// TODO: hide splash screen
 };
 
 init();
