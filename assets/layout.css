@@ -13,6 +13,7 @@ body {
 	position: relative;
 	display: flex;
 	flex-direction: column;
+	font-family: sans-serif;
 }
 
 bar {
@@ -78,8 +79,19 @@ button#heatmap {
 	display: none;
 }
 
+popup-root {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	position: absolute;
+	place-items: center;
+	background: transparent;
+}
+
 popup {
 	display: none;
+	background: white;
+	padding: 1em;
 }
 
 popup.onscreen {

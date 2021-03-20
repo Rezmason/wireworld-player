@@ -1,14 +1,9 @@
 TODO
 
 Milestone: popup system
-	CSS
-		popup-root should be over everything
-			move existing UI to a new node under body
-		display: none class
-	Underlayer that fades
 	The sim pauses anytime there's a popup
+	Drag-and-drop
 
-	
 	"This is a work in progress" in splash popup
 		Link to the repo
 		Link to the stream

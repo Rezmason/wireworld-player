@@ -6,8 +6,7 @@ const initialState = {
 	playing: false,
 	playingUnderPopup: false,
 	turbo: false,
-	speed: 0,
-	currentPopup: null,
+	speed: 0
 };
 
 const state = {};
@@ -37,6 +36,7 @@ const rangeInputs = collectUI("input[type=range]");
 const paper = document.querySelector("drag-region paper");
 const canvases = collectUI("canvas");
 const popups = collectUI("popup");
+const popupRoot = document.querySelector("popup-root");
 
 const hidePopup = () => {
 	if (state.currentPopup != null) {
@@ -44,7 +44,8 @@ const hidePopup = () => {
 		state.currentPopup = null;
 		state.playing = state.playingUnderPopup;
 		state.playingUnderPopup = false;
-		events.dispatchEvent(stateChangedEvent);	
+		popupRoot.classList.remove("onscreen");
+		events.dispatchEvent(stateChangedEvent);
 	}
 };
 
@@ -53,6 +54,7 @@ const showPopup = (popup) => {
 	state.playingUnderPopup = state.playing;
 	state.playing = false;
 	state.currentPopup = popup;
+	popupRoot.classList.add("onscreen");
 	popup.classList.add("onscreen");
 	events.dispatchEvent(stateChangedEvent);
 };
@@ -180,7 +182,7 @@ const showSplashPopup = () => {
 const hideSplashPopup = () => {
 	if (state.currentPopup === popups.splash) {
 		hidePopup();
-	}	
+	}
 };
 
 reset("");

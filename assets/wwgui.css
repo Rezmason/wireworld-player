@@ -6,6 +6,9 @@
 	--element-bg-active: #666;
 	--element-fg: #222;
 	--element-focus: #fff;
+	--behind-popups: #2228;
+	--popup-bg: #fff;
+	--popup-fg: #222;
 
 	/* basics */
 	background: var(--bg);
@@ -59,13 +62,13 @@
 }
 
 @keyframes fullturn {
-  from {
-    transform: rotate(0deg);
-  }
+	from {
+		transform: rotate(0deg);
+	}
 
-  to {
-    transform: rotate(360deg);
-  }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @media (any-hover: hover) {
@@ -241,4 +244,66 @@
 
 .wwdragregion:active {
 	cursor: grabbing;
+}
+
+/* popups */
+
+.wwgui popup-root.onscreen {
+	background: var(--behind-popups);
+}
+
+.wwgui popup {
+	font-family: sans-serif;
+	font-size: 1rem;
+	font-weight: initial;
+	background: var(--popup-bg);
+	color: var(--popup-fg);
+	padding: 2em;
+	border-radius: 1em;
+}
+
+.wwgui popup a {
+	font-weight: bold;
+	color: unset;
+}
+
+.wwgui popup .title {
+	font-size: 3em;
+}
+
+.wwgui popup > loading-bar {
+	margin: 0 -2em;
+	height: 2em;
+	--loading-bar-1: black;
+	--loading-bar-2: white;
+	--loading-bar-speed: 8;
+	--loading-bar-size: 4em;
+}
+
+.wwgui loading-bar {
+	display: block;
+	background: linear-gradient(
+		45deg,
+		var(--loading-bar-1) 25%,
+		var(--loading-bar-2) 25%,
+		var(--loading-bar-2) 50%,
+		var(--loading-bar-1) 50%,
+		var(--loading-bar-1) 75%,
+		var(--loading-bar-2) 75%
+	);
+	background-size: var(--loading-bar-size) var(--loading-bar-size);
+	background-position: 0;
+}
+
+.wwgui loading-bar {
+	animation: shift-right calc(1s / var(--loading-bar-speed)) infinite linear;
+}
+
+@keyframes shift-right {
+	from {
+		background-position: 0;
+	}
+	to {
+		background-position: var(--loading-bar-size);
+	}
 }

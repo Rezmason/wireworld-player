@@ -1,6 +1,11 @@
 import { defaultLandscapeFilePath, defaultPortraitFilePath } from "./data.js";
+import { delay } from "./utils.js";
 import gui from "./gui.js";
 import parseFile from "./parse.js";
+
+const params = new URL(document.location).searchParams;
+
+const suppressSplash = params.has("nosplash");
 
 const loadedFiles = new Map();
 let data, path;
@@ -25,20 +30,27 @@ const load = async path => {
 	return loadedFiles.get(path);
 };
 
-const isPortrait = (
-	screen.orientation?.type ?? "landscape-primary"
-).startsWith("portrait");
+const isPortrait = (screen.orientation?.type ?? "landscape-primary").startsWith(
+	"portrait"
+);
 
-const defaultPath = isPortrait ? defaultPortraitFilePath : defaultLandscapeFilePath;
+const defaultPath = isPortrait
+	? defaultPortraitFilePath
+	: defaultLandscapeFilePath;
 
 const init = async () => {
-	gui.showSplashPopup();
+	if (!suppressSplash) {
+		gui.showSplashPopup();
+	}
 
 	path = defaultPath;
 	try {
 		data = await load(path);
 		gui.setPaper(data);
-		gui.hideSplashPopup();
+		if (!suppressSplash) {
+			await delay(2);
+			gui.hideSplashPopup();
+		}
 	} catch (error) {
 		console.log(error);
 		// TODO: show different error messages based on the error.
