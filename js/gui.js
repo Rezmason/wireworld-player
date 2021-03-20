@@ -14,7 +14,6 @@ const events = new EventTarget();
 const stateChangedEvent = new Event("statechanged");
 const advanceEvent = new Event("advance");
 
-
 const colorsByCellState = {
 	[CellState.DEAD]: [0x22, 0x44, 0x00, 0xff] /*[0x00, 0x00, 0x00, 0xff],*/,
 	[CellState.WIRE]: [0x44, 0x88, 0x22, 0xff] /*[0x50, 0x50, 0x50, 0xff],*/,
@@ -49,7 +48,7 @@ const hidePopup = () => {
 	}
 };
 
-const showPopup = (popup) => {
+const showPopup = popup => {
 	hidePopup();
 	state.playingUnderPopup = state.playing;
 	state.playing = false;
@@ -59,7 +58,14 @@ const showPopup = (popup) => {
 	events.dispatchEvent(stateChangedEvent);
 };
 
-const speedSlider = makeSlider(buttons.slow, buttons.fast, rangeInputs.speed, 0.01, "BracketLeft", "BracketRight");
+const speedSlider = makeSlider(
+	buttons.slow,
+	buttons.fast,
+	rangeInputs.speed,
+	0.01,
+	"BracketLeft",
+	"BracketRight"
+);
 speedSlider.addEventListener("change", () => {
 	console.log(speedSlider.value);
 	state.speed = speedSlider.value;
@@ -119,7 +125,6 @@ listenToButton("load", "KeyL", () => {
 	showPopup("load");
 });
 
-
 const setFilePath = path => {
 	labels.file_name.setText(path);
 };
@@ -170,10 +175,10 @@ const setPaper = data => {
 	setPanZoomSize(width, height);
 };
 
-const reset = (path) => {
+const reset = path => {
 	Object.assign(state, initialState);
 	setFilePath(path.split("/").pop());
-}
+};
 
 const showSplashPopup = () => {
 	showPopup(popups.splash);

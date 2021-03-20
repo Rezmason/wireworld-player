@@ -7,7 +7,7 @@ const wheelDeltaMagnifiers = {
 const preventTouchDefault = func => event => {
 	event.preventDefault();
 	func(event);
-}
+};
 
 const listenForWheel = (target, func) => {
 	target.addEventListener("wheel", event => {
@@ -24,21 +24,23 @@ const listenForWheel = (target, func) => {
 };
 
 const mapKeyToMouseEvent = (button, keyCode, upDownEvents = false) => {
-	document.addEventListener("keydown", ({code, repeat, metaKey, ctrlKey}) => {
+	document.addEventListener("keydown", ({ code, repeat, metaKey, ctrlKey }) => {
 		if (repeat || metaKey || ctrlKey) {
 			return;
 		}
 		if (code === keyCode) {
-			button.dispatchEvent(new MouseEvent(upDownEvents ? "mousedown" : "click"));
+			button.dispatchEvent(
+				new MouseEvent(upDownEvents ? "mousedown" : "click")
+			);
 		}
-	})
+	});
 
 	if (upDownEvents) {
-		document.addEventListener("keyup", ({code}) => {
+		document.addEventListener("keyup", ({ code }) => {
 			if (code === keyCode) {
 				button.dispatchEvent(new MouseEvent("mouseup"));
 			}
-		})
+		});
 	}
 };
 
