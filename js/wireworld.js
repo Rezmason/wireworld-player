@@ -40,16 +40,17 @@ const defaultPath = isPortrait
 
 const init = async () => {
 	if (!suppressSplash) {
-		gui.showSplashPopup();
+		gui.showAboutPopup(true);
 	}
 
 	path = defaultPath;
 	try {
+		const splashPromise = delay(2);
 		data = await load(path);
 		gui.setPaper(data);
 		if (!suppressSplash) {
-			await delay(2);
-			gui.hideSplashPopup();
+			await splashPromise;
+			gui.hideAboutPopup();
 		}
 	} catch (error) {
 		console.log(error);

@@ -2,6 +2,12 @@ import { CellState } from "./data.js";
 import { makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
+const params = new URL(document.location).searchParams;
+const a11y = params.has("a11y") || params.has("accessibility");
+if (a11y) {
+	document.body.classList.remove("wwgui");
+}
+
 const initialState = {
 	playing: false,
 	playingUnderPopup: false,
@@ -58,6 +64,12 @@ const showPopup = popup => {
 	events.dispatchEvent(stateChangedEvent);
 };
 
+popupRoot.addEventListener("click", ({target}) => {
+	if (!state.splash && target === popupRoot) {
+		hidePopup();
+	}
+});
+
 const speedSlider = makeSlider(
 	buttons.slow,
 	buttons.fast,
@@ -90,7 +102,7 @@ const listenToButton = (id, keyMapping, func) => {
 };
 
 listenToButton("stop", "Backquote", () => {
-	showPopup("confirm_reset");
+	showPopup(popups.confirm_reset);
 	// TODO: dispatch change in popup button handlers
 });
 
@@ -114,15 +126,15 @@ listenToButton("snapshot", null, () => {
 });
 
 listenToButton("help", null, () => {
-	showPopup("help");
+	showPopup(popups.help);
 });
 
 listenToButton("about", null, () => {
-	showPopup("about");
+	showPopup(popups.about);
 });
 
 listenToButton("load", "KeyL", () => {
-	showPopup("load");
+	showPopup(popups.load);
 });
 
 const setFilePath = path => {
@@ -180,12 +192,16 @@ const reset = path => {
 	setFilePath(path.split("/").pop());
 };
 
-const showSplashPopup = () => {
-	showPopup(popups.splash);
+const showAboutPopup = initial => {
+	state.splash = initial;
+	popups.about.classList.toggle("splash", initial);
+	showPopup(popups.about);
 };
 
-const hideSplashPopup = () => {
-	if (state.currentPopup === popups.splash) {
+const hideAboutPopup = () => {
+	state.splash = false;
+	popups.about.classList.toggle("splash", false);
+	if (state.currentPopup === popups.about) {
 		hidePopup();
 	}
 };
@@ -197,6 +213,6 @@ export default {
 	setPaper,
 	events,
 	state,
-	showSplashPopup,
-	hideSplashPopup
+	showAboutPopup,
+	hideAboutPopup
 };

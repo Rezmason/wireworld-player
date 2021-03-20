@@ -271,12 +271,16 @@
 	font-size: 3em;
 }
 
+.wwgui popup .subtitle {
+	font-size: 1.25em;
+}
+
 .wwgui popup > loading-bar {
 	margin: 0 -2em;
 	height: 2em;
 	--loading-bar-1: black;
 	--loading-bar-2: white;
-	--loading-bar-speed: 8;
+	--loading-bar-speed: 5;
 	--loading-bar-size: 4em;
 }
 
@@ -306,4 +310,24 @@
 	to {
 		background-position: var(--loading-bar-size);
 	}
+}
+
+.wwgui .code.dead {
+	color: gray;
+}
+
+.wwgui .code.wire {
+	color: goldenrod;
+}
+
+.wwgui .code.tail {
+	color: skyblue;
+}
+
+.wwgui .code.head {
+	color: deepskyblue;
+}
+
+.wwgui ul {
+	list-style-type: square;
 }

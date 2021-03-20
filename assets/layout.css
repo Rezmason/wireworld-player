@@ -79,21 +79,47 @@ button#heatmap {
 	display: none;
 }
 
+input#zoom {
+	width: 10em;
+}
+
 popup-root {
 	width: 100%;
 	height: 100%;
-	display: grid;
 	position: absolute;
 	place-items: center;
 	background: transparent;
+	display: none;
+}
+
+popup-root.onscreen {
+	display: grid;
 }
 
 popup {
 	display: none;
 	background: white;
 	padding: 1em;
+	max-width: 40vw;
+	max-height: 40vh;
+	overflow: hidden;
 }
 
 popup.onscreen {
-	display: block;
+	display: flex;
+	flex-direction: column;
+}
+
+popup .content {
+	overflow-y: auto;
+	margin: 1em 0;
+	padding-right: 2em;
+}
+
+.code {
+	font-family: monospace;
+}
+
+popup#about:not(.splash) loading-bar, popup#about.splash .wip {
+	display: none;
 }

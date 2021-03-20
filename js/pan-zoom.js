@@ -6,8 +6,8 @@ import {
 } from "./gui-utils.js";
 
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
-const minScale = 2 ** (4 * 0),
-	maxScale = 2 ** (4 * 1);
+const maxPower = 6, minScale = 2 ** (maxPower * 0),
+	maxScale = 2 ** (maxPower * 1);
 let initScale, initX, initY, x, y, scale, width, height, cells;
 let panning,
 	panStartX,
@@ -47,7 +47,7 @@ const setScale = newScale => {
 		return;
 	}
 	scale = newScale;
-	zoomSlider.value = Math.log2(scale) / 4;
+	zoomSlider.value = Math.log2(scale) / maxPower;
 	paper.style.width = `${width * scale}px`;
 	paper.style.height = `${height * scale}px`;
 };
@@ -82,7 +82,7 @@ const setZoom = (newZoom, clientX, clientY) =>
 		scale,
 		clientX,
 		clientY,
-		2 ** (newZoom * 4)
+		2 ** (newZoom * maxPower)
 	);
 
 const recomputeInitialLayout = () => {

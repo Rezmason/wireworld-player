@@ -1,38 +1,38 @@
 TODO
 
-Milestone: popup system
-	The sim pauses anytime there's a popup
-	Drag-and-drop
+Milestone: popups
+	flexbox button bar on the bottom, for the buttons
+	button styles in wwgui
 
-	"This is a work in progress" in splash popup
-		Link to the repo
-		Link to the stream
-		Link to the YouTube channel
+	Drag-and-drop popup
+	Load popup
+		from disk
+		from URL
+	Load error popup
 
-Milestone: basic implementation
-Milestone: move impl to worker
-Milestone: turbo, run worker without limit
-Milestone: linked list impl
-Milestone: loading
-	Support drag-and-drop
-Milestone: webassembly worker
+Milestone: create model thing
 
-Milestone: administrative
-	Update about popup
-	Update help popup
+STREAM Milestone: basic implementation
+STREAM Milestone: move impl to worker
+STREAM Milestone: turbo, run worker without limit
+STREAM Milestone: linked list impl
+STREAM Milestone: webassembly worker
 
-Milestone: reformat all examples
-	Move everything to RLE I guess
-	Who can I talk to about this?
+Milestone: meta tag, OG
+
+Milestone: tab indexing
+	Limit tab indexing and key mappings to open popup, if one is onscreen
 
 Milestone: pan with arrow keys
 	pan: "Arrow(Left, Right, Up, Down)"
 	pan faster: [shift arrow keys]
 
+Milestone: reformat all examples
+	Move everything to RLE I guess
+	Who can I talk to about this?
+
 Milestone: drag-and-drop themes
 	Merveilles themes
 	Old Wireworld themes
 
-How about an animated favicon?
-	But only if the sim is running
-	That'd be pretty neat
+Milestone: switch favicon to indicate sim is running

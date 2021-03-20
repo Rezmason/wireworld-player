@@ -11,12 +11,6 @@
 		<link rel="stylesheet" type="text/css" href="assets/layout.css" />
 		<link rel="stylesheet" type="text/css" href="assets/wwgui.css" />
 		<link rel="stylesheet" type="text/css" href="assets/wwicons.css" />
-		<script type="module">
-			const params = new URL(document.location).searchParams;
-			if (params.has("a11y") || params.has("accessibility")) {
-				document.body.classList.remove("wwgui");
-			}
-		</script>
 		<script type="module" src="js/wireworld.js"></script>
 	</head>
 	<body class="wwgui">
@@ -131,24 +125,114 @@
 			</bar-group>
 		</bar>
 		<popup-root>
-			<popup id="splash">
+			<popup id="about">
 				<span class="title">Wireworld player</span><br>
-				<p>Wireworld concept by <a href="http://www.playfulinvention.com/emergence" target="_blank" rel="noopener noreferrer">Brian Silverman</a></p>
-				<br>
-				<p><strong style="color: red;">Note: This project currently has no implementation.</strong></p>
-				<p>
-					wireworld computer by<br>
-					David Moore and Mark Owen<br>
-					© 2004-2021 all rights reserved.<br>
-					<a href="http://www.quinapalus.com/wi-index.html" target="_blank" rel="noopener noreferrer">http://www.quinapalus.com/wi-index.html</a>
-				</p>
+				<div class="content">
+					<p>Wireworld concept by <a href="http://www.playfulinvention.com/emergence" target="_blank" rel="noopener noreferrer">Brian Silverman</a></p>
+					<br>
+					<p>
+						<strong style="color: red;">Note: This project currently has no implementation.</strong>
+						<p class="wip">
+							Say, if you like watching people code things,<br>
+							why not <a href="https://www.twitch.tv/rezmason" rel="noopener noreferrer">watch me code this live</a>, or <a href="http://youtube.com/user/rezmason" rel="noopener noreferrer">catch a rerun?</a>
+						</p>
+					</p>
+					<p>
+						wireworld computer by<br>
+						David Moore and Mark Owen<br>
+						© 2004-2021 all rights reserved.<br>
+						<a href="http://www.quinapalus.com/wi-index.html" target="_blank" rel="noopener noreferrer">http://www.quinapalus.com/wi-index.html</a>
+					</p>
+				</div>
 				<loading-bar></loading-bar>
 			</popup>
 			<popup id="error"></popup>
 			<popup id="confirm-reset"></popup>
 			<popup id="load"></popup>
-			<popup id="about"></popup>
-			<popup id="help"></popup>
+			<popup id="help">
+				<span class="title">Wireworld Player Help</span>
+				<div class="content">
+					<p>
+						<p class="subtitle"><em>What is this thing?</em></p>
+						<p>
+							Wireworld is a type of <a href="http://en.wikipedia.org/wiki/Cellular_automata" target="_blank" rel="noopener noreferrer">cellular automaton</a>, or "CA".
+							A CA is a set of rules you apply repeatedly to a grid of cells to evolve their states; these rules apply universally to each cell in the grid,
+							depending on that cell's current state and the state of its neighbors. Complex behaviors often emerge from these simple systems.
+						</p>
+						<p>
+							Most of the explored CAs have a reputation for being interesting, or relating to real-life phenomena. One of the most interesting properties a CA can have
+							is "<a href="http://en.wikipedia.org/wiki/Turing-complete" target="_blank" rel="noopener noreferrer">Turing completeness</a>". Turing-complete CAs
+							can be configured to compute anything a conventional computer can. Proving Turing completeness in a simple system lends credence to the view that simple
+							mechanics may underlie all the universe's observed complexity. But these proofs aren't always straightforward.
+						</p>
+						<p>
+							Wireworld is a CA developed by <a href="https://www.playfulinvention.com/emergence" target="_blank" rel="noopener noreferrer">Brian Silverman</a>, and debuted
+							in his 1987 program for the Apple II, <span style="text-transform: uppercase;">The Phantom Fish Tank</span>.
+							Its rules are designed to imitate circuitry, bridge the domains of CA research and circuit design, and simplify the creation and discovery of systems of computation.
+							Proving that Wireworld is Turing-complete, while still difficult, is much simpler than proving many of its CA counterparts.
+							<a href="http://quinapalus.com/wi-index.html" target="_blank" rel="noopener noreferrer">David Moore and Mark Owen</a>
+							demonstrate Wireworld's Turing-completeness with their programmable computer, built from functional modules that imitate their real-world counterparts.
+						</p>
+					</p>
+
+					<p>
+						<p class="subtitle"><em>What is Wireworld's rule set?</em></p>
+						<p>
+							Wireworld cells can have one of four states. We call them <span class="code dead">DEAD</span>, <span class="code wire">WIRE</span>, <span class="code head">HEAD</span> and <span class="code tail">TAIL</span>.
+						</p>
+						<ul>
+							<li><span class="code dead">DEAD</span> cells forever remain <span class="code dead">DEAD</span> cells.</li>
+							<li><span class="code tail">TAIL</span> cells always become <span class="code wire">WIRE</span> cells.</li>
+							<li><span class="code head">HEAD</span> cells always become <span class="code tail">TAIL</span> cells.</li>
+							<li>
+								<span class="code wire">WIRE</span> cells touching one or two <span class="code head">HEAD</span> cells become <span class="code head">HEAD</span> cells.
+								A cell like this is said to be "excited". Otherwise they stay <span class="code wire">WIRE</span> cells.
+							</li>
+						</ul>
+						<p>
+							Each simple rule serves an important role. The eternally <span class="code dead">DEAD</span> cells typically enclose the others,
+							which prevents the simulation from growing in size; <span class="code head">HEAD</span>s becoming <span class="code tail">TAIL</span>s guarantees
+							that a cell is only briefly excited, and <span class="code tail">TAIL</span>s becoming <span class="code wire">WIRE</span>s ensures that information
+							spreads only in one direction. Finally, the conditions when <span class="code wire">WIRE</span>s become <span class="code head">HEAD</span>s
+							are easy enough to induce that information can be generated and broadcast through the CA quickly and in large amounts. All these help CA researchers
+							design orderly, comprehensible CA configurations.
+						</p>
+						<p>
+							Wireworld's excitation rule is not unique among CAs, but it is nonetheless crucial to the way Wireworld works.
+							It allows information to spread cheaply and quickly, but also controls the flow of information– whether it continues to spread
+							or whether it stops. There are many examples of simple Wireworld components that control information in useful ways;
+							the Owen Moore computer makes use of several of these.
+						</p>
+					</p>
+					<p class="subtitle"><em>How do I make a Wireworld instance?</em></p>
+					<p>
+						What, seriously? Wow. Good for you.
+					</p>
+					<p>
+						The Wireworld Player supports two file types: .MCL, a common CA format which isn't very amateur-friendly, and .TXT, which you can modify
+						in any text editor. <a href="examples/txt/test/simple.txt" target="_blank" rel="noopener noreferrer">Click here</a> to see
+						an example of a TXT file that the player supports.
+					</p>
+					<p>
+						A built-in Wireworld editor might be added to the player in the future.
+					</p>
+
+					<p class="subtitle"><em>Why did you build this?</em></p>
+					<p>
+						CAs make great test subjects for code optimization strategies, and Wireworld is a CA that is fairly simple to put together—
+						most of its cells never change, and the size of the grid never grows or shrinks.
+					</p>
+					<p>
+						I use the Wireworld Player as an ongoing test of performance optimization strategies,
+						as a demonstration of the web's potential as a high-performance creative and experimental platform,
+						and as my playground for layout, styling, and accessibility solutions.
+						Its source code is <a href="https://github.com/Rezmason/wireworld-player" target="_blank" rel="noopener noreferrer">available here</a>.
+					</p>
+					<p>
+						If you have any questions, <a href="https://rezmason.net/contact.html">contact me and I'll get back to you</a>.
+					</p>
+				</div>
+			</popup>
 		</popup-root>
 	</body>
 </html>
