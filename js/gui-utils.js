@@ -29,9 +29,7 @@ const mapKeyToMouseEvent = (button, keyCode, upDownEvents = false) => {
 			return;
 		}
 		if (code === keyCode) {
-			button.dispatchEvent(
-				new MouseEvent(upDownEvents ? "mousedown" : "click")
-			);
+			button.dispatchEvent(new MouseEvent(upDownEvents ? "mousedown" : "click"));
 		}
 	});
 
@@ -44,14 +42,7 @@ const mapKeyToMouseEvent = (button, keyCode, upDownEvents = false) => {
 	}
 };
 
-const makeSlider = (
-	decreaseButton,
-	increaseButton,
-	rangeInput,
-	speed = 0.01,
-	decreaseKeyMapping = null,
-	increaseKeyMapping = null
-) => {
+const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, decreaseKeyMapping = null, increaseKeyMapping = null) => {
 	const event = new Event("change");
 	const slider = new EventTarget();
 	const dispatch = () => slider.dispatchEvent(event);

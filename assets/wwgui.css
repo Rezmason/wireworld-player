@@ -6,9 +6,14 @@
 	--element-bg-active: #666;
 	--element-fg: #222;
 	--element-focus: #fff;
-	--behind-popups: #2228;
+
 	--popup-bg: #fff;
 	--popup-fg: #222;
+	--popup-element-bg: #222;
+	--popup-element-fg: #fff;
+	--popup-element-bg-hover: #666;
+
+	--behind-popups: #2228;
 
 	/* basics */
 	background: var(--bg);
@@ -234,11 +239,38 @@
 	width: 1.2em;
 }
 
+/* loading bar */
+
+.wwgui loading-bar {
+	display: block;
+	background: linear-gradient(
+		45deg,
+		var(--loading-bar-1) 25%,
+		var(--loading-bar-2) 25%,
+		var(--loading-bar-2) 50%,
+		var(--loading-bar-1) 50%,
+		var(--loading-bar-1) 75%,
+		var(--loading-bar-2) 75%
+	);
+	background-size: var(--loading-bar-size) var(--loading-bar-size);
+	background-position: 0;
+
+	animation: shift-right calc(1s / var(--loading-bar-speed)) infinite linear;
+}
+
+@keyframes shift-right {
+	from {
+		background-position: 0;
+	}
+	to {
+		background-position: var(--loading-bar-size);
+	}
+}
+
 /* drag region */
 
 .wwdragregion {
-	background: repeating-conic-gradient(#555 0% 25%, #333 0% 50%) 0 0 / 0.75rem
-		0.75rem;
+	background: repeating-conic-gradient(#555 0% 25%, #333 0% 50%) 0 0 / 0.75rem 0.75rem;
 	cursor: grab;
 }
 
@@ -284,33 +316,47 @@
 	--loading-bar-size: 4em;
 }
 
-.wwgui loading-bar {
-	display: block;
-	background: linear-gradient(
-		45deg,
-		var(--loading-bar-1) 25%,
-		var(--loading-bar-2) 25%,
-		var(--loading-bar-2) 50%,
-		var(--loading-bar-1) 50%,
-		var(--loading-bar-1) 75%,
-		var(--loading-bar-2) 75%
-	);
-	background-size: var(--loading-bar-size) var(--loading-bar-size);
-	background-position: 0;
+.wwgui popup bar button {
+	text-align: center;
+	background-color: var(--popup-element-bg);
+	color: var(--popup-element-fg);
+	font-weight: bold;
+	height: 1.5em;
+	width: unset;
+	border-radius: 2em;
+	padding: 0 2em;
 }
 
-.wwgui loading-bar {
-	animation: shift-right calc(1s / var(--loading-bar-speed)) infinite linear;
+@media (any-hover: hover) {
+	.wwgui popup bar button:hover {
+		background-color: var(--popup-element-bg-hover);
+	}
+
+	.wwgui popup bar button:active {
+		background-color: var(--popup-element-bg-hover);
+	}
 }
 
-@keyframes shift-right {
-	from {
-		background-position: 0;
-	}
-	to {
-		background-position: var(--loading-bar-size);
-	}
+.wwgui popup bar button:focus {
+	box-shadow: inset 0 0 0 0.125em var(--popup-element-bg);
+	background: var(--popup-element-fg);
+	color: var(--popup-element-bg);
+	outline: 0;
 }
+
+.wwgui popup bar button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: 0;
+}
+
+.wwgui popup bar button:focus-visible {
+	box-shadow: inset 0 0 0 0.125em var(--popup-element-bg);
+	background: var(--popup-element-fg);
+	color: var(--popup-element-bg);
+	outline: 0;
+}
+
+/* misc */
 
 .wwgui .code.dead {
 	color: gray;
@@ -321,7 +367,7 @@
 }
 
 .wwgui .code.tail {
-	color: skyblue;
+	color: cornflowerblue;
 }
 
 .wwgui .code.head {

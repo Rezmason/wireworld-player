@@ -1,16 +1,13 @@
 TODO
 
 Milestone: popups
-	flexbox button bar on the bottom, for the buttons
-	button styles in wwgui
-
 	Drag-and-drop popup
-	Load popup
-		from disk
-		from URL
-	Load error popup
 
 Milestone: create model thing
+
+STREAM Milestone: reformat all examples
+	Move everything to RLE I guess
+	Who can I talk to about this?
 
 STREAM Milestone: basic implementation
 STREAM Milestone: move impl to worker
@@ -26,10 +23,6 @@ Milestone: tab indexing
 Milestone: pan with arrow keys
 	pan: "Arrow(Left, Right, Up, Down)"
 	pan faster: [shift arrow keys]
-
-Milestone: reformat all examples
-	Move everything to RLE I guess
-	Who can I talk to about this?
 
 Milestone: drag-and-drop themes
 	Merveilles themes

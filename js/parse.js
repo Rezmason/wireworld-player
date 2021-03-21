@@ -17,15 +17,13 @@ const mclCharsToStates = {
 };
 
 const parseTXT = file => {
-	const data = file.match(/^(\d+) +(\d+)\s*(.*)/ms);
+	const data = file.match(/^(\d+) +(\d+)\s*/);
 
 	if (data == null) {
 		return null;
 	}
 
-	const cells = data[3]
-		.split("\n")
-		.map(line => [...line].map(c => txtCharsToStates[c] ?? CellState.DEAD));
+	const cells = file.split("\n").map(line => [...line].map(c => txtCharsToStates[c] ?? CellState.DEAD));
 
 	return {
 		width: parseInt(data[1]),
@@ -45,11 +43,7 @@ const parseMCL = file => {
 		.replace(/(#L |\$$|\r)/g, "")
 		.split("\n")
 		.filter(line => line.length > 0)
-		.map(line =>
-			line
-				.match(/([0-9]+)?([^\d])/g)
-				.map(c => "".padStart(c.length == 1 ? 1 : parseInt(c), c[c.length - 1]))
-		)
+		.map(line => line.match(/([0-9]+)?([^\d])/g).map(c => "".padStart(c.length == 1 ? 1 : parseInt(c), c[c.length - 1])))
 		.flat()
 		.join("")
 		.split("$")

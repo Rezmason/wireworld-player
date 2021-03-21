@@ -17,19 +17,51 @@
 	background-position: right;
 }
 
-.wwgui button#stop icon { background-image: url(./symbols/stop.svg);}
-.wwgui button#play-pause icon { background-image: url(./symbols/play-pause.svg);}
-.wwgui button#step icon { background-image: url(./symbols/step.svg);}
-.wwgui button#heatmap icon { background-image: url(./symbols/heatmap.svg);}
-.wwgui button#hand-tool icon { background-image: url(./symbols/hand-tool.svg);}
-.wwgui button#eraser-tool icon { background-image: url(./symbols/eraser-tool.svg);}
-.wwgui button#slow icon { background-image: url(./symbols/slower.svg);}
-.wwgui button#fast icon { background-image: url(./symbols/faster.svg);}
-.wwgui button#turbo icon { background-image: url(./symbols/turbo.svg);}
-.wwgui button#snapshot icon { background-image: url(./symbols/snapshot.svg);}
-.wwgui button#help icon { background-image: url(./symbols/help.svg);}
-.wwgui button#about icon { background-image: url(./symbols/ww_about.svg);}
-.wwgui button#zoom-out icon { background-image: url(./symbols/zoom-out.svg);}
-.wwgui button#reset-view icon { background-image: url(./symbols/reset-view.svg);}
-.wwgui button#zoom-in icon { background-image: url(./symbols/zoom-in.svg);}
-.wwgui button#load icon { background-image: url(./symbols/file.svg);}
+.wwgui button#stop icon {
+	background-image: url(./symbols/stop.svg);
+}
+.wwgui button#play-pause icon {
+	background-image: url(./symbols/play-pause.svg);
+}
+.wwgui button#step icon {
+	background-image: url(./symbols/step.svg);
+}
+.wwgui button#heatmap icon {
+	background-image: url(./symbols/heatmap.svg);
+}
+.wwgui button#hand-tool icon {
+	background-image: url(./symbols/hand-tool.svg);
+}
+.wwgui button#eraser-tool icon {
+	background-image: url(./symbols/eraser-tool.svg);
+}
+.wwgui button#slow icon {
+	background-image: url(./symbols/slower.svg);
+}
+.wwgui button#fast icon {
+	background-image: url(./symbols/faster.svg);
+}
+.wwgui button#turbo icon {
+	background-image: url(./symbols/turbo.svg);
+}
+.wwgui button#snapshot icon {
+	background-image: url(./symbols/snapshot.svg);
+}
+.wwgui button#help icon {
+	background-image: url(./symbols/help.svg);
+}
+.wwgui button#about icon {
+	background-image: url(./symbols/ww_about.svg);
+}
+.wwgui button#zoom-out icon {
+	background-image: url(./symbols/zoom-out.svg);
+}
+.wwgui button#reset-view icon {
+	background-image: url(./symbols/reset-view.svg);
+}
+.wwgui button#zoom-in icon {
+	background-image: url(./symbols/zoom-in.svg);
+}
+.wwgui button#load icon {
+	background-image: url(./symbols/file.svg);
+}

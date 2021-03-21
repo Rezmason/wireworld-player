@@ -1,20 +1,11 @@
-import {
-	makeSlider,
-	listenForWheel,
-	preventTouchDefault,
-	mapKeyToMouseEvent
-} from "./gui-utils.js";
+import { makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent } from "./gui-utils.js";
 
 let dragRegionBounds, dragRegionCenterX, dragRegionCenterY;
-const maxPower = 6, minScale = 2 ** (maxPower * 0),
+const maxPower = 6,
+	minScale = 2 ** (maxPower * 0),
 	maxScale = 2 ** (maxPower * 1);
 let initScale, initX, initY, x, y, scale, width, height, cells;
-let panning,
-	panStartX,
-	panStartY,
-	panStartScale,
-	panStartTouchAverage,
-	panStartTouchDistance;
+let panning, panStartX, panStartY, panStartScale, panStartTouchAverage, panStartTouchDistance;
 let touch1, touch2, mouseTouch;
 let paperTransform;
 
@@ -52,38 +43,15 @@ const setScale = newScale => {
 	paper.style.height = `${height * scale}px`;
 };
 
-const transform = (
-	startX,
-	startY,
-	srcX,
-	srcY,
-	srcScale,
-	dstX,
-	dstY,
-	dstScale
-) => {
+const transform = (startX, startY, srcX, srcY, srcScale, dstX, dstY, dstScale) => {
 	setScale(dstScale);
 	setPosition(
-		dstX -
-			dragRegionBounds.x +
-			(startX - (srcX - dragRegionBounds.x)) * (scale / srcScale),
-		dstY -
-			dragRegionBounds.y +
-			(startY - (srcY - dragRegionBounds.y)) * (scale / srcScale)
+		dstX - dragRegionBounds.x + (startX - (srcX - dragRegionBounds.x)) * (scale / srcScale),
+		dstY - dragRegionBounds.y + (startY - (srcY - dragRegionBounds.y)) * (scale / srcScale)
 	);
 };
 
-const setZoom = (newZoom, clientX, clientY) =>
-	transform(
-		x,
-		y,
-		clientX,
-		clientY,
-		scale,
-		clientX,
-		clientY,
-		2 ** (newZoom * maxPower)
-	);
+const setZoom = (newZoom, clientX, clientY) => transform(x, y, clientX, clientY, scale, clientX, clientY, 2 ** (newZoom * maxPower));
 
 const recomputeInitialLayout = () => {
 	dragRegionBounds = dragRegion.getBoundingClientRect();
@@ -105,10 +73,7 @@ const recomputeInitialLayout = () => {
 	}
 
 	initX = (dragRegionBounds.width - width * initScale) / 2;
-	initY =
-		height > dragRegionBounds.height
-			? 0
-			: (dragRegionBounds.height - height * initScale) / 2;
+	initY = height > dragRegionBounds.height ? 0 : (dragRegionBounds.height - height * initScale) / 2;
 };
 
 zoomSlider.addEventListener("change", () => {
@@ -134,12 +99,7 @@ const onWheel = ({ clientX, clientY, deltaY, deltaMode }) => {
 
 listenForWheel(dragRegion, onWheel);
 
-const distanceBetweenTouches = () =>
-	touch2 == null
-		? 1
-		: ((touch1.clientX - touch2.clientX) ** 2 +
-				(touch1.clientY - touch2.clientY) ** 2) **
-		  0.5;
+const distanceBetweenTouches = () => (touch2 == null ? 1 : ((touch1.clientX - touch2.clientX) ** 2 + (touch1.clientY - touch2.clientY) ** 2) ** 0.5);
 
 const averageBetwenTouches = () =>
 	touch2 == null
@@ -159,19 +119,9 @@ const beginPan = () => {
 };
 
 const updatePan = () => {
-	const dstScale =
-		(panStartScale * distanceBetweenTouches()) / panStartTouchDistance;
+	const dstScale = (panStartScale * distanceBetweenTouches()) / panStartTouchDistance;
 	const average = averageBetwenTouches();
-	transform(
-		panStartX,
-		panStartY,
-		panStartTouchAverage.clientX,
-		panStartTouchAverage.clientY,
-		panStartScale,
-		average.clientX,
-		average.clientY,
-		dstScale
-	);
+	transform(panStartX, panStartY, panStartTouchAverage.clientX, panStartTouchAverage.clientY, panStartScale, average.clientX, average.clientY, dstScale);
 };
 
 const endPan = () => {

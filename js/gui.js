@@ -27,13 +27,7 @@ const colorsByCellState = {
 	[CellState.HEAD]: [0xff, 0xff, 0x44, 0xff] /*[0xff, 0x88, 0x00, 0xff],*/
 };
 
-const collectUI = query =>
-	Object.fromEntries(
-		Array.from(document.querySelectorAll(query)).map(element => [
-			element.id.replace(/-/g, "_"),
-			element
-		])
-	);
+const collectUI = query => Object.fromEntries(Array.from(document.querySelectorAll(query)).map(element => [element.id.replace(/-/g, "_"), element]));
 
 const buttons = collectUI("button");
 const labels = collectUI("label");
@@ -64,20 +58,35 @@ const showPopup = popup => {
 	events.dispatchEvent(stateChangedEvent);
 };
 
-popupRoot.addEventListener("click", ({target}) => {
+popupRoot.addEventListener("click", ({ target }) => {
 	if (!state.splash && target === popupRoot) {
 		hidePopup();
 	}
 });
 
-const speedSlider = makeSlider(
-	buttons.slow,
-	buttons.fast,
-	rangeInputs.speed,
-	0.01,
-	"BracketLeft",
-	"BracketRight"
-);
+Object.values(popups).forEach(popup => {
+	Array.from(popup.querySelectorAll("button.close-popup")).forEach(button => {
+		button.addEventListener("click", () => hidePopup());
+	});
+});
+
+popups.confirm_reset.querySelector("button#ok").addEventListener("click", () => {
+	events.dispatchEvent(new Event("resetsim"));
+	hidePopup();
+});
+
+const filePicker = document.createElement("input");
+filePicker.type = "file";
+filePicker.accept = ".mcl,.rle,.txt";
+filePicker.addEventListener("change", () => {
+	state.file = filePicker.files[0];
+	state.url = null;
+	popups.loading.querySelector(".title").textContent = `Loading ${state.file.name}`;
+	showPopup(popups.loading);
+	events.dispatchEvent(new Event("load"));
+});
+
+const speedSlider = makeSlider(buttons.slow, buttons.fast, rangeInputs.speed, 0.01, "BracketLeft", "BracketRight");
 speedSlider.addEventListener("change", () => {
 	console.log(speedSlider.value);
 	state.speed = speedSlider.value;
@@ -103,7 +112,6 @@ const listenToButton = (id, keyMapping, func) => {
 
 listenToButton("stop", "Backquote", () => {
 	showPopup(popups.confirm_reset);
-	// TODO: dispatch change in popup button handlers
 });
 
 listenToButton("play_pause", "Space", () => {
@@ -134,7 +142,7 @@ listenToButton("about", null, () => {
 });
 
 listenToButton("load", "KeyL", () => {
-	showPopup(popups.load);
+	filePicker.click();
 });
 
 const setFilePath = path => {
@@ -167,10 +175,7 @@ const setPaper = data => {
 			for (let j = 0; j < width; j++) {
 				const state = cells[i][j] ?? CellState.DEAD;
 				const index = (i * width + j) * 4;
-				lowerPixels.set(
-					state === CellState.DEAD ? deadColor : wireColor,
-					index
-				);
+				lowerPixels.set(state === CellState.DEAD ? deadColor : wireColor, index);
 				if (state === CellState.TAIL) {
 					upperPixels.set(tailColor, index);
 				}
@@ -187,9 +192,9 @@ const setPaper = data => {
 	setPanZoomSize(width, height);
 };
 
-const reset = path => {
+const reset = filename => {
 	Object.assign(state, initialState);
-	setFilePath(path.split("/").pop());
+	setFilePath(filename);
 };
 
 const showAboutPopup = initial => {
@@ -206,6 +211,19 @@ const hideAboutPopup = () => {
 	}
 };
 
+const showErrorPopup = (titleText, subtitleText, bodyText) => {
+	popups.error.querySelector(".title").textContent = titleText;
+	popups.error.querySelector(".subtitle").textContent = subtitleText;
+	popups.error.querySelector("content").textContent = bodyText;
+	showPopup(popups.error);
+};
+
+const hideLoadingPopup = () => {
+	if (state.currentPopup === popups.loading) {
+		hidePopup();
+	}
+};
+
 reset("");
 
 export default {
@@ -213,6 +231,8 @@ export default {
 	setPaper,
 	events,
 	state,
+	showErrorPopup,
 	showAboutPopup,
-	hideAboutPopup
+	hideAboutPopup,
+	hideLoadingPopup
 };
