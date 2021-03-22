@@ -1,18 +1,19 @@
 TODO
 
-Milestone: create model thing
-
-STREAM Milestone: reformat all examples
-	Move everything to RLE I guess
-	Who can I talk to about this?
-
-STREAM Milestone: basic implementation
-STREAM Milestone: move impl to worker
-STREAM Milestone: turbo, run worker without limit
-STREAM Milestone: linked list impl
-STREAM Milestone: webassembly worker
+STREAM Milestone: web worker
+	loading, parsing, timing
+	dynamically imports engine stub
+	turbo, run worker without limit
 
 Milestone: meta tag, OG
+
+STREAM Milestone: implementations
+
+STREAM Milestone: gallery
+	Most of the files are small!
+	Load their data straight to canvas for preview images
+	"Move" everything to RLE
+		Load paths, authors from JSON
 
 Milestone: better mobile experience
 	Better solution for popups
@@ -29,11 +30,4 @@ Milestone: drag-and-drop themes
 	Merveilles themes
 	Old Wireworld themes
 
-Milestone: gallery
-	Most of the files are small!
-	Load their data straight to canvas for preview images
-
 Milestone: switch favicon to indicate sim is running
-
-Milestone: maybe parsing can go into its own worker?
-	Removes a very small loading hitch in owen moore MCL
