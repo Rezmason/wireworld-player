@@ -1,8 +1,5 @@
 TODO
 
-Milestone: popups
-	Drag-and-drop popup
-
 Milestone: create model thing
 
 STREAM Milestone: reformat all examples
@@ -28,4 +25,11 @@ Milestone: drag-and-drop themes
 	Merveilles themes
 	Old Wireworld themes
 
+Milestone: gallery
+	The files are small!
+	Load their data straight to canvas for preview images
+
 Milestone: switch favicon to indicate sim is running
+
+Milestone: maybe parsing can go into its own worker?
+	Removes a very small loading hitch in owen moore MCL

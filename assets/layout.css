@@ -143,3 +143,26 @@ rm {
 popup > bar {
 	margin-top: 2em;
 }
+
+popup#drag-and-drop.onscreen {
+	padding: unset;
+	max-width: unset;
+	max-height: unset;
+	background: unset;
+
+	width: calc(100% - 20vmin);
+	height: calc(100% - 20vmin);
+
+	place-items: center;
+	text-align: center;
+
+	font-size: 10vh;
+	font-weight: bold;
+	color: white;
+	display: grid;
+
+	border-radius: 0;
+	border: 3vmin dashed white;
+
+	cursor: copy;
+}

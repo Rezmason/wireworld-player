@@ -75,15 +75,43 @@ popups.confirm_reset.querySelector("button#ok").addEventListener("click", () => 
 	hidePopup();
 });
 
-const filePicker = document.createElement("input");
-filePicker.type = "file";
-filePicker.accept = ".mcl,.rle,.txt";
-filePicker.addEventListener("change", () => {
-	state.file = filePicker.files[0];
+const showLoadFromFile = file => {
+	state.file = file;
 	state.url = null;
 	popups.loading.querySelector(".title").textContent = `Loading ${state.file.name}`;
 	showPopup(popups.loading);
 	events.dispatchEvent(new Event("load"));
+};
+
+const filePicker = document.createElement("input");
+filePicker.type = "file";
+filePicker.accept = ".mcl,.rle,.txt";
+filePicker.addEventListener("change", () => {
+	showLoadFromFile(filePicker.files[0]);
+});
+
+document.body.addEventListener("dragenter", event => {
+	if (state.currentPopup != null) {
+		return;
+	}
+	event.stopPropagation();
+	event.preventDefault();
+	showPopup(popups.drag_and_drop);
+});
+
+document.body.addEventListener("dragover", event => {
+	event.stopPropagation();
+	event.preventDefault();
+});
+
+document.body.addEventListener("drop", event => {
+	if (state.currentPopup !== popups.drag_and_drop) {
+		return;
+	}
+	event.stopPropagation();
+	event.preventDefault();
+	hidePopup();
+	showLoadFromFile(event.dataTransfer.files[0]);
 });
 
 const speedSlider = makeSlider(buttons.slow, buttons.fast, rangeInputs.speed, 0.01, "BracketLeft", "BracketRight");

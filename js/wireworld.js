@@ -1,5 +1,5 @@
 import { getDefaultURL } from "./data.js";
-import { delay } from "./utils.js";
+import { delay, fetchLocalText, fetchRemoteText } from "./utils.js";
 import gui from "./gui.js";
 import parseFile from "./parse.js";
 
@@ -34,15 +34,14 @@ const load = async (target, splash) => {
 		}
 
 		const popupPromise = delay(splash ? 2 : 1);
-		if (target instanceof File) {
-			const file = target;
-			filename = file.name;
-			data = await loadFromDisk(file);
-		} else {
-			const url = target;
-			filename = url.split("/").pop();
-			data = await loadFromURL(url);
+		const isFile = target instanceof File;
+		filename = isFile ? target.name : target.split("/").pop();
+		const key = isFile ? `__local__${target.name}_${target.lastModified}` : target;
+		if (!loadedFiles.has(key)) {
+			loadedFiles.set(key, await parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target)));
 		}
+		data = loadedFiles.get(key);
+
 		gui.reset(filename);
 		gui.setPaper(data);
 		if (!splash || !suppressSplash) {
@@ -55,41 +54,8 @@ const load = async (target, splash) => {
 		}
 	} catch (error) {
 		console.log(error);
-		gui.showErrorPopup(`Load failed.`, `Couldn't load "${filename}".`, error.message);
+		gui.showErrorPopup(`Load failed.`, `Couldn't load "${filename ?? "file"}".`, error.message);
 	}
-};
-
-const loadFromDisk = file =>
-	new Promise((resolve, reject) => {
-		const localURL = `__local__${file.name}_${file.lastModified}`;
-		if (loadedFiles.has(localURL)) {
-			return loadedFiles.get(localURL);
-		}
-
-		const reader = new FileReader();
-		reader.onerror = () => reject(`${reader.error.name}: ${reader.error.message}`);
-		reader.onload = async () => {
-			try {
-				const data = await parseFile(reader.result);
-				loadedFiles.set(localURL, data);
-				resolve(data);
-			} catch (error) {
-				reject(error);
-			}
-		};
-		reader.readAsText(file);
-	});
-
-const loadFromURL = async url => {
-	gui.reset(url);
-	if (!loadedFiles.has(url)) {
-		const file = await fetch(url);
-		if (!file.ok) {
-			throw new Error(`${file.status}: ${file.statusText}`);
-		}
-		loadedFiles.set(url, await parseFile(await file.text()));
-	}
-	return loadedFiles.get(url);
 };
 
 const isPortrait = (screen.orientation?.type ?? "landscape-primary").startsWith("portrait");
