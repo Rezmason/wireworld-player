@@ -14,6 +14,10 @@ STREAM Milestone: webassembly worker
 
 Milestone: meta tag, OG
 
+Milestone: better mobile experience
+	Better solution for popups
+	Better solution for toolbars in portrait orientation
+
 Milestone: tab indexing
 	Limit tab indexing and key mappings to open popup, if one is onscreen
 
@@ -26,7 +30,7 @@ Milestone: drag-and-drop themes
 	Old Wireworld themes
 
 Milestone: gallery
-	The files are small!
+	Most of the files are small!
 	Load their data straight to canvas for preview images
 
 Milestone: switch favicon to indicate sim is running

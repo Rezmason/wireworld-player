@@ -286,7 +286,7 @@
 
 .wwgui popup {
 	font-family: sans-serif;
-	font-size: 1rem;
+	font-size: min(2.5vmin, 1rem);
 	font-weight: initial;
 	background: var(--popup-bg);
 	color: var(--popup-fg);
