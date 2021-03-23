@@ -56,7 +56,7 @@ const parseMCL = file => {
 	};
 };
 
-export default async file => {
+export default file => {
 	const data = parseMCL(file) ?? parseTXT(file);
 	if (data == null) throw new Error("Unrecognized file format.");
 	if (data.width > maxLength) throw new Error(`Width exceeds ${maxLength}`);

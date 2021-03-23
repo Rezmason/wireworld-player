@@ -38,7 +38,7 @@ const load = async (target, splash) => {
 		filename = isFile ? target.name : target.split("/").pop();
 		const key = isFile ? `__local__${target.name}_${target.lastModified}` : target;
 		if (!loadedFiles.has(key)) {
-			loadedFiles.set(key, await parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target)));
+			loadedFiles.set(key, parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target)));
 		}
 		data = loadedFiles.get(key);
 
