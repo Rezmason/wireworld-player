@@ -63,3 +63,19 @@ const isPortrait = (screen.orientation?.type ?? "landscape-primary").startsWith(
 const defaultURL = getDefaultURL(isPortrait);
 
 load(defaultURL, true);
+
+window.test = async () => {
+	const txtURL = "examples/txt/owen_moore/owen_moore_horizontal.txt";
+	const mclURL = "examples/mcl/owen_moore/computer_by_mark_owen_horizontal.mcl";
+	const text = await fetchRemoteText(mclURL);
+	performance.mark("test_start");
+	for (let i = 0; i < 1000; i++) {
+		parseFile(text);
+	}
+	performance.mark("test_end");
+
+	performance.measure("measure test", "test_start", "test_end");
+	console.log(performance.getEntriesByType("measure")[0].duration);
+	performance.clearMarks();
+	performance.clearMeasures();
+};
