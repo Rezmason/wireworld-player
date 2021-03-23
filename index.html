@@ -9,6 +9,18 @@
 		<link rel="stylesheet" type="text/css" href="assets/wwgui.css" />
 		<link rel="stylesheet" type="text/css" href="assets/wwicons.css" />
 		<script type="module" src="js/wireworld.js"></script>
+		<noscript>
+			<style>
+				popup-root {
+					display: grid;
+				}
+
+				popup#help {
+					display: flex;
+					flex-direction: column;
+				}
+			</style>
+		</noscript>
 	</head>
 	<body class="wwgui">
 		<drag-region class="wwdragregion">
@@ -128,6 +140,16 @@
 			<popup id="help">
 				<span class="title">Wireworld Player Help</span>
 				<content>
+					<noscript>
+						<p class="subtitle"><em>This app doesn't appear to be working.</em></p>
+						<p>
+							That's because the Wireworld Player is partially made from ECMAScript, and your browser has scripting disabled.
+							If you're concerned about running ECMAScript from untrusted websites, consider
+							<a href="https://github.com/Rezmason/wireworld-player" target="_blank" rel="noopener noreferrer">downloading the source</a>
+							and vetting it for yourself. Alternatively, you might take interest in
+							<a href="http://golly.sourceforge.net" target="_blank" rel="noopener noreferrer">Golly</a>, a GPLv2 program that offers the same functionality.
+						</p>
+					</noscript>
 					<p class="subtitle"><em>What is this thing?</em></p>
 					<p>
 						Wireworld is a type of

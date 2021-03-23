@@ -1,5 +1,7 @@
 TODO
 
+Turbo button should be a checkbox
+
 STREAM Milestone: web worker
 	loading, parsing, timing
 	dynamically imports engine stub

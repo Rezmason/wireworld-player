@@ -144,6 +144,10 @@ popup > bar {
 	margin-top: 2em;
 }
 
+popup > bar bar-group > * {
+	margin: 0 0.5em;
+}
+
 popup#drag-and-drop.onscreen {
 	padding: unset;
 	max-width: unset;
