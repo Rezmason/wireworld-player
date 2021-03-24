@@ -9,14 +9,14 @@ let panning, panStartX, panStartY, panStartScale, panStartTouchAverage, panStart
 let touch1, touch2, mouseTouch;
 let paperTransform;
 
-const resetViewButton = document.querySelector("button#reset-view");
+const resetViewButton = document.querySelector("button.reset-view");
 const paper = document.querySelector("drag-region paper");
 const dragRegion = document.querySelector("drag-region");
 
 const zoomSlider = makeSlider(
-	document.querySelector("button#zoom-out"),
-	document.querySelector("button#zoom-in"),
-	document.querySelector("input#zoom"),
+	document.querySelector("button.zoom-out"),
+	document.querySelector("button.zoom-in"),
+	document.querySelector("input.zoom"),
 	0.005,
 	"Minus",
 	"Equal"

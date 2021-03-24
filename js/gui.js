@@ -20,7 +20,8 @@ const events = new EventTarget();
 const stateChangedEvent = new Event("statechanged");
 const advanceEvent = new Event("advance");
 
-const collectUI = query => Object.fromEntries(Array.from(document.querySelectorAll(query)).map(element => [element.id.replace(/-/g, "_"), element]));
+const collectUI = query =>
+	Object.fromEntries(Array.from(document.querySelectorAll(query)).map(element => [element.classList.item(0).replace(/-/g, "_"), element]));
 
 const buttons = collectUI("button");
 const labels = collectUI("label");
@@ -63,9 +64,10 @@ Object.values(popups).forEach(popup => {
 	});
 });
 
-popups.confirm_reset.querySelector("button#ok").addEventListener("click", () => {
-	events.dispatchEvent(new Event("resetsim"));
+popups.confirm_reset.querySelector("button.reset-ok").addEventListener("click", () => {
+	state.playingUnderPopup = false;
 	hidePopup();
+	events.dispatchEvent(new Event("resetsim"));
 });
 
 const showLoadFromFile = file => {

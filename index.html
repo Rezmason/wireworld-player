@@ -5,9 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no" />
 		<title>Wireworld Player</title>
 		<link rel="shortcut icon" href="assets/favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="assets/layout.css" />
 		<link rel="stylesheet" type="text/css" href="assets/wwgui.css" />
 		<link rel="stylesheet" type="text/css" href="assets/wwicons.css" />
+		<link rel="stylesheet" type="text/css" href="assets/layout.css" />
 		<script type="module" src="js/wireworld.js"></script>
 		<noscript>
 			<style>
@@ -15,7 +15,7 @@
 					display: grid;
 				}
 
-				popup#help {
+				popup.help {
 					display: flex;
 					flex-direction: column;
 				}
@@ -25,60 +25,60 @@
 	<body class="wwgui">
 		<drag-region class="wwdragregion">
 			<paper>
-				<canvas id="base"></canvas>
-				<canvas id="tail"></canvas>
-				<canvas id="head"></canvas>
+				<canvas class="base"></canvas>
+				<canvas class="tail"></canvas>
+				<canvas class="head"></canvas>
 			</paper>
 		</drag-region>
 		<bar class="top">
 			<bar-group class="left">
 				<wwgroup>
-					<button id="stop" title="Reset"><span class="wwcaption">Reset</span><icon></icon></button>
-					<button id="play-pause" title="Play / Pause"><span class="wwcaption">Play / Pause</span><icon></icon></button>
-					<button id="step" title="Step"><span class="wwcaption">Step</span><icon></icon></button>
+					<button class="stop" title="Reset"><span class="wwcaption">Reset</span><icon></icon></button>
+					<button class="play-pause" title="Play / Pause"><span class="wwcaption">Play / Pause</span><icon></icon></button>
+					<button class="step" title="Step"><span class="wwcaption">Step</span><icon></icon></button>
 				</wwgroup>
-				<button id="heatmap" title="Toggle heat vision"><span class="wwcaption">Toggle heat vision</span><icon></icon></button>
-				<wwgroup id="tools">
-					<button id="hand-tool" title="Hand tool"><span class="wwcaption">Hand tool</span><icon></icon></button>
-					<button id="eraser-tool" title="Eraser tool"><span class="wwcaption">Eraser tool</span><icon></icon></button>
+				<button class="heatmap" title="Toggle heat vision"><span class="wwcaption">Toggle heat vision</span><icon></icon></button>
+				<wwgroup class="tools">
+					<button class="hand-tool" title="Hand tool"><span class="wwcaption">Hand tool</span><icon></icon></button>
+					<button class="eraser-tool" title="Eraser tool"><span class="wwcaption">Eraser tool</span><icon></icon></button>
 				</wwgroup>
 			</bar-group>
 			<bar-group class="middle">
 				<wwgroup>
-					<button id="slow" title="Slow down"><span class="wwcaption">Slow down</span><icon></icon></button>
-					<input type="range" id="speed" min="0" max="1" value="0" step="any" title="Adjust speed" />
-					<button id="fast" title="Speed up"><span class="wwcaption">Speed up</span><icon></icon></button>
+					<button class="slow" title="Slow down"><span class="wwcaption">Slow down</span><icon></icon></button>
+					<input type="range" class="speed" min="0" max="1" value="0" step="any" title="Adjust speed" />
+					<button class="fast" title="Speed up"><span class="wwcaption">Speed up</span><icon></icon></button>
 				</wwgroup>
-				<button id="turbo" title="Switch turbo on/off"><span class="wwcaption">Switch turbo on/off</span><icon></icon></button>
+				<button class="turbo" title="Switch turbo on/off"><span class="wwcaption">Switch turbo on/off</span><icon></icon></button>
 			</bar-group>
 			<bar-group class="right">
-				<button id="snapshot" title="Save picture"><span class="wwcaption">Save picture</span><icon></icon></button>
-				<button id="help" title="Help!"><span class="wwcaption">Help!</span><icon></icon></button>
-				<button id="about" title="About Wireworld player"><span class="wwcaption">About Wireworld player</span><icon></icon></button>
+				<button class="snapshot" title="Save picture"><span class="wwcaption">Save picture</span><icon></icon></button>
+				<button class="help" title="Help!"><span class="wwcaption">Help!</span><icon></icon></button>
+				<button class="about" title="About Wireworld player"><span class="wwcaption">About Wireworld player</span><icon></icon></button>
 			</bar-group>
 		</bar>
 		<bar class="bottom">
 			<bar-group class="left">
 				<wwgroup>
-					<button id="zoom-out" title="Zoom out"><span class="wwcaption">Zoom out</span><icon></icon></button>
-					<button id="reset-view" title="Reset view"><span class="wwcaption">Reset view</span><icon></icon></button>
-					<input type="range" id="zoom" min="0" max="1" value="0" step="any" title="Adjust zoom" />
-					<button id="zoom-in" title="Zoom in"><span class="wwcaption">Zoom in</span><icon></icon></button>
+					<button class="zoom-out" title="Zoom out"><span class="wwcaption">Zoom out</span><icon></icon></button>
+					<button class="reset-view" title="Reset view"><span class="wwcaption">Reset view</span><icon></icon></button>
+					<input type="range" class="zoom" min="0" max="1" value="0" step="any" title="Adjust zoom" />
+					<button class="zoom-in" title="Zoom in"><span class="wwcaption">Zoom in</span><icon></icon></button>
 				</wwgroup>
-				<label id="generation" title="Current generation"><span class="wwcaption">Current generation</span> <span class="wwguitext"></span></label>
+				<label class="generation" title="Current generation"><span class="wwcaption">Current generation</span> <span class="wwguitext"></span></label>
 			</bar-group>
 			<bar-group class="middle">
 				<wwgroup>
-					<button id="load" title="Load .MCL or .TXT"><span class="wwcaption">Load .MCL or .TXT</span><icon></icon></button>
-					<label id="file-name" title="Current file"><span class="wwcaption">Current file</span> <span class="wwguitext"></span></label>
+					<button class="load" title="Load .MCL or .TXT"><span class="wwcaption">Load .MCL or .TXT</span><icon></icon></button>
+					<label class="file-name" title="Current file"><span class="wwcaption">Current file</span> <span class="wwguitext"></span></label>
 				</wwgroup>
 			</bar-group>
 			<bar-group class="right">
-				<label id="framerate" title="Framerate"><span class="wwcaption">Framerate</span> <span class="wwguitext"></span></label>
+				<label class="framerate" title="Framerate"><span class="wwcaption">Framerate</span> <span class="wwguitext"></span></label>
 			</bar-group>
 		</bar>
 		<popup-root>
-			<popup id="about">
+			<popup class="about">
 				<span class="title">Wireworld player</span>
 				<content>
 					Wireworld concept by
@@ -105,47 +105,47 @@
 						<a href="https://www.rezmason.net" target="_blank" rel="noopener noreferrer" title="made by rezmason"><rm></rm></a>
 					</bar-group>
 					<bar-group class="right">
-						<button class="no-splash close-popup" id="ok" title="OK">OK</button>
+						<button class="no-splash close-popup" title="OK">OK</button>
 					</bar-group>
 				</bar>
 			</popup>
-			<popup id="error">
+			<popup class="error">
 				<span class="title">An error occurred</span>
 				<span class="subtitle"></span>
 				<content></content>
 				<bar>
 					<bar-group class="left"></bar-group>
 					<bar-group class="right">
-						<button class="close-popup" id="ok" title="OK">OK</button>
+						<button class="close-popup" title="OK">OK</button>
 					</bar-group>
 				</bar>
 			</popup>
-			<popup id="confirm-reset">
+			<popup class="confirm-reset">
 				<span class="title">Confirm reset</span>
 				<content>Are you sure you wish to return this simulation to its original configuration?</content>
 				<bar>
 					<bar-group class="left"></bar-group>
 					<bar-group class="right">
-						<button class="close-popup" id="cancel" title="Cancel">
+						<button class="close-popup" title="Cancel">
 							Cancel
 						</button>
-						<button id="ok" title="OK">OK</button>
+						<button class="reset-ok" title="OK">OK</button>
 					</bar-group>
 				</bar>
 			</popup>
-			<popup id="loading">
+			<popup class="loading">
 				<span class="title"></span>
 				<content></content>
 				<loading-bar></loading-bar>
 			</popup>
-			<popup id="help">
+			<popup class="help">
 				<span class="title">Wireworld Player Help</span>
 				<content>
 					<noscript>
 						<p class="subtitle"><em>This app doesn't appear to be working.</em></p>
 						<p>
-							That's because the Wireworld Player relies on scripts, and your browser has scripts disabled. If you're concerned about running
-							nontrivial scripts in your browser, consider
+							That's because the Wireworld Player relies on scripts, and your browser has scripts disabled. If you're concerned about running nontrivial scripts
+							in your browser, consider
 							<a href="https://github.com/Rezmason/wireworld-player" target="_blank" rel="noopener noreferrer">downloading the source</a>
 							and vetting it for yourself. Alternatively, you might take interest in
 							<a href="http://golly.sourceforge.net" target="_blank" rel="noopener noreferrer">Golly</a>, a GPLv2 program that offers the same functionality.
@@ -238,11 +238,11 @@
 				<bar>
 					<bar-group class="left"></bar-group>
 					<bar-group class="right">
-						<button class="close-popup" id="ok" title="OK">OK</button>
+						<button class="close-popup" title="OK">OK</button>
 					</bar-group>
 				</bar>
 			</popup>
-			<popup id="drag-and-drop">
+			<popup class="drag-and-drop">
 				Drop file to load
 			</popup>
 		</popup-root>

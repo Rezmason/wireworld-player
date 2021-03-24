@@ -74,16 +74,12 @@ paper canvas {
 	pointer-events: none;
 }
 
-wwgroup#tools,
-button#heatmap {
+wwgroup.tools,
+button.heatmap {
 	display: none;
 }
 
-input#zoom {
-	width: 10em;
-}
-
-label#file-name {
+label.file-name {
 	min-width: 10em;
 }
 
@@ -124,8 +120,8 @@ popup content {
 	font-family: monospace;
 }
 
-popup#about:not(.splash) .splash-only,
-popup#about.splash .no-splash {
+popup.about:not(.splash) .splash-only,
+popup.about.splash .no-splash {
 	display: none;
 }
 
@@ -148,7 +144,7 @@ popup > bar bar-group > * {
 	margin: 0 0.5em;
 }
 
-popup#drag-and-drop.onscreen {
+popup.drag-and-drop.onscreen {
 	padding: unset;
 	max-width: unset;
 	max-height: unset;

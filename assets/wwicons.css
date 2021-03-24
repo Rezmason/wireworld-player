@@ -1,67 +1,67 @@
-.wwgui button#play-pause {
+.wwgui button.play-pause {
 	width: 1.5em;
 }
 
-.wwgui button#load {
+.wwgui button.load {
 	width: 1.75em;
 }
 
-.wwgui button#about {
+.wwgui button.about {
 	width: 1.75em;
 	height: 1.5em;
 	border-radius: 1em 0 0 1em;
 	margin-right: 0;
 }
 
-.wwgui button#about icon {
+.wwgui button.about icon {
 	background-position: right;
 }
 
-.wwgui button#stop icon {
+.wwgui button.stop icon {
 	background-image: url(./symbols/stop.svg);
 }
-.wwgui button#play-pause icon {
+.wwgui button.play-pause icon {
 	background-image: url(./symbols/play-pause.svg);
 }
-.wwgui button#step icon {
+.wwgui button.step icon {
 	background-image: url(./symbols/step.svg);
 }
-.wwgui button#heatmap icon {
+.wwgui button.heatmap icon {
 	background-image: url(./symbols/heatmap.svg);
 }
-.wwgui button#hand-tool icon {
+.wwgui button.hand-tool icon {
 	background-image: url(./symbols/hand-tool.svg);
 }
-.wwgui button#eraser-tool icon {
+.wwgui button.eraser-tool icon {
 	background-image: url(./symbols/eraser-tool.svg);
 }
-.wwgui button#slow icon {
+.wwgui button.slow icon {
 	background-image: url(./symbols/slower.svg);
 }
-.wwgui button#fast icon {
+.wwgui button.fast icon {
 	background-image: url(./symbols/faster.svg);
 }
-.wwgui button#turbo icon {
+.wwgui button.turbo icon {
 	background-image: url(./symbols/turbo.svg);
 }
-.wwgui button#snapshot icon {
+.wwgui button.snapshot icon {
 	background-image: url(./symbols/snapshot.svg);
 }
-.wwgui button#help icon {
+.wwgui button.help icon {
 	background-image: url(./symbols/help.svg);
 }
-.wwgui button#about icon {
+.wwgui button.about icon {
 	background-image: url(./symbols/ww_about.svg);
 }
-.wwgui button#zoom-out icon {
+.wwgui button.zoom-out icon {
 	background-image: url(./symbols/zoom-out.svg);
 }
-.wwgui button#reset-view icon {
+.wwgui button.reset-view icon {
 	background-image: url(./symbols/reset-view.svg);
 }
-.wwgui button#zoom-in icon {
+.wwgui button.zoom-in icon {
 	background-image: url(./symbols/zoom-in.svg);
 }
-.wwgui button#load icon {
+.wwgui button.load icon {
 	background-image: url(./symbols/file.svg);
 }
