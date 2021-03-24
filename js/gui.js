@@ -170,52 +170,62 @@ const setFilePath = path => {
 	labels.file_name.setText(path);
 };
 
-const colorsByCellState = {
-	[CellState.DEAD]: [0x22, 0x44, 0x00, 0xff] /*[0x00, 0x00, 0x00, 0xff],*/,
-	[CellState.WIRE]: [0x44, 0x88, 0x22, 0xff] /*[0x50, 0x50, 0x50, 0xff],*/,
-	[CellState.TAIL]: [0xff, 0xdd, 0x22, 0xff] /*[0xff, 0xee, 0x00, 0xff],*/,
-	[CellState.HEAD]: [0xff, 0xff, 0x44, 0xff] /*[0xff, 0x88, 0x00, 0xff],*/
+const testLittleEndian = () => {
+	const buf = new ArrayBuffer(2);
+	new Uint16Array(buf).set([0x0001], 0);
+	return Array.from(new Uint8ClampedArray(buf))[0] === 1;
 };
+
+const isLittleEndian = testLittleEndian();
+
+const formatColorForEndian = (rgba, isLittleEndian) => {
+	if (isLittleEndian) {
+		return (((rgba >> 0) & 0xff) << 24) | (((rgba >> 8) & 0xff) << 16) | (((rgba >> 16) & 0xff) << 8) | (((rgba >> 24) & 0xff) << 0);
+	}
+	return rgba;
+};
+
+const deadColor = formatColorForEndian(0x224400ff /*0x000000ff*/, isLittleEndian);
+const wireColor = formatColorForEndian(0x448822ff /*0x505050ff*/, isLittleEndian);
+const tailColor = formatColorForEndian(0xffdd22ff /*0xffee00ff*/, isLittleEndian);
+const headColor = formatColorForEndian(0xffff44ff /*0xff8800ff*/, isLittleEndian);
 
 const setPaper = data => {
 	const { width, height, cells } = data;
+	const numBytes = width * height * 4;
 
-	canvases.lower.width = width;
-	canvases.lower.height = height;
-	canvases.upper.width = width;
-	canvases.upper.height = height;
-
-	const lowerCtx = canvases.lower.getContext("2d");
-	const upperCtx = canvases.upper.getContext("2d");
-
-	const lowerData = lowerCtx.createImageData(width, height);
-	const lowerPixels = lowerData.data;
-	const upperData = upperCtx.createImageData(width, height);
-	const upperPixels = upperData.data;
-
-	const deadColor = colorsByCellState[CellState.DEAD];
-	const wireColor = colorsByCellState[CellState.WIRE];
-	const tailColor = colorsByCellState[CellState.TAIL];
-	const headColor = colorsByCellState[CellState.HEAD];
+	const drawings = Object.fromEntries(
+		Object.entries(canvases).map(([id, canvas]) => {
+			canvas.width = width;
+			canvas.height = height;
+			const context = canvas.getContext("2d");
+			const imageData = context.createImageData(width, height);
+			const buffer = new ArrayBuffer(numBytes);
+			const pixels = new Uint32Array(buffer);
+			return [id, { context, imageData, buffer, pixels }];
+		})
+	);
 
 	for (let i = 0; i < height; i++) {
 		if (cells[i] != null) {
 			for (let j = 0; j < width; j++) {
 				const state = cells[i][j] ?? CellState.DEAD;
-				const index = (i * width + j) * 4;
-				lowerPixels.set(state === CellState.DEAD ? deadColor : wireColor, index);
+				const index = i * width + j;
+				drawings.base.pixels[index] = state === CellState.DEAD ? deadColor : wireColor;
 				if (state === CellState.TAIL) {
-					upperPixels.set(tailColor, index);
+					drawings.tail.pixels[index] = tailColor;
 				}
 				if (state === CellState.HEAD) {
-					upperPixels.set(headColor, index);
+					drawings.head.pixels[index] = headColor;
 				}
 			}
 		}
 	}
 
-	lowerCtx.putImageData(lowerData, 0, 0);
-	upperCtx.putImageData(upperData, 0, 0);
+	Object.values(drawings).forEach(({ imageData, buffer, context }) => {
+		imageData.data.set(new Uint8ClampedArray(buffer));
+		context.putImageData(imageData, 0, 0);
+	});
 
 	setPanZoomSize(width, height);
 };
