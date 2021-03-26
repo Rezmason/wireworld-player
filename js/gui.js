@@ -1,5 +1,5 @@
 import { CellState } from "./data.js";
-import { makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
+import { makeEventTarget, makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
 const params = new URL(document.location).searchParams;
@@ -16,7 +16,7 @@ const initialState = {
 };
 
 const state = {};
-const events = new EventTarget();
+const events = makeEventTarget();
 const stateChangedEvent = new Event("statechanged");
 const advanceEvent = new Event("advance");
 
@@ -111,7 +111,6 @@ document.body.addEventListener("drop", event => {
 
 const speedSlider = makeSlider(buttons.slow, buttons.fast, rangeInputs.speed, 0.01, "BracketLeft", "BracketRight");
 speedSlider.addEventListener("change", () => {
-	console.log(speedSlider.value);
 	state.speed = speedSlider.value;
 	events.dispatchEvent(stateChangedEvent);
 });

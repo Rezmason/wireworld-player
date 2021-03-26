@@ -1,3 +1,12 @@
+const makeEventTarget = () => {
+	try {
+		throw new Error("POOP");
+		return new EventTarget();
+	} catch {
+		return new DocumentFragment();
+	}
+};
+
 const wheelDeltaMagnifiers = {
 	[0]: 1,
 	[1]: 40,
@@ -44,7 +53,7 @@ const mapKeyToMouseEvent = (button, keyCode, upDownEvents = false) => {
 
 const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, decreaseKeyMapping = null, increaseKeyMapping = null) => {
 	const event = new Event("change");
-	const slider = new EventTarget();
+	const slider = makeEventTarget();
 	const dispatch = () => slider.dispatchEvent(event);
 
 	let value = 0;
@@ -132,4 +141,4 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 	return slider;
 };
 
-export { makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };
+export { makeEventTarget, makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };
