@@ -24,6 +24,7 @@ const collectUI = query =>
 	Object.fromEntries(Array.from(document.querySelectorAll(query)).map(element => [element.classList.item(0).replace(/-/g, "_"), element]));
 
 const buttons = collectUI("button");
+const checkboxes = collectUI("input[type=checkbox]");
 const labels = collectUI("label");
 const rangeInputs = collectUI("input[type=range]");
 const paper = document.querySelector("drag-region paper");
@@ -145,9 +146,8 @@ listenToButton("step", "Period", () => {
 	events.dispatchEvent(advanceEvent);
 });
 
-listenToButton("turbo", "KeyT", () => {
-	state.turbo = !state.turbo;
-	buttons.turbo.classList.toggle("checked", state.turbo);
+checkboxes.turbo.addEventListener("change", () => {
+	state.turbo = checkboxes.turbo.checked;
 	events.dispatchEvent(stateChangedEvent);
 });
 

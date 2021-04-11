@@ -57,25 +57,6 @@
 	filter: contrast(0) brightness(0.25);
 }
 
-.wwgui button.checked {
-	filter: contrast(0.75) brightness(3);
-	will-change: transform;
-}
-
-.wwgui button.checked.turbo {
-	animation: fullturn 0.6s linear infinite;
-}
-
-@keyframes fullturn {
-	from {
-		transform: rotate(0deg);
-	}
-
-	to {
-		transform: rotate(360deg);
-	}
-}
-
 @media (any-hover: hover) {
 	.wwgui button:hover {
 		background-color: var(--element-bg-hover);
@@ -114,6 +95,69 @@
 	-webkit-user-select: none;
 
 	font-size: 0.75em;
+}
+
+/* checkbox, aka checkbox-type input */
+
+.wwgui input[type="checkbox"] {
+	/* unset */
+	-webkit-appearance: unset;
+	font-size: unset;
+
+	/* styling */
+	width: 1em;
+	height: 1em;
+	border-radius: 0.5em;
+	background-color: var(--element-bg);
+	cursor: pointer;
+
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+@media (any-hover: hover) {
+	.wwgui input[type="checkbox"]:hover {
+		background-color: var(--element-bg-hover);
+	}
+
+	.wwgui input[type="checkbox"]:active {
+		background-color: var(--element-bg-active);
+	}
+}
+
+.wwgui input[type="checkbox"]:focus {
+	box-shadow: inset 0 0 0 0.125em var(--element-focus);
+	outline: 0;
+}
+
+.wwgui input[type="checkbox"]:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: 0;
+}
+
+.wwgui input[type="checkbox"]:focus-visible {
+	box-shadow: inset 0 0 0 0.125em var(--element-focus);
+	outline: 0;
+}
+
+.wwgui input[type="checkbox"]:checked {
+	filter: contrast(0.75) brightness(3);
+	will-change: transform;
+}
+
+.wwgui input[type="checkbox"]:checked.turbo {
+	animation: fullturn 0.6s linear infinite;
+}
+
+@keyframes fullturn {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 /* slider, aka range-type input */

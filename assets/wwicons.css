@@ -41,8 +41,8 @@
 .wwgui button.fast icon {
 	background-image: url(./symbols/faster.svg);
 }
-.wwgui button.turbo icon {
-	background-image: url(./symbols/turbo.svg);
+.wwgui input[type="checkbox"].turbo {
+	background-image: url(./symbols/turbo_checkbox.svg);
 }
 .wwgui button.snapshot icon {
 	background-image: url(./symbols/snapshot.svg);

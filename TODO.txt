@@ -1,7 +1,5 @@
 TODO
 
-Turbo button should be a checkbox
-
 STREAM Milestone: web worker
 	loading, parsing, timing
 	dynamically imports engine stub
@@ -33,3 +31,5 @@ Milestone: drag-and-drop themes
 	Old Wireworld themes
 
 Milestone: switch favicon to indicate sim is running
+
+Turbo button background image should get effect applied

@@ -46,10 +46,11 @@
 			<bar-group class="middle">
 				<wwgroup>
 					<button class="slow" title="Slow down"><span class="wwcaption">Slow down</span><icon></icon></button>
-					<input type="range" class="speed" min="0" max="1" value="0" step="any" title="Adjust speed" />
+					<input type="range" class="speed" min="0" max="1" value="0" step="any" title="Adjust speed">
 					<button class="fast" title="Speed up"><span class="wwcaption">Speed up</span><icon></icon></button>
 				</wwgroup>
-				<button class="turbo" title="Switch turbo on/off"><span class="wwcaption">Switch turbo on/off</span><icon></icon></button>
+				<input class="turbo" id="turbo-checkbox" type="checkbox" title="Switch turbo on/off">
+				<label class="turbo-label" for="turbo-checkbox"><span class="wwcaption">Switch turbo on/off</span> <span class="wwguitext"></span></label>
 			</bar-group>
 			<bar-group class="right">
 				<button class="snapshot" title="Save picture"><span class="wwcaption">Save picture</span><icon></icon></button>
@@ -62,7 +63,7 @@
 				<wwgroup>
 					<button class="zoom-out" title="Zoom out"><span class="wwcaption">Zoom out</span><icon></icon></button>
 					<button class="reset-view" title="Reset view"><span class="wwcaption">Reset view</span><icon></icon></button>
-					<input type="range" class="zoom" min="0" max="1" value="0" step="any" title="Adjust zoom" />
+					<input type="range" class="zoom" min="0" max="1" value="0" step="any" title="Adjust zoom">
 					<button class="zoom-in" title="Zoom in"><span class="wwcaption">Zoom in</span><icon></icon></button>
 				</wwgroup>
 				<label class="generation" title="Current generation"><span class="wwcaption">Current generation</span> <span class="wwguitext"></span></label>
