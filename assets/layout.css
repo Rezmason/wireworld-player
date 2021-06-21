@@ -74,6 +74,10 @@ paper canvas {
 	pointer-events: none;
 }
 
+button, input {
+	font-size: unset;
+}
+
 wwgroup.tools,
 button.heatmap {
 	display: none;

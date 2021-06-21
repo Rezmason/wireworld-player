@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100px" height="100px" viewBox="-10 -10 20 20">
+	<style>
+		circle, path, polygon, rect {
+			--element-fg: #222;
+			fill: var(--element-fg);
+		}
+	</style>
 	<g transform="scale(9,9) translate(-0.5,-0.5)">
 		<rect x="0" y="0" width="1" height="1"></rect>
 	</g>

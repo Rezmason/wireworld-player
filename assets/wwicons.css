@@ -13,55 +13,55 @@
 	margin-right: 0;
 }
 
-.wwgui button.about icon {
+.wwgui button.about {
 	background-position: right;
 }
 
-.wwgui button.stop icon {
+.wwgui button.stop {
 	background-image: url(./symbols/stop.svg);
 }
-.wwgui button.play-pause icon {
+.wwgui button.play-pause {
 	background-image: url(./symbols/play-pause.svg);
 }
-.wwgui button.step icon {
+.wwgui button.step {
 	background-image: url(./symbols/step.svg);
 }
-.wwgui button.heatmap icon {
+.wwgui button.heatmap {
 	background-image: url(./symbols/heatmap.svg);
 }
-.wwgui button.hand-tool icon {
+.wwgui button.hand-tool {
 	background-image: url(./symbols/hand-tool.svg);
 }
-.wwgui button.eraser-tool icon {
+.wwgui button.eraser-tool {
 	background-image: url(./symbols/eraser-tool.svg);
 }
-.wwgui button.slow icon {
+.wwgui button.slow {
 	background-image: url(./symbols/slower.svg);
 }
-.wwgui button.fast icon {
+.wwgui button.fast {
 	background-image: url(./symbols/faster.svg);
 }
 .wwgui input[type="checkbox"].turbo {
-	background-image: url(./symbols/turbo_checkbox.svg);
+	background-image: url(./symbols/turbo.svg);
 }
-.wwgui button.snapshot icon {
+.wwgui button.snapshot {
 	background-image: url(./symbols/snapshot.svg);
 }
-.wwgui button.help icon {
+.wwgui button.help {
 	background-image: url(./symbols/help.svg);
 }
-.wwgui button.about icon {
+.wwgui button.about {
 	background-image: url(./symbols/ww_about.svg);
 }
-.wwgui button.zoom-out icon {
+.wwgui button.zoom-out {
 	background-image: url(./symbols/zoom-out.svg);
 }
-.wwgui button.reset-view icon {
+.wwgui button.reset-view {
 	background-image: url(./symbols/reset-view.svg);
 }
-.wwgui button.zoom-in icon {
+.wwgui button.zoom-in {
 	background-image: url(./symbols/zoom-in.svg);
 }
-.wwgui button.load icon {
+.wwgui button.load {
 	background-image: url(./symbols/file.svg);
 }

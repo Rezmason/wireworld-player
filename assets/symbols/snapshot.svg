@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100px" height="100px" viewBox="-10 -10 20 20">
+	<style>
+		circle, path, polygon, rect {
+			--element-fg: #222;
+			fill: var(--element-fg);
+		}
+		.outline {
+			--element-fg: #222;
+			fill: none;
+			stroke: var(--element-fg);
+		}
+	</style>
 	<g transform="scale(9,9)">
-		<path fill="none" stroke="black" stroke-width="0.175" d="M0.75,0 A 0.81 0.81 0 0 1 -0.75 0 A 0.81 0.81 0 0 1 0.75 0z"></path>
-		<circle fill="none" stroke="black" stroke-width="0.215" r="0.275"></circle>
+		<path class="outline" stroke-width="0.175" d="M0.75,0 A 0.81 0.81 0 0 1 -0.75 0 A 0.81 0.81 0 0 1 0.75 0z"></path>
+		<circle class="outline" stroke-width="0.215" r="0.275"></circle>
 	</g>
 </svg>
