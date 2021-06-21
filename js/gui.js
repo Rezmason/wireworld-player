@@ -12,7 +12,7 @@ const initialState = {
 	playing: false,
 	playingUnderPopup: false,
 	turbo: false,
-	speed: 0
+	speed: 0,
 };
 
 const state = {};
@@ -20,8 +20,8 @@ const events = makeEventTarget();
 const stateChangedEvent = new Event("statechanged");
 const advanceEvent = new Event("advance");
 
-const collectUI = query =>
-	Object.fromEntries(Array.from(document.querySelectorAll(query)).map(element => [element.classList.item(0).replace(/-/g, "_"), element]));
+const collectUI = (query) =>
+	Object.fromEntries(Array.from(document.querySelectorAll(query)).map((element) => [element.classList.item(0).replace(/-/g, "_"), element]));
 
 const buttons = collectUI("button");
 const checkboxes = collectUI("input[type=checkbox]");
@@ -43,7 +43,7 @@ const hidePopup = () => {
 	}
 };
 
-const showPopup = popup => {
+const showPopup = (popup) => {
 	hidePopup();
 	state.playingUnderPopup = state.playing;
 	state.playing = false;
@@ -59,8 +59,8 @@ popupRoot.addEventListener("click", ({ target }) => {
 	}
 });
 
-Object.values(popups).forEach(popup => {
-	Array.from(popup.querySelectorAll("button.close-popup")).forEach(button => {
+Object.values(popups).forEach((popup) => {
+	Array.from(popup.querySelectorAll("button.close-popup")).forEach((button) => {
 		button.addEventListener("click", () => hidePopup());
 	});
 });
@@ -71,7 +71,7 @@ popups.confirm_reset.querySelector("button.reset-ok").addEventListener("click", 
 	events.dispatchEvent(new Event("resetsim"));
 });
 
-const showLoadFromFile = file => {
+const showLoadFromFile = (file) => {
 	state.file = file;
 	state.url = null;
 	popups.loading.querySelector(".title").textContent = `Loading ${state.file.name}`;
@@ -86,7 +86,7 @@ filePicker.addEventListener("change", () => {
 	showLoadFromFile(filePicker.files[0]);
 });
 
-document.body.addEventListener("dragenter", event => {
+document.body.addEventListener("dragenter", (event) => {
 	if (state.currentPopup != null) {
 		return;
 	}
@@ -95,12 +95,12 @@ document.body.addEventListener("dragenter", event => {
 	showPopup(popups.drag_and_drop);
 });
 
-document.body.addEventListener("dragover", event => {
+document.body.addEventListener("dragover", (event) => {
 	event.stopPropagation();
 	event.preventDefault();
 });
 
-document.body.addEventListener("drop", event => {
+document.body.addEventListener("drop", (event) => {
 	if (state.currentPopup !== popups.drag_and_drop) {
 		return;
 	}
@@ -116,9 +116,9 @@ speedSlider.addEventListener("change", () => {
 	events.dispatchEvent(stateChangedEvent);
 });
 
-Object.values(labels).forEach(label => {
+Object.values(labels).forEach((label) => {
 	const textSpan = label.querySelector(".wwguitext");
-	label.setText = text => {
+	label.setText = (text) => {
 		textSpan.textContent = text;
 		label.text = text;
 	};
@@ -167,7 +167,7 @@ listenToButton("load", "KeyL", () => {
 	filePicker.click();
 });
 
-const setFilePath = path => {
+const setFilePath = (path) => {
 	labels.file_name.setText(path);
 };
 
@@ -191,7 +191,7 @@ const wireColor = formatColorForEndian(0x448822ff /*0x505050ff*/, isLittleEndian
 const tailColor = formatColorForEndian(0xffdd22ff /*0xffee00ff*/, isLittleEndian);
 const headColor = formatColorForEndian(0xffff44ff /*0xff8800ff*/, isLittleEndian);
 
-const setPaper = data => {
+const setPaper = (data) => {
 	const { width, height, cells } = data;
 	const numBytes = width * height * 4;
 
@@ -231,12 +231,12 @@ const setPaper = data => {
 	setPanZoomSize(width, height);
 };
 
-const reset = filename => {
+const reset = (filename) => {
 	Object.assign(state, initialState);
 	setFilePath(filename);
 };
 
-const showAboutPopup = initial => {
+const showAboutPopup = (initial) => {
 	state.splash = initial;
 	popups.about.classList.toggle("splash", initial);
 	showPopup(popups.about);
@@ -273,5 +273,5 @@ export default {
 	showErrorPopup,
 	showAboutPopup,
 	hideAboutPopup,
-	hideLoadingPopup
+	hideLoadingPopup,
 };

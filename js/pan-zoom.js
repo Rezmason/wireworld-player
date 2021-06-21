@@ -32,7 +32,7 @@ const setPosition = (newX, newY) => {
 	}
 };
 
-const setScale = newScale => {
+const setScale = (newScale) => {
 	newScale = Math.min(maxScale, Math.max(minScale, newScale));
 	if (newScale === scale) {
 		return;
@@ -106,7 +106,7 @@ const averageBetwenTouches = () =>
 		? { clientX: touch1.clientX, clientY: touch1.clientY }
 		: {
 				clientX: (touch1.clientX + touch2.clientX) / 2,
-				clientY: (touch1.clientY + touch2.clientY) / 2
+				clientY: (touch1.clientY + touch2.clientY) / 2,
 		  };
 
 const beginPan = () => {
@@ -130,7 +130,7 @@ const endPan = () => {
 	touch2 = null;
 };
 
-const addTouch = touch => {
+const addTouch = (touch) => {
 	if (touch1 == null) {
 		touch1 = touch;
 	} else if (touch2 == null) {
@@ -139,7 +139,7 @@ const addTouch = touch => {
 	beginPan();
 };
 
-const removeTouch = touch => {
+const removeTouch = (touch) => {
 	if (touch == null) {
 		return;
 	}
@@ -204,7 +204,7 @@ dragRegion.addEventListener(
 			return;
 		}
 
-		eachTouch(changedTouches, touch => {
+		eachTouch(changedTouches, (touch) => {
 			if (touch1.identifier === touch.identifier) {
 				touch1 = touch;
 			} else if (touch2 != null && touch2.identifier === touch.identifier) {

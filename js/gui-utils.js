@@ -10,16 +10,16 @@ const makeEventTarget = () => {
 const wheelDeltaMagnifiers = {
 	[0]: 1,
 	[1]: 40,
-	[2]: 40 // TODO: find an example
+	[2]: 40, // TODO: find an example
 };
 
-const preventTouchDefault = func => event => {
+const preventTouchDefault = (func) => (event) => {
 	event.preventDefault();
 	func(event);
 };
 
 const listenForWheel = (target, func) => {
-	target.addEventListener("wheel", event => {
+	target.addEventListener("wheel", (event) => {
 		const magnifier = (wheelDeltaMagnifiers[event.deltaMode] ?? 0) / 10000;
 		func({
 			target,
@@ -27,7 +27,7 @@ const listenForWheel = (target, func) => {
 			clientY: event.clientY,
 			deltaX: event.deltaX * magnifier,
 			deltaY: event.deltaY * magnifier,
-			deltaZ: event.deltaZ * magnifier
+			deltaZ: event.deltaZ * magnifier,
 		});
 	});
 };
@@ -59,7 +59,7 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 	let value = 0;
 	let animatedDelta = 0;
 
-	const setValue = _value => {
+	const setValue = (_value) => {
 		if (_value < 0) {
 			_value = 0;
 		}
@@ -77,7 +77,7 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 
 	Object.defineProperty(slider, "value", {
 		get: () => value,
-		set: _value => setValue(_value)
+		set: (_value) => setValue(_value),
 	});
 
 	listenForWheel(rangeInput, ({ deltaY }) => {
@@ -86,7 +86,7 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 		}
 	});
 
-	rangeInput.addEventListener("input", e => {
+	rangeInput.addEventListener("input", (e) => {
 		if (setValue(rangeInput.valueAsNumber)) {
 			dispatch();
 		}
@@ -101,13 +101,13 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 		}
 	};
 
-	const beginAnimatedSlider = amount => event => {
+	const beginAnimatedSlider = (amount) => (event) => {
 		event.preventDefault();
 		animatedDelta = amount;
 		animateSlider();
 	};
 
-	const endAnimatedSlider = event => {
+	const endAnimatedSlider = (event) => {
 		animatedDelta = 0;
 	};
 
