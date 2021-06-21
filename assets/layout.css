@@ -90,6 +90,7 @@ popup-root {
 	place-items: center;
 	background: transparent;
 	display: none;
+	z-index: 1;
 }
 
 popup-root.onscreen {
