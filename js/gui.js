@@ -40,17 +40,26 @@ const hidePopup = () => {
 		state.playingUnderPopup = false;
 		popupRoot.classList.remove("onscreen");
 		events.dispatchEvent(stateChangedEvent);
+		if (state.lastFocusedElement != null) {
+			state.lastFocusedElement.focus();
+			state.lastFocusedElement = null;
+		}
 	}
 };
 
 const showPopup = (popup) => {
 	hidePopup();
+	const lastFocusedElement = document.activeElement;
+	if (!popupRoot.contains(lastFocusedElement)) {
+		state.lastFocusedElement = lastFocusedElement;
+	}
 	state.playingUnderPopup = state.playing;
 	state.playing = false;
 	state.currentPopup = popup;
 	popupRoot.classList.add("onscreen");
 	popup.classList.add("onscreen");
 	events.dispatchEvent(stateChangedEvent);
+	Array.from(popup.querySelectorAll("a, button, input")).pop()?.focus();
 };
 
 popupRoot.addEventListener("click", ({ target }) => {
@@ -179,17 +188,17 @@ const testLittleEndian = () => {
 
 const isLittleEndian = testLittleEndian();
 
-const formatColorForEndian = (rgba, isLittleEndian) => {
+const formatColorForEndian = (rgba) => {
 	if (isLittleEndian) {
 		return (((rgba >> 0) & 0xff) << 24) | (((rgba >> 8) & 0xff) << 16) | (((rgba >> 16) & 0xff) << 8) | (((rgba >> 24) & 0xff) << 0);
 	}
 	return rgba;
 };
 
-const deadColor = formatColorForEndian(0x224400ff /*0x000000ff*/, isLittleEndian);
-const wireColor = formatColorForEndian(0x448822ff /*0x505050ff*/, isLittleEndian);
-const tailColor = formatColorForEndian(0xffdd22ff /*0xffee00ff*/, isLittleEndian);
-const headColor = formatColorForEndian(0xffff44ff /*0xff8800ff*/, isLittleEndian);
+const deadColor = formatColorForEndian(0x224400ff /*0x000000ff*/);
+const wireColor = formatColorForEndian(0x448822ff /*0x505050ff*/);
+const tailColor = formatColorForEndian(0xffdd22ff /*0xffee00ff*/);
+const headColor = formatColorForEndian(0xffff44ff /*0xff8800ff*/);
 
 const setPaper = (data) => {
 	const { width, height, cells } = data;
