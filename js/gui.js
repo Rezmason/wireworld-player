@@ -199,6 +199,8 @@ const setPaper = (data) => {
 		Object.entries(canvases).map(([id, canvas]) => {
 			canvas.width = width;
 			canvas.height = height;
+			canvas.style.width = width;
+			canvas.style.height = height;
 			const context = canvas.getContext("2d");
 			const imageData = context.createImageData(width, height);
 			const buffer = new ArrayBuffer(numBytes);

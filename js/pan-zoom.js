@@ -247,6 +247,7 @@ resetViewButton.addEventListener("click", () => {
 mapKeyToMouseEvent(resetViewButton, "Digit0");
 
 const setPanZoomSize = (_width, _height) => {
+	scale = undefined;
 	width = _width;
 	height = _height;
 	recomputeInitialLayout();
