@@ -105,8 +105,6 @@ popup {
 	display: none;
 	background: white;
 	padding: 1em;
-	max-width: 40vw;
-	max-height: 40vh;
 	overflow: hidden;
 }
 
@@ -123,6 +121,11 @@ popup content {
 
 .code {
 	font-family: monospace;
+}
+
+popup.help {
+	width: 60vw;
+	height: 60vh;
 }
 
 popup.about:not(.splash) .splash-only,

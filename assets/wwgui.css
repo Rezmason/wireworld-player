@@ -342,7 +342,8 @@
 }
 
 .wwgui popup .title {
-	font-size: 3em;
+	font-size: 2em;
+	font-weight: bold;
 }
 
 .wwgui popup .subtitle {
