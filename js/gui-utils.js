@@ -7,6 +7,9 @@ const makeEventTarget = () => {
 	}
 };
 
+const uiElementTagNames = new Set(["button", "input"]);
+const isUIElement = (element) => uiElementTagNames.has(element.tagName.toLowerCase());
+
 const wheelDeltaMagnifiers = {
 	[0]: 1,
 	[1]: 40,
@@ -141,4 +144,4 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 	return slider;
 };
 
-export { makeEventTarget, makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };
+export { makeEventTarget, isUIElement, makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };

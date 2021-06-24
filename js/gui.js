@@ -1,5 +1,5 @@
 import { CellState } from "./data.js";
-import { makeEventTarget, makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
+import { makeEventTarget, isUIElement, makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
 
 const params = new URL(document.location).searchParams;
@@ -50,7 +50,7 @@ const hidePopup = () => {
 const showPopup = (popup) => {
 	hidePopup();
 	const lastFocusedElement = document.activeElement;
-	if (!popupRoot.contains(lastFocusedElement)) {
+	if (isUIElement(lastFocusedElement) && !popupRoot.contains(lastFocusedElement)) {
 		state.lastFocusedElement = lastFocusedElement;
 	}
 	state.playingUnderPopup = state.playing;
@@ -59,7 +59,9 @@ const showPopup = (popup) => {
 	popupRoot.classList.add("onscreen");
 	popup.classList.add("onscreen");
 	events.dispatchEvent(stateChangedEvent);
-	Array.from(popup.querySelectorAll("a, button, input")).pop()?.focus();
+	if (state.lastFocusedElement != null) {
+		Array.from(popup.querySelectorAll("a, button, input")).pop()?.focus();
+	}
 };
 
 popupRoot.addEventListener("click", ({ target }) => {

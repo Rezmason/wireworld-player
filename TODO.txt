@@ -1,5 +1,9 @@
 TODO
 
+STREAM Milestone: barebones implementation
+	Talk through the concepts
+	Record, upload to Vimeo
+
 STREAM Milestone: web worker
 	loading, parsing, timing
 	dynamically imports engine stub
