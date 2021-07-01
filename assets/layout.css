@@ -174,3 +174,7 @@ popup.drag-and-drop.onscreen {
 
 	cursor: copy;
 }
+
+body.accepting_drag * {
+	pointer-events: none;
+}

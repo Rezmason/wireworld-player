@@ -97,27 +97,35 @@ filePicker.addEventListener("change", () => {
 	showLoadFromFile(filePicker.files[0]);
 });
 
-document.body.addEventListener("dragenter", (event) => {
+document.addEventListener("dragenter", (event) => {
+	// Ignore drag events if a popup is open
 	if (state.currentPopup != null) {
 		return;
 	}
-	event.stopPropagation();
+
+	// TODO: look at file name and mimetype, maybe decide whether to accept it
+
 	event.preventDefault();
+	document.body.classList.toggle("accepting_drag", true);
 	showPopup(popups.drag_and_drop);
 });
 
-document.body.addEventListener("dragover", (event) => {
-	event.stopPropagation();
+document.addEventListener("dragover", (event) => {
 	event.preventDefault();
 });
 
-document.body.addEventListener("drop", (event) => {
-	if (state.currentPopup !== popups.drag_and_drop) {
-		return;
+document.addEventListener("dragleave", (event) => {
+	event.preventDefault();
+	if (event.target === document.body) {
+		hidePopup();
+		document.body.classList.toggle("accepting_drag", false);
 	}
-	event.stopPropagation();
+});
+
+document.addEventListener("drop", (event) => {
 	event.preventDefault();
 	hidePopup();
+	document.body.classList.toggle("accepting_drag", false);
 	showLoadFromFile(event.dataTransfer.files[0]);
 });
 
