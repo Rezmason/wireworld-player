@@ -1,3 +1,5 @@
+![Wireworld screenshot](/readme_assets/screenshot.png?raw=true "The Owen-Moore wireworld computer, viewed in the Wireworld player.")
+
 # Wireworld Player
 A multi-implementation Wireworld simulator written in ECMAScript.
 
