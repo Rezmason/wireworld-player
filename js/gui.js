@@ -210,11 +210,19 @@ const wireColor = formatColorForEndian(0x448822ff /*0x505050ff*/);
 const tailColor = formatColorForEndian(0xffdd22ff /*0xffee00ff*/);
 const headColor = formatColorForEndian(0xffff44ff /*0xff8800ff*/);
 
-const setPaper = (data) => {
-	const { width, height, cells } = data;
-	const numBytes = width * height * 4;
+const statesToColors = new Map([
+	[CellState.DEAD, deadColor],
+	[CellState.WIRE, wireColor],
+	[CellState.TAIL, tailColor],
+	[CellState.HEAD, headColor],
+]);
 
-	const drawings = Object.fromEntries(
+let drawings;
+
+const initializePaper = (data) => {
+	const { width, height } = data;
+	const numBytes = width * height * 4;
+	drawings = Object.fromEntries(
 		Object.entries(canvases).map(([id, canvas]) => {
 			canvas.width = width;
 			canvas.height = height;
@@ -224,22 +232,23 @@ const setPaper = (data) => {
 			const imageData = context.createImageData(width, height);
 			const buffer = new ArrayBuffer(numBytes);
 			const pixels = new Uint32Array(buffer);
-			return [id, { context, imageData, buffer, pixels }];
+			return [id, { canvas, context, imageData, buffer, pixels }];
 		})
 	);
 
-	for (let i = 0; i < height; i++) {
-		if (cells[i] != null) {
-			for (let j = 0; j < width; j++) {
-				const state = cells[i][j] ?? CellState.DEAD;
-				const index = i * width + j;
-				drawings.base.pixels[index] = state === CellState.DEAD ? deadColor : wireColor;
-				if (state === CellState.TAIL) {
-					drawings.tail.pixels[index] = tailColor;
-				}
-				if (state === CellState.HEAD) {
-					drawings.head.pixels[index] = headColor;
-				}
+	setPanZoomSize(width, height);
+};
+
+const updatePaper = (data) => {
+	const { width, height, cells } = data;
+
+	for (let y = 0; y < height; y++) {
+		if (cells[y] != null) {
+			for (let x = 0; x < width; x++) {
+				const state = cells[y][x] ?? CellState.DEAD;
+				const color = statesToColors.get(state);
+				const pixelIndex = y * width + x;
+				drawings.base.pixels[pixelIndex] = color;
 			}
 		}
 	}
@@ -248,8 +257,6 @@ const setPaper = (data) => {
 		imageData.data.set(new Uint8ClampedArray(buffer));
 		context.putImageData(imageData, 0, 0);
 	});
-
-	setPanZoomSize(width, height);
 };
 
 const reset = (filename) => {
@@ -286,9 +293,10 @@ const hideLoadingPopup = () => {
 
 reset("");
 
-export default {
+const gui = {
 	reset,
-	setPaper,
+	initializePaper,
+	updatePaper,
 	events,
 	state,
 	showErrorPopup,
@@ -296,3 +304,5 @@ export default {
 	hideAboutPopup,
 	hideLoadingPopup,
 };
+
+export { gui };

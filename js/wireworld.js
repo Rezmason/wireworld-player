@@ -1,7 +1,8 @@
 import { getDefaultURL } from "./data.js";
 import { delay, fetchLocalText, fetchRemoteText } from "./utils.js";
-import gui from "./gui.js";
-import parseFile from "./parse.js";
+import { gui } from "./gui.js";
+import { parseFile } from "./parse.js";
+import { engine } from "./engine.js";
 
 const params = new URL(document.location).searchParams;
 const suppressSplash = params.has("nosplash");
@@ -11,15 +12,15 @@ const loadedFiles = new Map();
 let data;
 
 gui.events.addEventListener("statechanged", () => {
-	// TODO
+	engine.setRhythm(gui.state);
 });
 
 gui.events.addEventListener("advance", () => {
-	// TODO
+	engine.advance();
 });
 
 gui.events.addEventListener("resetsim", () => {
-	// TODO
+	engine.reset();
 });
 
 gui.events.addEventListener("load", () => {
@@ -43,7 +44,8 @@ const load = async (target, splash) => {
 		data = loadedFiles.get(key);
 
 		gui.reset(filename);
-		gui.setPaper(data);
+		gui.initializePaper(data);
+		engine.initialize(data, gui.updatePaper);
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {
