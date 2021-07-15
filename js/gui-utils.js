@@ -41,6 +41,11 @@ const mapKeyToMouseEvent = (button, keyCode, upDownEvents = false) => {
 			return;
 		}
 		if (code === keyCode) {
+			if (code === "Space" && document.activeElement != null) {
+				if (document.activeElement.form === null) {
+					return;
+				}
+			}
 			button.dispatchEvent(new MouseEvent(upDownEvents ? "mousedown" : "click"));
 		}
 	});
