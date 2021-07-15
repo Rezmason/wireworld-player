@@ -178,3 +178,14 @@ popup.drag-and-drop.onscreen {
 body.accepting_drag * {
 	pointer-events: none;
 }
+
+.beta-badge {
+	display: inline-block;
+	background: red;
+	color: white;
+	font-size: 0.6em;
+	padding: 0.1em 0.5em;
+	border-radius: 0.5em;
+	transform: rotate(30deg);
+	text-transform: uppercase;
+}

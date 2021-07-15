@@ -8,13 +8,13 @@ let playing = false,
 	speed = 1,
 	delayMS = minDelayMS,
 	turbo = false;
-let _drawTo;
+let _render;
 
 // Strategy 1: list all the cells that DO need to change (non-dead)
 let nonDeadCells;
 
-const initialize = (data, drawTo) => {
-	_drawTo = drawTo;
+const initialize = (data, render) => {
+	_render = render;
 	width = data.width;
 	height = data.height;
 	originalCells = data.cells.map((row) => row.concat(Array(width - row.length).fill(CellState.DEAD)));
@@ -78,9 +78,6 @@ const advance = () => {
 		newCells[y][x] = oldState;
 		// Apply the rules:
 		switch (oldState) {
-			case CellState.DEAD:
-				// Dead --> Dead
-				break;
 			case CellState.TAIL:
 				// Tail --> Wire
 				newCells[y][x] = CellState.WIRE;
@@ -119,14 +116,14 @@ const advance = () => {
 	}
 
 	generation++;
-	_drawTo({ width, height, cells: newCells, nonDeadCells });
+	_render({ generation, width, height, cells: newCells, nonDeadCells });
 };
 
 const reset = () => {
 	generation = 0;
 	oldCells = originalCells.map((row) => row.slice());
 	newCells = originalCells.map((row) => row.slice());
-	_drawTo({ width, height, cells: newCells });
+	_render({ generation, width, height, cells: newCells });
 };
 
 const engine = { initialize, setRhythm, advance, reset };

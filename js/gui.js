@@ -26,6 +26,7 @@ const popups = collectUI("popup");
 const popupRoot = document.querySelector("popup-root");
 
 const initialState = {
+	generation: 0,
 	playing: false,
 	playingUnderPopup: false,
 	turbo: checkboxes.turbo.checked,
@@ -236,11 +237,18 @@ const initializePaper = (data) => {
 		})
 	);
 
+	labels.generation.setText(state.generation);
+
 	setPanZoomSize(width, height);
 };
 
 const updatePaper = (data) => {
 	const { width, height, cells, nonDeadCells } = data;
+
+	if (state.generation !== data.generation) {
+		state.generation = data.generation;
+		labels.generation.setText(state.generation);
+	}
 
 	if (nonDeadCells == null) {
 		for (let y = 0; y < height; y++) {
