@@ -240,16 +240,29 @@ const initializePaper = (data) => {
 };
 
 const updatePaper = (data) => {
-	const { width, height, cells } = data;
+	const { width, height, cells, nonDeadCells } = data;
 
-	for (let y = 0; y < height; y++) {
-		if (cells[y] != null) {
-			for (let x = 0; x < width; x++) {
-				const state = cells[y][x] ?? CellState.DEAD;
-				const color = statesToColors.get(state);
-				const pixelIndex = y * width + x;
-				drawings.base.pixels[pixelIndex] = color;
+	if (nonDeadCells == null) {
+		for (let y = 0; y < height; y++) {
+			if (cells[y] != null) {
+				for (let x = 0; x < width; x++) {
+					const state = cells[y][x] ?? CellState.DEAD;
+					const color = statesToColors.get(state);
+					const pixelIndex = y * width + x;
+					drawings.base.pixels[pixelIndex] = color;
+				}
 			}
+		}
+	} else {
+		const numNonDeadCells = nonDeadCells.length;
+		for (let i = 0; i < numNonDeadCells; i++) {
+			const index = nonDeadCells[i];
+			const x = index % width;
+			const y = (index - x) / width;
+			const state = cells[y][x] ?? CellState.DEAD;
+			const color = statesToColors.get(state);
+			const pixelIndex = y * width + x;
+			drawings.base.pixels[pixelIndex] = color;
 		}
 	}
 
