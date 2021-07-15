@@ -7,8 +7,6 @@ import { engine } from "./engine.js";
 const params = new URL(document.location).searchParams;
 const suppressSplash = params.has("nosplash");
 
-const loadedFiles = new Map();
-
 let data;
 
 gui.events.addEventListener("statechanged", () => {
@@ -38,10 +36,7 @@ const load = async (target, splash) => {
 		const isFile = target instanceof File;
 		filename = isFile ? target.name : target.split("/").pop();
 		const key = isFile ? `__local__${target.name}_${target.lastModified}` : target;
-		if (!loadedFiles.has(key)) {
-			loadedFiles.set(key, parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target)));
-		}
-		data = loadedFiles.get(key);
+		data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
 		gui.initializePaper(data);
