@@ -1,8 +1,12 @@
 import { CellState } from "./data.js";
 
+const minDelayMS = 10; // TODO: ought to be pinned to the RAF delay
+const maxDelayMS = 1000;
+
 let width, height, oldCells, newCells, originalCells, generation;
 let playing = false,
 	speed = 1,
+	delayMS = minDelayMS,
 	turbo = false;
 let _drawTo;
 
@@ -17,13 +21,31 @@ const initialize = (data, drawTo) => {
 const setRhythm = (rhythmData) => {
 	const wasPlaying = playing;
 	({ playing, speed, turbo } = rhythmData);
+	recomputeDelayMS();
 	if (playing && !wasPlaying) {
 		start();
 	}
 };
 
+const recomputeDelayMS = () => {
+	const x = Math.pow(speed, 1 / 5);
+	delayMS = minDelayMS * x + maxDelayMS * (1 - x);
+};
+
 const start = () => {
+	recomputeDelayMS();
+	run();
+};
+
+const run = () => {
 	advance();
+	if (playing) {
+		if (speed >= 1) {
+			requestAnimationFrame(run);
+		} else {
+			setTimeout(run, delayMS);
+		}
+	}
 };
 
 const advance = () => {
@@ -84,9 +106,6 @@ const advance = () => {
 
 	_drawTo({ width, height, cells: newCells });
 
-	if (playing) {
-		requestAnimationFrame(advance);
-	}
 };
 
 const reset = () => {

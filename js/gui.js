@@ -8,13 +8,6 @@ if (a11y) {
 	document.body.classList.remove("wwgui");
 }
 
-const initialState = {
-	playing: false,
-	playingUnderPopup: false,
-	turbo: false,
-	speed: 0,
-};
-
 const state = {};
 const events = makeEventTarget();
 const stateChangedEvent = new Event("statechanged");
@@ -31,6 +24,13 @@ const paper = document.querySelector("drag-region paper");
 const canvases = collectUI("canvas");
 const popups = collectUI("popup");
 const popupRoot = document.querySelector("popup-root");
+
+const initialState = {
+	playing: false,
+	playingUnderPopup: false,
+	turbo: checkboxes.turbo.checked,
+	speed: parseFloat(rangeInputs.speed.value),
+};
 
 const hidePopup = () => {
 	if (state.currentPopup != null) {
