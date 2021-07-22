@@ -11,8 +11,8 @@ const txtCharsToStates = {
 
 const mclCharsToStates = {
 	["."]: CellState.DEAD,
-	["A"]: CellState.TAIL,
-	["B"]: CellState.HEAD,
+	["A"]: CellState.HEAD,
+	["B"]: CellState.TAIL,
 	["C"]: CellState.WIRE,
 };
 

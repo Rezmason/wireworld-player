@@ -1,5 +1,9 @@
 TODO
 
+Make it easy to benchmark different techniques
+Make it easy to use different computing strategies
+
+
 STREAM Milestone: barebones implementation
 	Talk through the concepts
 	Record, upload to Vimeo
@@ -35,5 +39,3 @@ Milestone: drag-and-drop themes
 	Old Wireworld themes
 
 Milestone: switch favicon to indicate sim is running
-
-Turbo button background image should get effect applied

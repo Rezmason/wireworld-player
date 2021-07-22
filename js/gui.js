@@ -206,10 +206,10 @@ const formatColorForEndian = (rgba) => {
 	return rgba;
 };
 
-const deadColor = formatColorForEndian(0x224400ff /*0x000000ff*/);
-const wireColor = formatColorForEndian(0x448822ff /*0x505050ff*/);
-const tailColor = formatColorForEndian(0xffdd22ff /*0xffee00ff*/);
-const headColor = formatColorForEndian(0xffff44ff /*0xff8800ff*/);
+const deadColor = formatColorForEndian(/*0x224400ff*/ 0x000000ff);
+const wireColor = formatColorForEndian(/*0x448822ff*/ 0x505050ff);
+const tailColor = formatColorForEndian(/*0xffdd22ff*/ 0xffee00ff);
+const headColor = formatColorForEndian(/*0xffff44ff*/ 0xff8800ff);
 
 const statesToColors = new Map([
 	[CellState.DEAD, deadColor],
