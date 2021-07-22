@@ -1,6 +1,5 @@
 const makeEventTarget = () => {
 	try {
-		throw new Error("POOP");
 		return new EventTarget();
 	} catch {
 		return new DocumentFragment();
