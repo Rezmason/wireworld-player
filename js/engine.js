@@ -89,18 +89,18 @@ const advance = () => {
 			case CellState.WIRE:
 				// Wire ?--> Head (1 or 2 head neighbors) : Wire
 				let numHeadNeighbors = 0;
-				neighborCounting: for (let yoffset = -1; yoffset < 2; yoffset++) {
-					if (y + yoffset < 0 || y + yoffset >= width) {
+				neighborCounting: for (let yOffset = -1; yOffset < 2; yOffset++) {
+					if (y + yOffset < 0 || y + yOffset >= height) {
 						continue;
 					}
-					for (let columnOffset = -1; columnOffset < 2; columnOffset++) {
-						if (yoffset === 0 && columnOffset === 0) {
+					for (let xOffset = -1; xOffset < 2; xOffset++) {
+						if (yOffset === 0 && xOffset === 0) {
 							continue;
 						}
-						if (y + yoffset < 0 || y + yoffset >= height) {
+						if (x + xOffset < 0 || x + xOffset >= width) {
 							continue;
 						}
-						if (oldCells[y + yoffset][x + columnOffset] === CellState.HEAD) {
+						if (oldCells[y + yOffset][x + xOffset] === CellState.HEAD) {
 							numHeadNeighbors++;
 							if (numHeadNeighbors === 3) {
 								break neighborCounting;
