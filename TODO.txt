@@ -1,5 +1,9 @@
 TODO
 
+Reiterate that x and y are MOOT
+
+BUG: loading a file resets the engine's speed incorrectly
+
 Make it easy to benchmark different techniques
 Make it easy to use different computing strategies
 Detect intense flickering, and replace with "epilepsy guard" color

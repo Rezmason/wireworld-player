@@ -3,28 +3,59 @@ import { CellState } from "./data.js";
 const minDelayMS = 10; // TODO: ought to be pinned to the RAF delay
 const maxDelayMS = 1000;
 
-let width, height, oldCells, newCells, originalCells, generation;
+let width, height, cells, numCells, originalCellStates, generation;
 let playing = false,
 	speed = 1,
 	delayMS = minDelayMS,
 	turbo = false;
 let _render;
 
-// Strategy 1: list all the cells that DO need to change (non-dead)
-let nonDeadCells;
+let totalTime;
 
 const initialize = (data, render) => {
 	_render = render;
 	width = data.width;
 	height = data.height;
-	originalCells = data.cells.map((row) => row.concat(Array(width - row.length).fill(CellState.DEAD)));
-	nonDeadCells = [];
 
-	for (let y = 0; y < height; y++) {
-		for (let x = 0; x < width; x++) {
-			if (originalCells[y][x] !== CellState.DEAD) {
-				nonDeadCells.push(y * width + x);
+	numCells = 0;
+	cells = [];
+	const cellGrid = Array(height)
+		.fill()
+		.map((_) => Array(width));
+
+	data.cellStates.forEach((row, y) =>
+		row.forEach((originalState, x) => {
+			if (originalState == null || originalState === CellState.DEAD) {
+				return;
 			}
+
+			const cell = { x, y, index: numCells, originalState, neighbors: [] };
+			cells[numCells] = cell;
+			cellGrid[y][x] = cell;
+			numCells++;
+		})
+	);
+
+	for (let i = 0; i < numCells; i++) {
+		const cell = cells[i];
+		const { x, y } = cell;
+		meetNeighbors: for (let yOffset = -1; yOffset < 2; yOffset++) {
+			if (y + yOffset < 0 || y + yOffset >= height) {
+				continue;
+			}
+			for (let xOffset = -1; xOffset < 2; xOffset++) {
+				if (yOffset === 0 && xOffset === 0) {
+					continue;
+				}
+				if (x + xOffset < 0 || x + xOffset >= width) {
+					continue;
+				}
+				const neighbor = cellGrid[y + yOffset][x + xOffset];
+				if (neighbor != null) {
+					cell.neighbors.push(neighbor);
+				}
+			}
+			cell.numNeighbors = cell.neighbors.length;
 		}
 	}
 
@@ -62,68 +93,57 @@ const run = () => {
 };
 
 const advance = () => {
-	// Swap the old and new cells
-	let swap = oldCells;
-	oldCells = newCells;
-	newCells = swap;
+	const start = performance.now();
 
-	// Strategy 1: for every non-dead cell,
-	const numNonDeadCells = nonDeadCells.length;
-	for (let i = 0; i < numNonDeadCells; i++) {
-		const index = nonDeadCells[i];
-		const x = index % width;
-		const y = (index - x) / width;
+	for (let i = 0; i < numCells; i++) {
+		cells[i].oldState = cells[i].state;
+	}
 
-		const oldState = oldCells[y][x];
-		newCells[y][x] = oldState;
+	// Strategy 2: for every cell,
+	for (let i = 0; i < numCells; i++) {
+		const cell = cells[i];
+
 		// Apply the rules:
-		switch (oldState) {
+		switch (cell.oldState) {
 			case CellState.TAIL:
 				// Tail --> Wire
-				newCells[y][x] = CellState.WIRE;
+				cell.state = CellState.WIRE;
 				break;
 			case CellState.HEAD:
 				// Head --> Tail
-				newCells[y][x] = CellState.TAIL;
+				cell.state = CellState.TAIL;
 				break;
 			case CellState.WIRE:
 				// Wire ?--> Head (1 or 2 head neighbors) : Wire
 				let numHeadNeighbors = 0;
-				neighborCounting: for (let yOffset = -1; yOffset < 2; yOffset++) {
-					if (y + yOffset < 0 || y + yOffset >= height) {
-						continue;
-					}
-					for (let xOffset = -1; xOffset < 2; xOffset++) {
-						if (yOffset === 0 && xOffset === 0) {
-							continue;
-						}
-						if (x + xOffset < 0 || x + xOffset >= width) {
-							continue;
-						}
-						if (oldCells[y + yOffset][x + xOffset] === CellState.HEAD) {
-							numHeadNeighbors++;
-							if (numHeadNeighbors === 3) {
-								break neighborCounting;
-							}
+				const numNeighbors = cell.numNeighbors;
+				for (let j = 0; j < numNeighbors; j++) {
+					if (cell.neighbors[j].oldState === CellState.HEAD) {
+						numHeadNeighbors++;
+						if (numHeadNeighbors === 3) {
+							break;
 						}
 					}
 				}
 				if (numHeadNeighbors === 1 || numHeadNeighbors === 2) {
-					newCells[y][x] = CellState.HEAD;
+					cell.state = CellState.HEAD;
 				}
 				break;
 		}
 	}
 
 	generation++;
-	_render({ generation, width, height, cells: newCells, nonDeadCells });
+	totalTime += performance.now() - start;
+	_render({ generation, width, height, cells });
 };
+
+window.engineFrameTime = () => console.log(totalTime / (generation + 1).toFixed(3));
 
 const reset = () => {
 	generation = 0;
-	oldCells = originalCells.map((row) => row.slice());
-	newCells = originalCells.map((row) => row.slice());
-	_render({ generation, width, height, cells: newCells, nonDeadCells });
+	totalTime = 0;
+	cells.forEach((cell) => (cell.state = cell.originalState));
+	_render({ generation, width, height, cells });
 };
 
 const engine = { initialize, setRhythm, advance, reset };

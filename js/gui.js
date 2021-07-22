@@ -221,7 +221,7 @@ const statesToColors = new Map([
 let drawings;
 
 const initializePaper = (data) => {
-	const { width, height, cells } = data;
+	const { width, height, cellStates } = data;
 	const numBytes = width * height * 4;
 	drawings = Object.fromEntries(
 		Object.entries(canvases).map(([id, canvas]) => {
@@ -241,11 +241,9 @@ const initializePaper = (data) => {
 	const baseDrawing = drawings.base;
 	baseDrawing.pixels.fill(statesToColors.get(CellState.DEAD));
 	for (let y = 0; y < height; y++) {
-		if (cells[y] != null) {
+		if (cellStates[y] != null) {
 			for (let x = 0; x < width; x++) {
-				const state = (cells[y][x] ?? CellState.DEAD) === CellState.DEAD 
-					? CellState.DEAD 
-					: CellState.WIRE;
+				const state = (cellStates[y][x] ?? CellState.DEAD) === CellState.DEAD ? CellState.DEAD : CellState.WIRE;
 				const color = statesToColors.get(state);
 				const pixelIndex = y * width + x;
 				baseDrawing.pixels[pixelIndex] = color;
@@ -261,7 +259,7 @@ const initializePaper = (data) => {
 };
 
 const updatePaper = (data) => {
-	const { width, height, cells, nonDeadCells } = data;
+	const { width, height, cells } = data;
 	const activeDrawing = drawings.active;
 
 	if (state.generation !== data.generation) {
@@ -270,17 +268,15 @@ const updatePaper = (data) => {
 	}
 
 	activeDrawing.pixels.fill(0x00000000);
-	const numNonDeadCells = nonDeadCells.length;
-	for (let i = 0; i < numNonDeadCells; i++) {
-		const index = nonDeadCells[i];
-		const x = index % width;
-		const y = (index - x) / width;
-		const state = cells[y][x];
-		if (state !== CellState.HEAD && state !== CellState.TAIL) {
+	const numCells = cells.length;
+	for (let i = 0; i < numCells; i++) {
+		const cell = cells[i];
+		const state = cell.state;
+		if (state === CellState.WIRE) {
 			continue;
 		}
 		const color = statesToColors.get(state);
-		const pixelIndex = y * width + x;
+		const pixelIndex = cell.y * width + cell.x;
 		activeDrawing.pixels[pixelIndex] = color;
 	}
 

@@ -23,12 +23,12 @@ const parseTXT = (file) => {
 		return null;
 	}
 
-	const cells = file.split("\n").map((line) => [...line].map((c) => txtCharsToStates[c] ?? CellState.DEAD));
+	const cellStates = file.split("\n").map((line) => [...line].map((c) => txtCharsToStates[c] ?? CellState.DEAD));
 
 	return {
 		width: parseInt(data[1]),
 		height: parseInt(data[2]),
-		cells,
+		cellStates,
 	};
 };
 
@@ -39,7 +39,7 @@ const parseMCL = (file) => {
 		return null;
 	}
 
-	const cells = data[3]
+	const cellStates = data[3]
 		.replace(/(#L |\$$|\r)/g, "")
 		.split("\n")
 		.filter((line) => line.length > 0)
@@ -50,9 +50,9 @@ const parseMCL = (file) => {
 		.map((line) => [...line].map((c) => mclCharsToStates[c] ?? CellState.DEAD));
 
 	return {
-		width: Math.max(...cells.map((line) => line.length)) /*parseInt(data[1])*/,
-		height: cells.length /*parseInt(data[2])*/,
-		cells,
+		width: Math.max(...cellStates.map((line) => line.length)) /*parseInt(data[1])*/,
+		height: cellStates.length /*parseInt(data[2])*/,
+		cellStates,
 	};
 };
 
