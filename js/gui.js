@@ -221,7 +221,7 @@ const statesToColors = new Map([
 let drawings;
 
 const initializePaper = (data) => {
-	const { width, height } = data;
+	const { width, height, cells } = data;
 	const numBytes = width * height * 4;
 	drawings = Object.fromEntries(
 		Object.entries(canvases).map(([id, canvas]) => {
@@ -233,9 +233,27 @@ const initializePaper = (data) => {
 			const imageData = context.createImageData(width, height);
 			const buffer = new ArrayBuffer(numBytes);
 			const pixels = new Uint32Array(buffer);
-			return [id, { canvas, context, imageData, buffer, pixels }];
+			const pixelBytes = new Uint8ClampedArray(buffer);
+			return [id, { canvas, context, imageData, buffer, pixels, pixelBytes }];
 		})
 	);
+
+	const baseDrawing = drawings.base;
+	baseDrawing.pixels.fill(statesToColors.get(CellState.DEAD));
+	for (let y = 0; y < height; y++) {
+		if (cells[y] != null) {
+			for (let x = 0; x < width; x++) {
+				const state = (cells[y][x] ?? CellState.DEAD) === CellState.DEAD 
+					? CellState.DEAD 
+					: CellState.WIRE;
+				const color = statesToColors.get(state);
+				const pixelIndex = y * width + x;
+				baseDrawing.pixels[pixelIndex] = color;
+			}
+		}
+	}
+	baseDrawing.imageData.data.set(baseDrawing.pixelBytes);
+	baseDrawing.context.putImageData(baseDrawing.imageData, 0, 0);
 
 	labels.generation.setText(state.generation);
 
@@ -244,40 +262,30 @@ const initializePaper = (data) => {
 
 const updatePaper = (data) => {
 	const { width, height, cells, nonDeadCells } = data;
+	const activeDrawing = drawings.active;
 
 	if (state.generation !== data.generation) {
 		state.generation = data.generation;
 		labels.generation.setText(state.generation);
 	}
 
-	if (nonDeadCells == null) {
-		for (let y = 0; y < height; y++) {
-			if (cells[y] != null) {
-				for (let x = 0; x < width; x++) {
-					const state = cells[y][x] ?? CellState.DEAD;
-					const color = statesToColors.get(state);
-					const pixelIndex = y * width + x;
-					drawings.base.pixels[pixelIndex] = color;
-				}
-			}
+	activeDrawing.pixels.fill(0x00000000);
+	const numNonDeadCells = nonDeadCells.length;
+	for (let i = 0; i < numNonDeadCells; i++) {
+		const index = nonDeadCells[i];
+		const x = index % width;
+		const y = (index - x) / width;
+		const state = cells[y][x];
+		if (state !== CellState.HEAD && state !== CellState.TAIL) {
+			continue;
 		}
-	} else {
-		const numNonDeadCells = nonDeadCells.length;
-		for (let i = 0; i < numNonDeadCells; i++) {
-			const index = nonDeadCells[i];
-			const x = index % width;
-			const y = (index - x) / width;
-			const state = cells[y][x] ?? CellState.DEAD;
-			const color = statesToColors.get(state);
-			const pixelIndex = y * width + x;
-			drawings.base.pixels[pixelIndex] = color;
-		}
+		const color = statesToColors.get(state);
+		const pixelIndex = y * width + x;
+		activeDrawing.pixels[pixelIndex] = color;
 	}
 
-	Object.values(drawings).forEach(({ imageData, buffer, context }) => {
-		imageData.data.set(new Uint8ClampedArray(buffer));
-		context.putImageData(imageData, 0, 0);
-	});
+	activeDrawing.imageData.data.set(activeDrawing.pixelBytes);
+	activeDrawing.context.putImageData(activeDrawing.imageData, 0, 0);
 };
 
 const reset = (filename) => {

@@ -123,7 +123,7 @@ const reset = () => {
 	generation = 0;
 	oldCells = originalCells.map((row) => row.slice());
 	newCells = originalCells.map((row) => row.slice());
-	_render({ generation, width, height, cells: newCells });
+	_render({ generation, width, height, cells: newCells, nonDeadCells });
 };
 
 const engine = { initialize, setRhythm, advance, reset };
