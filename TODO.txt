@@ -1,33 +1,19 @@
 TODO
 
 Episode 5
-	
-	Talk briefly about Flash version
-		Flash CrossBridge
-			https://adobe-flash.github.io/crossbridge/index.htm
-			http://web.archive.org/web/20090809135650/http://blog.joa-ebert.com/2009/08/05/tdsi-examples/
-			http://web.archive.org/web/20110819073432/http://ncannasse.fr/blog/virtual_memory_api
-		HaxeModel and TDSIModel
-
-	Strategy 3
 
 	BUG: loading a file resets the engine's speed incorrectly
 	BUG: changing speed with keys behaves strangely
 	BUG: focus doesn't work properly in Chrome
-	
-	Small improvements
-		Canvas drawing
-			Isolate to its own module?
-			Update function should take arguments, not data
-			Make base canvas opaque
-			Move colors into CSS?
 
-Make it easy to benchmark different techniques
-Make it easy to use different computing strategies
+	Maybe write a foreach for linked lists
+		Maybe make a class
+
+Cleverer turbo behavior	
 
 Photosensitivity warning
-Detect intense flickering, and replace with "epilepsy guard" color
-
+	Detect intense flickering, and replace with "epilepsy guard" color
+Make base canvas opaque?
 
 EPISODE Milestone: web worker
 	loading, parsing, timing

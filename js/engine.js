@@ -20,9 +20,15 @@ const makeCell = (index, firstState, x, y) => {
 		index,
 		firstState,
 		neighbors: [],
-		numNeighbors: 0
+		numNeighbors: 0,
+		next: null,
+		headCount: 0,
+		isWire: false,
 	};
 };
+
+let firstHead = null,
+	firstTail = null;
 
 const initialize = (data, render) => {
 	_render = render;
@@ -97,7 +103,7 @@ const run = () => {
 	for (let i = 0; i < count; i++) {
 		update();
 	}
-	_render(generation, width, height, cells);
+	_render(generation, width, height, firstHead, firstTail);
 	if (playing) {
 		if (speed >= 1) {
 			requestAnimationFrame(run);
@@ -112,49 +118,65 @@ const update = () => {
 
 	const start = performance.now();
 
-	for (let i = 0; i < numCells; i++) {
-		cells[i].oldState = cells[i].state;
-	}
+	// generate new list of heads from heads
+	let firstNewHead = null;
+	let lastNewHead = null;
+	let numNeighbors, neighbor;
 
-	// Strategy 2: for every cell,
-	for (let i = 0; i < numCells; i++) {
-		const cell = cells[i];
-
-		// Apply the rules:
-		switch (cell.oldState) {
-			case CellState.TAIL:
-				// Tail --> Wire
-				cell.state = CellState.WIRE;
-				break;
-			case CellState.HEAD:
-				// Head --> Tail
-				cell.state = CellState.TAIL;
-				break;
-			case CellState.WIRE:
-				// Wire ?--> Head (1 or 2 head neighbors) : Wire
-				let numHeadNeighbors = 0;
-				const numNeighbors = cell.numNeighbors;
-				for (let j = 0; j < numNeighbors; j++) {
-					if (cell.neighbors[j].oldState === CellState.HEAD) {
-						numHeadNeighbors++;
-						if (numHeadNeighbors === 3) {
-							break;
-						}
+	// add all wire neighbors of heads to new heads list and count their head neighbors
+	for (let cell = firstHead; cell != null; cell = cell.next) {
+		numNeighbors = cell.numNeighbors;
+		for (let i = 0; i < numNeighbors; i++) {
+			neighbor = cell.neighbors[i];
+			if (neighbor.isWire) {
+				if (neighbor.headCount === 0) {
+					neighbor.headCount = 1;
+					neighbor.next = null;
+					if (firstNewHead == null) {
+						firstNewHead = neighbor;
+					} else {
+						lastNewHead.next = neighbor;
 					}
+					lastNewHead = neighbor;
+				} else {
+					neighbor.headCount++;
 				}
-				if (numHeadNeighbors === 1 || numHeadNeighbors === 2) {
-					cell.state = CellState.HEAD;
-				}
-				break;
+			}
 		}
 	}
+
+	// remove cells from front of list until first cell is a valid new head
+	while (firstNewHead.headCount > 2) {
+		firstNewHead.headCount = 0;
+		firstNewHead = firstNewHead.next;
+	}
+
+	// remove cells from list if they are invalid
+	for (let newHead = firstNewHead; newHead != null; newHead = newHead.next) {
+		let cell = newHead.next;
+		while (cell != null && cell.headCount > 2) {
+			cell.headCount = 0;
+			cell = cell.next;
+		}
+		newHead.next = cell;
+		newHead.headCount = 0;
+		newHead.isWire = false;
+	}
+
+	// turn all tails to wires
+	for (let cell = firstTail; cell != null; cell = cell.next) {
+		cell.isWire = true;
+	}
+
+	firstTail = firstHead;
+	firstHead = firstNewHead;
 
 	totalTime += performance.now() - start;
 };
 
 const advance = () => {
 	update();
-	_render(generation, width, height, cells);
+	_render(generation, width, height, firstHead, firstTail);
 };
 
 window.engineFrameTime = () => console.log(totalTime / (generation + 1).toFixed(3));
@@ -162,8 +184,36 @@ window.engineFrameTime = () => console.log(totalTime / (generation + 1).toFixed(
 const reset = () => {
 	generation = 0;
 	totalTime = 0;
-	cells.forEach((cell) => (cell.state = cell.firstState));
-	_render(generation, width, height, cells);
+	firstHead = null;
+	firstTail = null;
+	let lastHead = null,
+		lastTail = null;
+	cells.forEach((cell) => {
+		cell.next = null;
+		cell.isWire = false;
+		switch (cell.firstState) {
+			case CellState.HEAD:
+				if (firstHead == null) {
+					firstHead = cell;
+				} else {
+					lastHead.next = cell;
+				}
+				lastHead = cell;
+				break;
+			case CellState.TAIL:
+				if (firstTail == null) {
+					firstTail = cell;
+				} else {
+					lastTail.next = cell;
+				}
+				lastTail = cell;
+				break;
+			case CellState.WIRE:
+				cell.isWire = true;
+				break;
+		}
+	});
+	_render(generation, width, height, firstHead, firstTail);
 };
 
 const engine = { initialize, setRhythm, advance, reset };

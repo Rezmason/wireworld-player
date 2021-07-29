@@ -258,7 +258,7 @@ const initializePaper = (data) => {
 	setPanZoomSize(width, height);
 };
 
-const updatePaper = (generation, width, height, cells) => {
+const updatePaper = (generation, width, height, heads, tails) => {
 	const activeDrawing = drawings.active;
 
 	if (state.generation !== generation) {
@@ -267,16 +267,17 @@ const updatePaper = (generation, width, height, cells) => {
 	}
 
 	activeDrawing.pixels.fill(0x00000000);
-	const numCells = cells.length;
-	for (let i = 0; i < numCells; i++) {
-		const cell = cells[i];
-		const state = cell.state;
-		if (state === CellState.WIRE) {
-			continue;
-		}
-		const color = statesToColors.get(state);
+
+	const headColor = statesToColors.get(CellState.HEAD);
+	for (let cell = heads; cell != null; cell = cell.next) {
 		const pixelIndex = cell.y * width + cell.x;
-		activeDrawing.pixels[pixelIndex] = color;
+		activeDrawing.pixels[pixelIndex] = headColor;
+	}
+
+	const tailColor = statesToColors.get(CellState.TAIL);
+	for (let cell = tails; cell != null; cell = cell.next) {
+		const pixelIndex = cell.y * width + cell.x;
+		activeDrawing.pixels[pixelIndex] = tailColor;
 	}
 
 	activeDrawing.imageData.data.set(activeDrawing.pixelBytes);
