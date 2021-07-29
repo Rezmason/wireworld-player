@@ -7,9 +7,9 @@ let width, height, cells, numCells, originalCellStates, generation;
 let playing = false,
 	speed = 1,
 	delayMS = minDelayMS,
-	turbo = false;
+	turbo = false,
+	count = 1;
 let _render;
-let count = 1;
 
 let totalTime;
 
@@ -27,8 +27,8 @@ const makeCell = (index, firstState, x, y) => {
 	};
 };
 
-let firstHead = null,
-	firstTail = null;
+let firstHead = null;
+let firstTail = null;
 
 const initialize = (data, render) => {
 	_render = render;
@@ -81,11 +81,14 @@ const initialize = (data, render) => {
 
 const setRhythm = (rhythmData) => {
 	const wasPlaying = playing;
+	const wasTurbo = turbo;
 	({ playing, speed, turbo } = rhythmData);
 	count = turbo ? 60 : 1;
 	recomputeDelayMS();
 	if (playing && !wasPlaying) {
 		start();
+	} else if (playing && !wasTurbo && turbo) {
+		run();
 	}
 };
 
@@ -104,8 +107,9 @@ const run = () => {
 		update();
 	}
 	_render(generation, width, height, firstHead, firstTail);
+
 	if (playing) {
-		if (speed >= 1) {
+		if (turbo || speed >= 1) {
 			requestAnimationFrame(run);
 		} else {
 			setTimeout(run, delayMS);
@@ -130,37 +134,35 @@ const update = () => {
 			neighbor = cell.neighbors[i];
 			if (neighbor.isWire) {
 				if (neighbor.headCount === 0) {
-					neighbor.headCount = 1;
-					neighbor.next = null;
 					if (firstNewHead == null) {
 						firstNewHead = neighbor;
 					} else {
 						lastNewHead.next = neighbor;
 					}
 					lastNewHead = neighbor;
-				} else {
-					neighbor.headCount++;
 				}
+				neighbor.headCount++;
 			}
 		}
 	}
+	if (lastNewHead != null) {
+		lastNewHead.next = null;
+	}
 
 	// remove cells from front of list until first cell is a valid new head
-	while (firstNewHead.headCount > 2) {
+	while (firstNewHead != null && firstNewHead.headCount > 2) {
 		firstNewHead.headCount = 0;
 		firstNewHead = firstNewHead.next;
 	}
 
 	// remove cells from list if they are invalid
-	for (let newHead = firstNewHead; newHead != null; newHead = newHead.next) {
-		let cell = newHead.next;
-		while (cell != null && cell.headCount > 2) {
-			cell.headCount = 0;
-			cell = cell.next;
+	for (let cell = firstNewHead; cell != null; cell = cell.next) {
+		while (cell.next != null && cell.next.headCount > 2) {
+			cell.next.headCount = 0;
+			cell.next = cell.next.next;
 		}
-		newHead.next = cell;
-		newHead.headCount = 0;
-		newHead.isWire = false;
+		cell.headCount = 0;
+		cell.isWire = false;
 	}
 
 	// turn all tails to wires
@@ -186,10 +188,9 @@ const reset = () => {
 	totalTime = 0;
 	firstHead = null;
 	firstTail = null;
-	let lastHead = null,
-		lastTail = null;
+	let lastHead = null;
+	let lastTail = null;
 	cells.forEach((cell) => {
-		cell.next = null;
 		cell.isWire = false;
 		switch (cell.firstState) {
 			case CellState.HEAD:
