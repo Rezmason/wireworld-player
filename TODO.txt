@@ -2,7 +2,7 @@ TODO
 
 Episode 5
 
-	BUG: focus doesn't work properly
+	BUG: Firefox and Chrome give focus (invisibly) to last clicked element
 
 	Maybe write a foreach for linked lists
 		Maybe make a class

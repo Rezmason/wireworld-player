@@ -125,15 +125,30 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 		speed = 0.01;
 	}
 
+	const sanitizeKey = (func) => (event) => {
+		if (event.repeat) {
+			return;
+		}
+		if (event.code === "Space" || event.code === "Enter") {
+			func(event);
+		}
+	};
+
 	decreaseButton.addEventListener("mousedown", beginAnimatedSlider(-speed));
 	decreaseButton.addEventListener("touchstart", beginAnimatedSlider(-speed));
 	decreaseButton.addEventListener("mouseup", endAnimatedSlider);
 	decreaseButton.addEventListener("touchend", endAnimatedSlider);
 
+	decreaseButton.addEventListener("keydown", sanitizeKey(beginAnimatedSlider(-speed)));
+	decreaseButton.addEventListener("keyup", sanitizeKey(endAnimatedSlider));
+
 	increaseButton.addEventListener("mousedown", beginAnimatedSlider(speed));
 	increaseButton.addEventListener("touchstart", beginAnimatedSlider(speed));
 	increaseButton.addEventListener("mouseup", endAnimatedSlider);
 	increaseButton.addEventListener("touchend", endAnimatedSlider);
+
+	increaseButton.addEventListener("keydown", sanitizeKey(beginAnimatedSlider(speed)));
+	increaseButton.addEventListener("keyup", sanitizeKey(endAnimatedSlider));
 
 	document.body.addEventListener("mouseup", endAnimatedSlider);
 	document.body.addEventListener("touchend", endAnimatedSlider);
