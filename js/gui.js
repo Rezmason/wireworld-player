@@ -258,12 +258,11 @@ const initializePaper = (data) => {
 	setPanZoomSize(width, height);
 };
 
-const updatePaper = (data) => {
-	const { width, height, cells } = data;
+const updatePaper = (generation, width, height, cells) => {
 	const activeDrawing = drawings.active;
 
-	if (state.generation !== data.generation) {
-		state.generation = data.generation;
+	if (state.generation !== generation) {
+		state.generation = generation;
 		labels.generation.setText(state.generation);
 	}
 

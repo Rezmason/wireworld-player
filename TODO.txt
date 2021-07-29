@@ -1,28 +1,42 @@
 TODO
 
-Reiterate that x and y are MOOT
+Episode 5
+	
+	Talk briefly about Flash version
+		Flash CrossBridge
+			https://adobe-flash.github.io/crossbridge/index.htm
+			http://web.archive.org/web/20090809135650/http://blog.joa-ebert.com/2009/08/05/tdsi-examples/
+			http://web.archive.org/web/20110819073432/http://ncannasse.fr/blog/virtual_memory_api
+		HaxeModel and TDSIModel
 
-BUG: loading a file resets the engine's speed incorrectly
+	Strategy 3
+
+	BUG: loading a file resets the engine's speed incorrectly
+	BUG: changing speed with keys behaves strangely
+	BUG: focus doesn't work properly in Chrome
+	
+	Small improvements
+		Canvas drawing
+			Isolate to its own module?
+			Update function should take arguments, not data
+			Make base canvas opaque
+			Move colors into CSS?
 
 Make it easy to benchmark different techniques
 Make it easy to use different computing strategies
+
+Photosensitivity warning
 Detect intense flickering, and replace with "epilepsy guard" color
 
 
-STREAM Milestone: barebones implementation
-	Talk through the concepts
-	Record, upload to Vimeo
-
-STREAM Milestone: web worker
+EPISODE Milestone: web worker
 	loading, parsing, timing
 	dynamically imports engine stub
 	turbo, run worker without limit
 
-Milestone: meta tag, OG
+EPISODE Milestone: implementations
 
-STREAM Milestone: implementations
-
-STREAM Milestone: gallery
+EPISODE Milestone: gallery
 	Most of the files are small!
 	Load their data straight to canvas for preview images
 	"Move" everything to RLE

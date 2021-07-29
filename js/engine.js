@@ -9,8 +9,20 @@ let playing = false,
 	delayMS = minDelayMS,
 	turbo = false;
 let _render;
+let count = 1;
 
 let totalTime;
+
+const makeCell = (index, firstState, x, y) => {
+	return {
+		x,
+		y,
+		index,
+		firstState,
+		neighbors: [],
+		numNeighbors: 0
+	};
+};
 
 const initialize = (data, render) => {
 	_render = render;
@@ -24,22 +36,21 @@ const initialize = (data, render) => {
 		.map((_) => Array(width));
 
 	data.cellStates.forEach((row, y) =>
-		row.forEach((originalState, x) => {
-			if (originalState == null || originalState === CellState.DEAD) {
+		row.forEach((firstState, x) => {
+			if (firstState == null || firstState === CellState.DEAD) {
 				return;
 			}
 
-			const cell = { x, y, index: numCells, originalState, neighbors: [] };
+			const cell = makeCell(numCells, firstState, x, y);
 			cells[numCells] = cell;
 			cellGrid[y][x] = cell;
 			numCells++;
 		})
 	);
 
-	for (let i = 0; i < numCells; i++) {
-		const cell = cells[i];
+	for (const cell of cells) {
 		const { x, y } = cell;
-		meetNeighbors: for (let yOffset = -1; yOffset < 2; yOffset++) {
+		for (let yOffset = -1; yOffset < 2; yOffset++) {
 			if (y + yOffset < 0 || y + yOffset >= height) {
 				continue;
 			}
@@ -55,8 +66,8 @@ const initialize = (data, render) => {
 					cell.neighbors.push(neighbor);
 				}
 			}
-			cell.numNeighbors = cell.neighbors.length;
 		}
+		cell.numNeighbors = cell.neighbors.length;
 	}
 
 	reset();
@@ -65,6 +76,7 @@ const initialize = (data, render) => {
 const setRhythm = (rhythmData) => {
 	const wasPlaying = playing;
 	({ playing, speed, turbo } = rhythmData);
+	count = turbo ? 60 : 1;
 	recomputeDelayMS();
 	if (playing && !wasPlaying) {
 		start();
@@ -82,7 +94,10 @@ const start = () => {
 };
 
 const run = () => {
-	advance();
+	for (let i = 0; i < count; i++) {
+		update();
+	}
+	_render(generation, width, height, cells);
 	if (playing) {
 		if (speed >= 1) {
 			requestAnimationFrame(run);
@@ -92,7 +107,9 @@ const run = () => {
 	}
 };
 
-const advance = () => {
+const update = () => {
+	generation++;
+
 	const start = performance.now();
 
 	for (let i = 0; i < numCells; i++) {
@@ -132,9 +149,12 @@ const advance = () => {
 		}
 	}
 
-	generation++;
 	totalTime += performance.now() - start;
-	_render({ generation, width, height, cells });
+};
+
+const advance = () => {
+	update();
+	_render(generation, width, height, cells);
 };
 
 window.engineFrameTime = () => console.log(totalTime / (generation + 1).toFixed(3));
@@ -142,8 +162,8 @@ window.engineFrameTime = () => console.log(totalTime / (generation + 1).toFixed(
 const reset = () => {
 	generation = 0;
 	totalTime = 0;
-	cells.forEach((cell) => (cell.state = cell.originalState));
-	_render({ generation, width, height, cells });
+	cells.forEach((cell) => (cell.state = cell.firstState));
+	_render(generation, width, height, cells);
 };
 
 const engine = { initialize, setRhythm, advance, reset };
