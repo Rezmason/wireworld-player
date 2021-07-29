@@ -285,7 +285,9 @@ const updatePaper = (generation, width, height, heads, tails) => {
 };
 
 const reset = (filename) => {
+	const speed = state.speed;
 	Object.assign(state, initialState);
+	state.speed = speed;
 	setFilePath(filename);
 };
 

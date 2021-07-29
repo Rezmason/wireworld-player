@@ -63,7 +63,7 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 	const slider = makeEventTarget();
 	const dispatch = () => slider.dispatchEvent(event);
 
-	let value = 0;
+	let value = parseFloat(rangeInput.value);
 	let animatedDelta = 0;
 
 	const setValue = (_value) => {
@@ -110,6 +110,9 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 
 	const beginAnimatedSlider = (amount) => (event) => {
 		event.preventDefault();
+		if (animatedDelta !== 0) {
+			return;
+		}
 		animatedDelta = amount;
 		animateSlider();
 	};

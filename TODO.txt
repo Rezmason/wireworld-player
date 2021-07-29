@@ -2,9 +2,7 @@ TODO
 
 Episode 5
 
-	BUG: loading a file resets the engine's speed incorrectly
-	BUG: changing speed with keys behaves strangely
-	BUG: focus doesn't work properly in Chrome
+	BUG: focus doesn't work properly
 
 	Maybe write a foreach for linked lists
 		Maybe make a class
