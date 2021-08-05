@@ -8,7 +8,8 @@ let playing = false,
 	speed = 1,
 	delayMS = minDelayMS,
 	turbo = false,
-	count = 1;
+	count = 1,
+	timeoutID;
 let _render;
 
 let totalTime;
@@ -83,11 +84,13 @@ const setRhythm = (rhythmData) => {
 	const wasPlaying = playing;
 	const wasTurbo = turbo;
 	({ playing, speed, turbo } = rhythmData);
-	count = turbo ? 60 : 1;
+	count = turbo ? 96 : 1; // 6, 96, 192
 	recomputeDelayMS();
 	if (playing && !wasPlaying) {
 		start();
 	} else if (playing && !wasTurbo && turbo) {
+		clearTimeout(timeoutID);
+		cancelAnimationFrame(run);
 		run();
 	}
 };
@@ -112,7 +115,7 @@ const run = () => {
 		if (turbo || speed >= 1) {
 			requestAnimationFrame(run);
 		} else {
-			setTimeout(run, delayMS);
+			timeoutID = setTimeout(run, delayMS);
 		}
 	}
 };
