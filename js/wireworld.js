@@ -2,23 +2,44 @@ import { getDefaultURL } from "./data.js";
 import { delay, fetchLocalText, fetchRemoteText } from "./utils.js";
 import { gui } from "./gui.js";
 import { parseFile } from "./parse.js";
-import { engine } from "./engine.js";
+import { timing } from "./timing.js";
 
 const params = new URL(document.location).searchParams;
 const suppressSplash = params.has("nosplash");
+const engine = new Worker("./js/engine.js");
+
+let queuedRender = null;
+const checkRenderQueue = () => {
+	if (queuedRender != null) {
+		gui.updatePaper(...queuedRender);
+		queuedRender = null;
+	}
+	requestAnimationFrame(checkRenderQueue);
+};
+checkRenderQueue();
+
+engine.addEventListener("message", (event) => {
+	switch (event.data.type) {
+		case "render":
+			queuedRender = event.data.args;
+			break;
+	}
+});
 
 let data;
 
+timing.initialize(() => engine.postMessage({ type: "advance" }));
+
 gui.events.addEventListener("statechanged", () => {
-	engine.setRhythm(gui.state);
+	timing.setRhythm(gui.state);
 });
 
 gui.events.addEventListener("advance", () => {
-	engine.advance();
+	engine.postMessage({ type: "advance" });
 });
 
 gui.events.addEventListener("resetsim", () => {
-	engine.reset();
+	engine.postMessage({ type: "reset" });
 });
 
 gui.events.addEventListener("load", () => {
@@ -40,7 +61,7 @@ const load = async (target, splash) => {
 
 		gui.reset(filename);
 		gui.initializePaper(data);
-		engine.initialize(data, gui.updatePaper);
+		engine.postMessage({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {

@@ -1,16 +1,10 @@
 TODO
 
-Episode 6 - web worker bonanza
+Web worker turbo
 
-	FIX THE VIDEO RECORDING RESOLUTION
+BUG: investigate why dialog buttons don't look right in Chrome
 
-	BUG: investigate why dialog buttons don't look right in Chrome
-
-	Codepen
-
-	Cleverer turbo behavior
-
-	Maybe detect and use OffscreenCanvas?
+Maybe detect and use OffscreenCanvas?	
 
 Photosensitivity warning
 	Detect intense flickering, and replace with "epilepsy guard" color

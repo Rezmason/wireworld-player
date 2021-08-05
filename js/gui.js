@@ -177,7 +177,7 @@ listenToButton("step", "Period", () => {
 listenToCheckbox("turbo", "KeyT", () => {
 	state.turbo = checkboxes.turbo.checked;
 	events.dispatchEvent(stateChangedEvent);
-})
+});
 
 listenToButton("snapshot", null, () => {
 	// TODO: copy current canvas to a PNG and download it
@@ -266,7 +266,7 @@ const initializePaper = (data) => {
 	setPanZoomSize(width, height);
 };
 
-const updatePaper = (generation, width, height, heads, tails) => {
+const updatePaper = (generation, width, height, headIndices, tailIndices) => {
 	const activeDrawing = drawings.active;
 
 	if (state.generation !== generation) {
@@ -277,15 +277,15 @@ const updatePaper = (generation, width, height, heads, tails) => {
 	activeDrawing.pixels.fill(0x00000000);
 
 	const headColor = statesToColors.get(CellState.HEAD);
-	for (let cell = heads; cell != null; cell = cell.next) {
-		const pixelIndex = cell.y * width + cell.x;
-		activeDrawing.pixels[pixelIndex] = headColor;
+	const numHeadIndices = headIndices.length;
+	for (let i = 0; i < numHeadIndices; i++) {
+		activeDrawing.pixels[headIndices[i]] = headColor;
 	}
 
 	const tailColor = statesToColors.get(CellState.TAIL);
-	for (let cell = tails; cell != null; cell = cell.next) {
-		const pixelIndex = cell.y * width + cell.x;
-		activeDrawing.pixels[pixelIndex] = tailColor;
+	const numTailIndices = tailIndices.length;
+	for (let i = 0; i < numTailIndices; i++) {
+		activeDrawing.pixels[tailIndices[i]] = tailColor;
 	}
 
 	activeDrawing.imageData.data.set(activeDrawing.pixelBytes);
@@ -295,7 +295,9 @@ const updatePaper = (generation, width, height, heads, tails) => {
 const reset = (filename) => {
 	const speed = state.speed;
 	Object.assign(state, initialState);
-	state.speed = speed;
+	if (speed != null) {
+		state.speed = speed;
+	}
 	setFilePath(filename);
 };
 

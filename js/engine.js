@@ -1,24 +1,41 @@
-import { CellState } from "./data.js";
+const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name, index) => [name, index]));
 
-const minDelayMS = 10; // TODO: ought to be pinned to the RAF delay
-const maxDelayMS = 1000;
+self.addEventListener("message", (event) => {
+	switch (event.data.type) {
+		case "initialize":
+			initialize(...event.data.args);
+			break;
+		case "advance":
+			advance();
+			break;
+		case "reset":
+			reset();
+			break;
+		case "turbo":
+			turbo();
+	}
+});
 
 let width, height, cells, numCells, originalCellStates, generation;
-let playing = false,
-	speed = 1,
-	delayMS = minDelayMS,
-	turbo = false,
-	count = 1,
-	timeoutID;
-let _render;
 
-let totalTime;
+const render = () => {
+	const headIndices = [];
+	const tailIndices = [];
+	for (let cell = firstHead; cell != null; cell = cell.next) {
+		headIndices.push(cell.pixelIndex);
+	}
+	for (let cell = firstTail; cell != null; cell = cell.next) {
+		tailIndices.push(cell.pixelIndex);
+	}
+	postMessage({ type: "render", args: [generation, width, height, headIndices, tailIndices] });
+};
 
 const makeCell = (index, firstState, x, y) => {
 	return {
 		x,
 		y,
 		index,
+		pixelIndex: y * width + x,
 		firstState,
 		neighbors: [],
 		numNeighbors: 0,
@@ -31,8 +48,7 @@ const makeCell = (index, firstState, x, y) => {
 let firstHead = null;
 let firstTail = null;
 
-const initialize = (data, render) => {
-	_render = render;
+const initialize = (data) => {
 	width = data.width;
 	height = data.height;
 
@@ -80,44 +96,14 @@ const initialize = (data, render) => {
 	reset();
 };
 
-const setRhythm = (rhythmData) => {
-	const wasPlaying = playing;
-	const wasTurbo = turbo;
-	({ playing, speed, turbo } = rhythmData);
-	count = turbo ? 96 : 1; // 6, 96, 192
-	recomputeDelayMS();
-	if (playing && !wasPlaying) {
-		start();
-	} else if (playing && !wasTurbo && turbo) {
-		clearTimeout(timeoutID);
-		cancelAnimationFrame(run);
-		run();
-	}
-};
-
-const recomputeDelayMS = () => {
-	const x = Math.pow(speed, 1 / 5);
-	delayMS = minDelayMS * x + maxDelayMS * (1 - x);
-};
-
-const start = () => {
-	recomputeDelayMS();
-	run();
-};
-
-const run = () => {
-	for (let i = 0; i < count; i++) {
+const turbo = () => {
+	/*
+	while (true) {
 		update();
+		render();
 	}
-	_render(generation, width, height, firstHead, firstTail);
-
-	if (playing) {
-		if (turbo || speed >= 1) {
-			requestAnimationFrame(run);
-		} else {
-			timeoutID = setTimeout(run, delayMS);
-		}
-	}
+	*/
+	// TODO
 };
 
 const update = () => {
@@ -175,20 +161,15 @@ const update = () => {
 
 	firstTail = firstHead;
 	firstHead = firstNewHead;
-
-	totalTime += performance.now() - start;
 };
 
 const advance = () => {
 	update();
-	_render(generation, width, height, firstHead, firstTail);
+	render();
 };
-
-window.engineFrameTime = () => console.log(totalTime / (generation + 1).toFixed(3));
 
 const reset = () => {
 	generation = 0;
-	totalTime = 0;
 	firstHead = null;
 	firstTail = null;
 	let lastHead = null;
@@ -217,9 +198,5 @@ const reset = () => {
 				break;
 		}
 	});
-	_render(generation, width, height, firstHead, firstTail);
+	render();
 };
-
-const engine = { initialize, setRhythm, advance, reset };
-
-export { engine };
