@@ -99,29 +99,15 @@ const initialize = (data, restoredRender = null) => {
 const turbo = () => {
 	let lastRender = performance.now();
 	while (true) {
-		update();
+		for (let i = 0; i < 192; i++) {
+			update();
+		}
 		let now = performance.now();
-		if (now - lastRender > 1000) {
+		if (now - lastRender > 100) {
 			lastRender = now;
 			render();
 		}
 	}
-
-	/*
-	let count = 0;
-    let lastCheck = performance.now();
-    while (true) {
-      update();
-      count++;
-      let now = performance.now();
-      if (now - lastCheck >= 1000) {
-        lastCheck = now;
-        render();
-        postMessage({type: "count", args: [count]});
-        count = 0;
-      }
-    }
-    */
 };
 
 const update = () => {
