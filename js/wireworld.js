@@ -6,29 +6,57 @@ import { timing } from "./timing.js";
 
 const params = new URL(document.location).searchParams;
 const suppressSplash = params.has("nosplash");
-const engine = new Worker("./js/engine.js");
 
-let queuedRender = null;
+let engine;
+
+let queuedRender = null,
+	lastRender = null;
 const checkRenderQueue = () => {
 	if (queuedRender != null) {
-		gui.updatePaper(...queuedRender);
+		gui.updatePaper(queuedRender);
 		queuedRender = null;
 	}
 	requestAnimationFrame(checkRenderQueue);
 };
 checkRenderQueue();
 
-engine.addEventListener("message", (event) => {
+const handleEngineMessage = (event) => {
 	switch (event.data.type) {
 		case "render":
-			queuedRender = event.data.args;
+			lastRender = event.data.args[0];
+			queuedRender = lastRender;
 			break;
+		// case "count":
+		// 	console.log(event.data.args[0]);
+		// 	break;
 	}
-});
+};
+
+const rebuildEngine = () => {
+	if (engine != null) {
+		engine.terminate();
+		engine.removeEventListener("message", handleEngineMessage);
+	}
+	engine = new Worker("./js/engine.js");
+	engine.addEventListener("message", handleEngineMessage);
+};
+
+rebuildEngine();
 
 let data;
 
-timing.initialize(() => engine.postMessage({ type: "advance" }));
+timing.initialize(
+	() => {
+		engine.postMessage({ type: "advance" });
+	},
+	() => {
+		engine.postMessage({ type: "turbo" });
+	},
+	() => {
+		rebuildEngine();
+		engine.postMessage({ type: "initialize", args: [data, lastRender] });
+	}
+);
 
 gui.events.addEventListener("statechanged", () => {
 	timing.setRhythm(gui.state);

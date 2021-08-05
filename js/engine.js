@@ -27,7 +27,7 @@ const render = () => {
 	for (let cell = firstTail; cell != null; cell = cell.next) {
 		tailIndices.push(cell.pixelIndex);
 	}
-	postMessage({ type: "render", args: [generation, width, height, headIndices, tailIndices] });
+	postMessage({ type: "render", args: [{ generation, width, height, headIndices, tailIndices }] });
 };
 
 const makeCell = (index, firstState, x, y) => {
@@ -48,7 +48,7 @@ const makeCell = (index, firstState, x, y) => {
 let firstHead = null;
 let firstTail = null;
 
-const initialize = (data) => {
+const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
@@ -93,17 +93,35 @@ const initialize = (data) => {
 		cell.numNeighbors = cell.neighbors.length;
 	}
 
-	reset();
+	reset(restoredRender);
 };
 
 const turbo = () => {
-	/*
+	let lastRender = performance.now();
 	while (true) {
 		update();
-		render();
+		let now = performance.now();
+		if (now - lastRender > 1000) {
+			lastRender = now;
+			render();
+		}
 	}
-	*/
-	// TODO
+
+	/*
+	let count = 0;
+    let lastCheck = performance.now();
+    while (true) {
+      update();
+      count++;
+      let now = performance.now();
+      if (now - lastCheck >= 1000) {
+        lastCheck = now;
+        render();
+        postMessage({type: "count", args: [count]});
+        count = 0;
+      }
+    }
+    */
 };
 
 const update = () => {
@@ -168,15 +186,31 @@ const advance = () => {
 	render();
 };
 
-const reset = () => {
-	generation = 0;
+const reset = (restoredRender) => {
+	generation = restoredRender?.generation ?? 0;
 	firstHead = null;
 	firstTail = null;
 	let lastHead = null;
 	let lastTail = null;
+
+	const headIndices = new Set(restoredRender?.headIndices ?? []);
+	const tailIndices = new Set(restoredRender?.tailIndices ?? []);
+
 	cells.forEach((cell) => {
+		let resetState = cell.firstState;
+
+		if (restoredRender != null) {
+			if (headIndices.has(cell.pixelIndex)) {
+				resetState = CellState.HEAD;
+			} else if (tailIndices.has(cell.pixelIndex)) {
+				resetState = CellState.TAIL;
+			} else {
+				resetState = CellState.WIRE;
+			}
+		}
+
 		cell.isWire = false;
-		switch (cell.firstState) {
+		switch (resetState) {
 			case CellState.HEAD:
 				if (firstHead == null) {
 					firstHead = cell;

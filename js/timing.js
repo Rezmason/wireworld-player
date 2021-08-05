@@ -7,10 +7,12 @@ let playing = false,
 	turbo = false,
 	timeoutID;
 
-let _advance;
+let _advance, _startTurbo, _stopTurbo;
 
-const initialize = (advance) => {
+const initialize = (advance, startTurbo, stopTurbo) => {
 	_advance = advance;
+	_startTurbo = startTurbo;
+	_stopTurbo = stopTurbo;
 };
 
 const setRhythm = (rhythmData) => {
@@ -18,9 +20,34 @@ const setRhythm = (rhythmData) => {
 	const wasTurbo = turbo;
 	({ playing, speed, turbo } = rhythmData);
 	recomputeDelayMS();
+
 	if (playing && !wasPlaying) {
-		run();
+		if (turbo) {
+			_startTurbo();
+		} else {
+			run();
+		}
+	} else if (!playing && wasPlaying) {
+		if (turbo) {
+			_stopTurbo();
+		} else {
+			stopRunning();
+		}
+	} else if (playing) {
+		if (turbo && !wasTurbo) {
+			stopRunning();
+			_startTurbo();
+		} else if (!turbo && wasTurbo) {
+			_stopTurbo();
+			run();
+		}
 	}
+};
+
+const stopRunning = () => {
+	cancelAnimationFrame(run);
+	clearTimeout(timeoutID);
+	timeoutID = null;
 };
 
 const recomputeDelayMS = () => {
@@ -29,12 +56,12 @@ const recomputeDelayMS = () => {
 };
 
 const run = () => {
-	_advance?.();
+	_advance();
 	if (playing) {
 		if (speed >= 1) {
 			requestAnimationFrame(run);
 		} else {
-			timeoutID = setTimeout(run, delayMS);
+			timeoutID = startTimeout(run, delayMS);
 		}
 	}
 };
