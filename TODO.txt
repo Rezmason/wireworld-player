@@ -1,24 +1,22 @@
 TODO
 
-Episode 5
+Episode 6 - web worker bonanza
 
-	BUG: Firefox and Chrome give focus (invisibly) to last clicked element
+	FIX THE VIDEO RECORDING RESOLUTION
 
-	Maybe write a foreach for linked lists
-		Maybe make a class
+	BUG: investigate why dialog buttons don't look right in Chrome
 
-Cleverer turbo behavior	
+	Codepen
+
+	Cleverer turbo behavior
+
+	Maybe detect and use OffscreenCanvas?
 
 Photosensitivity warning
 	Detect intense flickering, and replace with "epilepsy guard" color
-Make base canvas opaque?
 
-EPISODE Milestone: web worker
-	loading, parsing, timing
-	dynamically imports engine stub
-	turbo, run worker without limit
-
-EPISODE Milestone: implementations
+Maybe write a foreach for linked lists
+	Maybe make a class
 
 EPISODE Milestone: gallery
 	Most of the files are small!
@@ -29,9 +27,6 @@ EPISODE Milestone: gallery
 Milestone: better mobile experience
 	Better solution for popups
 	Better solution for toolbars in portrait orientation
-
-Milestone: tab indexing
-	Limit tab indexing and key mappings to open popup, if one is onscreen
 
 Milestone: pan with arrow keys
 	pan: "Arrow(Left, Right, Up, Down)"

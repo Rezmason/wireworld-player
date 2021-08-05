@@ -153,6 +153,14 @@ const listenToButton = (id, keyMapping, func) => {
 	}
 };
 
+const listenToCheckbox = (id, keyMapping, func) => {
+	const checkbox = checkboxes[id];
+	checkbox.addEventListener("change", func);
+	if (keyMapping != null) {
+		mapKeyToMouseEvent(checkbox, keyMapping);
+	}
+};
+
 listenToButton("stop", "Backquote", () => {
 	showPopup(popups.confirm_reset);
 });
@@ -166,10 +174,10 @@ listenToButton("step", "Period", () => {
 	events.dispatchEvent(advanceEvent);
 });
 
-checkboxes.turbo.addEventListener("change", () => {
+listenToCheckbox("turbo", "KeyT", () => {
 	state.turbo = checkboxes.turbo.checked;
 	events.dispatchEvent(stateChangedEvent);
-});
+})
 
 listenToButton("snapshot", null, () => {
 	// TODO: copy current canvas to a PNG and download it
