@@ -97,13 +97,13 @@ const initialize = (data, restoredRender = null) => {
 };
 
 const turbo = () => {
-	let lastRender = performance.now();
+	let lastRender = Date.now();
 	while (true) {
 		for (let i = 0; i < 192; i++) {
 			update();
 		}
-		let now = performance.now();
-		if (now - lastRender > 100) {
+		let now = Date.now();
+		if (now - lastRender > 20) {
 			lastRender = now;
 			render();
 		}
