@@ -1,6 +1,6 @@
 TODO
 
-Web worker turbo
+OffscreenCanvas
 
 BUG: investigate why dialog buttons don't look right in Chrome
 

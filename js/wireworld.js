@@ -26,9 +26,6 @@ const handleEngineMessage = (event) => {
 			lastRender = event.data.args[0];
 			queuedRender = lastRender;
 			break;
-		// case "count":
-		// 	console.log(event.data.args[0]);
-		// 	break;
 	}
 };
 
@@ -46,16 +43,9 @@ rebuildEngine();
 let data;
 
 timing.initialize(
-	() => {
-		engine.postMessage({ type: "advance" });
-	},
-	() => {
-		engine.postMessage({ type: "turbo" });
-	},
-	() => {
-		rebuildEngine();
-		engine.postMessage({ type: "initialize", args: [data, lastRender] });
-	}
+	() => engine.postMessage({ type: "advance" }),
+	() => engine.postMessage({ type: "startTurbo" }),
+	() => engine.postMessage({ type: "stopTurbo" })
 );
 
 gui.events.addEventListener("statechanged", () => {

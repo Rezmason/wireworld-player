@@ -9,14 +9,26 @@ self.addEventListener("message", (event) => {
 			advance();
 			break;
 		case "reset":
-			reset();
+			reset(...evant.data.args);
 			break;
-		case "turbo":
-			turbo();
+		case "startTurbo":
+			startTurbo();
+			break;
+		case "stopTurbo":
+			stopTurbo();
+			break;
 	}
 });
 
 let width, height, cells, numCells, originalCellStates, generation;
+
+const maxFrameTime = 1000 / 10;
+const desiredFrameTime = 1000 / 60;
+let turboActive = false;
+let turboStepSize = 1;
+let turboStartTime = null;
+let turboStartGeneration;
+let turboTimeout = null;
 
 const render = () => {
 	const headIndices = [];
@@ -28,7 +40,7 @@ const render = () => {
 		tailIndices.push(cell.pixelIndex);
 	}
 
-	const simulationSpeed = isNaN(turboStartTime) ? "---" : Math.round(((generation - turboStartGeneration) / (Date.now() - turboStartTime)) * 1000);
+	const simulationSpeed = !turboActive ? "---" : Math.round(((generation - turboStartGeneration) / (Date.now() - turboStartTime)) * 1000);
 
 	postMessage({ type: "render", args: [{ generation, simulationSpeed, width, height, headIndices, tailIndices }] });
 };
@@ -99,20 +111,15 @@ const initialize = (data, restoredRender = null) => {
 	reset(restoredRender);
 };
 
-const turboMultiplier = 6;
-const maxFrameTime = 1000 / 10;
-const desiredFrameTime = 1000 / 60;
-let turboStepSize = 1;
-let turboStartTime = NaN,
-	turboStartGeneration;
-
-const turbo = () => {
+const startTurbo = () => {
+	turboActive = true;
 	turboStartGeneration = generation;
 	turboStartTime = Date.now();
 	let turboTime = turboStartTime;
 	let now;
 	let lastRender = turboStartTime;
-	while (true) {
+
+	const loopTurbo = () => {
 		for (let i = 0; i < turboStepSize; i++) {
 			update();
 			update();
@@ -136,7 +143,16 @@ const turbo = () => {
 			lastRender = now;
 			render();
 		}
-	}
+
+		turboTimeout = setTimeout(loopTurbo, 0);
+	};
+	loopTurbo();
+};
+
+const stopTurbo = () => {
+	turboActive = false;
+	clearTimeout(turboTimeout);
+	turboTimeout = null;
 };
 
 const update = () => {
