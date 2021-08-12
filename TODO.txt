@@ -1,7 +1,6 @@
 TODO
 
 Web worker turbo
-	Investigate performance bottleneck in Turbo web worker
 
 BUG: investigate why dialog buttons don't look right in Chrome
 

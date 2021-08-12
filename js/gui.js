@@ -27,6 +27,7 @@ const popupRoot = document.querySelector("popup-root");
 
 const initialState = {
 	generation: 0,
+	simulationSpeed: "---",
 	playing: false,
 	playingUnderPopup: false,
 	turbo: checkboxes.turbo.checked,
@@ -262,16 +263,22 @@ const initializePaper = (data) => {
 	baseDrawing.context.putImageData(baseDrawing.imageData, 0, 0);
 
 	labels.generation.setText(state.generation);
+	labels.simulation_speed.setText(state.simulationSpeed);
 
 	setPanZoomSize(width, height);
 };
 
-const updatePaper = ({ generation, width, height, headIndices, tailIndices }) => {
+const updatePaper = ({ generation, simulationSpeed, width, height, headIndices, tailIndices }) => {
 	const activeDrawing = drawings.active;
 
 	if (state.generation !== generation) {
 		state.generation = generation;
 		labels.generation.setText(state.generation);
+	}
+
+	if (state.simulationSpeed !== simulationSpeed) {
+		state.simulationSpeed = simulationSpeed;
+		labels.simulation_speed.setText(state.simulationSpeed);
 	}
 
 	activeDrawing.pixels.fill(0x00000000);

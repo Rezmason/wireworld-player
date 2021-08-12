@@ -27,7 +27,10 @@ const render = () => {
 	for (let cell = firstTail; cell != null; cell = cell.next) {
 		tailIndices.push(cell.pixelIndex);
 	}
-	postMessage({ type: "render", args: [{ generation, width, height, headIndices, tailIndices }] });
+
+	const simulationSpeed = isNaN(turboStartTime) ? "---" : Math.round(((generation - turboStartGeneration) / (Date.now() - turboStartTime)) * 1000);
+
+	postMessage({ type: "render", args: [{ generation, simulationSpeed, width, height, headIndices, tailIndices }] });
 };
 
 const makeCell = (index, firstState, x, y) => {
@@ -96,14 +99,40 @@ const initialize = (data, restoredRender = null) => {
 	reset(restoredRender);
 };
 
+const turboMultiplier = 6;
+const maxFrameTime = 1000 / 10;
+const desiredFrameTime = 1000 / 60;
+let turboStepSize = 1;
+let turboStartTime = NaN,
+	turboStartGeneration;
+
 const turbo = () => {
-	let lastRender = Date.now();
+	turboStartGeneration = generation;
+	turboStartTime = Date.now();
+	let turboTime = turboStartTime;
+	let now;
+	let lastRender = turboStartTime;
 	while (true) {
-		for (let i = 0; i < 192; i++) {
+		for (let i = 0; i < turboStepSize; i++) {
+			update();
+			update();
+			update();
+			update();
+			update();
 			update();
 		}
-		let now = Date.now();
-		if (now - lastRender > 20) {
+
+		now = Date.now();
+
+		const diff = now - turboTime;
+		if (diff > maxFrameTime && turboStepSize > 1) {
+			turboStepSize >>= 1; // Halve it
+		} else if (diff * 2 < maxFrameTime) {
+			turboStepSize <<= 1; // Double it
+		}
+		turboTime = now;
+
+		if (now - lastRender > desiredFrameTime) {
 			lastRender = now;
 			render();
 		}
