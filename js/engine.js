@@ -22,6 +22,7 @@ self.addEventListener("message", (event) => {
 
 let width, height, cells, numCells, originalCellStates, generation;
 
+const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
 const desiredFrameTime = 1000 / 60;
 let turboActive = false;
@@ -40,9 +41,24 @@ const render = () => {
 		tailIndices.push(cell.pixelIndex);
 	}
 
-	const simulationSpeed = !turboActive ? "---" : Math.round(((generation - turboStartGeneration) / (Date.now() - turboStartTime)) * 1000);
+	let simulationSpeed = "---";
+	if (turboActive) {
+		simulationSpeed = numberFormatter.format(Math.round((1000 * (generation - turboStartGeneration)) / (Date.now() - turboStartTime)));
+	}
 
-	postMessage({ type: "render", args: [{ generation, simulationSpeed, width, height, headIndices, tailIndices }] });
+	postMessage({
+		type: "render",
+		args: [
+			{
+				generation: numberFormatter.format(generation),
+				simulationSpeed,
+				width,
+				height,
+				headIndices,
+				tailIndices,
+			},
+		],
+	});
 };
 
 const makeCell = (index, firstState, x, y) => {
@@ -157,8 +173,6 @@ const stopTurbo = () => {
 
 const update = () => {
 	generation++;
-
-	const start = performance.now();
 
 	// generate new list of heads from heads
 	let firstNewHead = null;

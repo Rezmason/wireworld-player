@@ -2,15 +2,15 @@ TODO
 
 OffscreenCanvas
 
-BUG: investigate why dialog buttons don't look right in Chrome
 
-Maybe detect and use OffscreenCanvas?	
+
+Is there a better word than "paper"?
+
+
+BUG: investigate why dialog buttons don't look right in Chrome
 
 Photosensitivity warning
 	Detect intense flickering, and replace with "epilepsy guard" color
-
-Maybe write a foreach for linked lists
-	Maybe make a class
 
 EPISODE Milestone: gallery
 	Most of the files are small!
@@ -19,8 +19,9 @@ EPISODE Milestone: gallery
 		Load paths, authors from JSON
 
 Milestone: better mobile experience
-	Better solution for popups
-	Better solution for toolbars in portrait orientation
+	Rethink the whole UI, really
+		Popups are bad
+		Toolbars are bad in portrait orientation
 
 Milestone: pan with arrow keys
 	pan: "Arrow(Left, Right, Up, Down)"

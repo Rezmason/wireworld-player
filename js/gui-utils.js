@@ -1,3 +1,6 @@
+const collectUI = (query) =>
+	Object.fromEntries(Array.from(document.querySelectorAll(query)).map((element) => [element.classList.item(0).replace(/-/g, "_"), element]));
+
 const makeEventTarget = () => {
 	try {
 		return new EventTarget();
@@ -166,4 +169,4 @@ const makeSlider = (decreaseButton, increaseButton, rangeInput, speed = 0.01, de
 	return slider;
 };
 
-export { makeEventTarget, isUIElement, makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };
+export { collectUI, makeEventTarget, isUIElement, makeSlider, listenForWheel, preventTouchDefault, mapKeyToMouseEvent };

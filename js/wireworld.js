@@ -1,6 +1,7 @@
 import { getDefaultURL } from "./data.js";
 import { delay, fetchLocalText, fetchRemoteText } from "./utils.js";
 import { gui } from "./gui.js";
+import { paper } from "./paper.js";
 import { parseFile } from "./parse.js";
 import { timing } from "./timing.js";
 
@@ -13,7 +14,7 @@ let queuedRender = null,
 	lastRender = null;
 const checkRenderQueue = () => {
 	if (queuedRender != null) {
-		gui.updatePaper(queuedRender);
+		paper.update(queuedRender);
 		queuedRender = null;
 	}
 	requestAnimationFrame(checkRenderQueue);
@@ -78,7 +79,7 @@ const load = async (target, splash) => {
 		data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		gui.initializePaper(data);
+		paper.initialize(data);
 		engine.postMessage({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
