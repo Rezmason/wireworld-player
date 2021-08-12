@@ -1,7 +1,8 @@
 TODO
 
 OffscreenCanvas
-
+	Try making a third worker that just renders to the canvas
+		Engine sends render data to main thread AND offscreen canvas worker
 
 
 Is there a better word than "paper"?

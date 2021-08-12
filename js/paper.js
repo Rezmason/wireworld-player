@@ -25,13 +25,6 @@ const wireColor = formatColorForEndian(/*0x448822ff*/ 0x505050ff);
 const tailColor = formatColorForEndian(/*0xffdd22ff*/ 0xffee00ff);
 const headColor = formatColorForEndian(/*0xffff44ff*/ 0xff8800ff);
 
-const statesToColors = new Map([
-	[CellState.DEAD, deadColor],
-	[CellState.WIRE, wireColor],
-	[CellState.TAIL, tailColor],
-	[CellState.HEAD, headColor],
-]);
-
 let drawings;
 
 const initialize = (data) => {
@@ -53,12 +46,11 @@ const initialize = (data) => {
 	);
 
 	const baseDrawing = drawings.base;
-	baseDrawing.pixels.fill(statesToColors.get(CellState.DEAD));
+	baseDrawing.pixels.fill(deadColor);
 	for (let y = 0; y < height; y++) {
 		if (cellStates[y] != null) {
 			for (let x = 0; x < width; x++) {
-				const state = (cellStates[y][x] ?? CellState.DEAD) === CellState.DEAD ? CellState.DEAD : CellState.WIRE;
-				const color = statesToColors.get(state);
+				const color = (cellStates[y][x] ?? CellState.DEAD) === CellState.DEAD ? deadColor : wireColor;
 				const pixelIndex = y * width + x;
 				baseDrawing.pixels[pixelIndex] = color;
 			}
@@ -81,13 +73,11 @@ const update = ({ generation, simulationSpeed, width, height, headIndices, tailI
 
 	activeDrawing.pixels.fill(0x00000000);
 
-	const headColor = statesToColors.get(CellState.HEAD);
 	const numHeads = headIndices.length;
 	for (let i = 0; i < numHeads; i++) {
 		activeDrawing.pixels[headIndices[i]] = headColor;
 	}
 
-	const tailColor = statesToColors.get(CellState.TAIL);
 	const numTails = tailIndices.length;
 	for (let i = 0; i < numTails; i++) {
 		activeDrawing.pixels[tailIndices[i]] = tailColor;
