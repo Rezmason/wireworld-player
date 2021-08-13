@@ -5,17 +5,15 @@ import { setPanZoomSize } from "./pan-zoom.js";
 const labels = collectUI("label");
 const canvases = collectUI("canvas");
 
-const testLittleEndian = () => {
+const isLittleEndian = (() => {
 	const buf = new ArrayBuffer(2);
-	new Uint16Array(buf).set([0x0001], 0);
-	return Array.from(new Uint8ClampedArray(buf))[0] === 1;
-};
-
-const isLittleEndian = testLittleEndian();
+	new Uint16Array(buf)[0] = 1;
+	return new Uint8ClampedArray(buf)[0] === 1;
+})();
 
 const formatColorForEndian = (rgba) => {
 	if (isLittleEndian) {
-		return (((rgba >> 0) & 0xff) << 24) | (((rgba >> 8) & 0xff) << 16) | (((rgba >> 16) & 0xff) << 8) | (((rgba >> 24) & 0xff) << 0);
+		return parseInt(rgba.toString(0x10).padStart(8, "0").match(/..?/g).reverse().join(""), 16);
 	}
 	return rgba;
 };

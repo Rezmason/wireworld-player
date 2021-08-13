@@ -20,7 +20,7 @@ self.addEventListener("message", (event) => {
 	}
 });
 
-let width, height, cells, numCells, originalCellStates, generation;
+let width, height, cells, generation;
 
 const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
@@ -83,7 +83,7 @@ const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	numCells = 0;
+	let numCells = 0;
 	cells = [];
 	const cellGrid = Array(height)
 		.fill()

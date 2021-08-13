@@ -27,6 +27,9 @@ const handleEngineMessage = (event) => {
 			lastRender = event.data.args[0];
 			queuedRender = lastRender;
 			break;
+		case "debug":
+			console.log(...event.data.args);
+			break;
 	}
 };
 
