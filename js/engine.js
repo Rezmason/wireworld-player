@@ -1,65 +1,18 @@
 const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name, index) => [name, index]));
 
-self.addEventListener("message", (event) => {
-	switch (event.data.type) {
-		case "initialize":
-			initialize(...event.data.args);
-			break;
-		case "advance":
-			advance();
-			break;
-		case "reset":
-			reset(...evant.data.args);
-			break;
-		case "startTurbo":
-			startTurbo();
-			break;
-		case "stopTurbo":
-			stopTurbo();
-			break;
-	}
-});
-
-let width, height, cells, generation;
-
 const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
 const desiredFrameTime = 1000 / 60;
+
+let width, height, cells, numCells, generation;
+let firstHead = null,
+	firstTail = null;
+
 let turboActive = false;
 let turboStepSize = 1;
 let turboStartTime = null;
 let turboStartGeneration;
 let turboTimeout = null;
-
-const render = () => {
-	const headIndices = [];
-	const tailIndices = [];
-	for (let cell = firstHead; cell != null; cell = cell.next) {
-		headIndices.push(cell.pixelIndex);
-	}
-	for (let cell = firstTail; cell != null; cell = cell.next) {
-		tailIndices.push(cell.pixelIndex);
-	}
-
-	let simulationSpeed = "---";
-	if (turboActive) {
-		simulationSpeed = numberFormatter.format(Math.round((1000 * (generation - turboStartGeneration)) / (Date.now() - turboStartTime)));
-	}
-
-	postMessage({
-		type: "render",
-		args: [
-			{
-				generation: numberFormatter.format(generation),
-				simulationSpeed,
-				width,
-				height,
-				headIndices,
-				tailIndices,
-			},
-		],
-	});
-};
 
 const makeCell = (index, firstState, x, y) => {
 	return {
@@ -76,14 +29,11 @@ const makeCell = (index, firstState, x, y) => {
 	};
 };
 
-let firstHead = null;
-let firstTail = null;
-
 const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	let numCells = 0;
+	numCells = 0;
 	cells = [];
 	const cellGrid = Array(height)
 		.fill()
@@ -117,58 +67,64 @@ const initialize = (data, restoredRender = null) => {
 				}
 				const neighbor = cellGrid[y + yOffset][x + xOffset];
 				if (neighbor != null) {
-					cell.neighbors.push(neighbor);
+					cell.neighbors[cell.numNeighbors] = neighbor;
+					cell.numNeighbors++;
 				}
 			}
 		}
-		cell.numNeighbors = cell.neighbors.length;
 	}
 
 	reset(restoredRender);
 };
 
-const startTurbo = () => {
-	turboActive = true;
-	turboStartGeneration = generation;
-	turboStartTime = Date.now();
-	let turboTime = turboStartTime;
-	let now;
-	let lastRender = turboStartTime;
+const reset = (restoredRender) => {
+	generation = restoredRender?.generation ?? 0;
+	firstHead = null;
+	firstTail = null;
+	let lastHead = null;
+	let lastTail = null;
 
-	const loopTurbo = () => {
-		for (let i = 0; i < turboStepSize; i++) {
-			update();
-			update();
-			update();
-			update();
-			update();
-			update();
+	const headIndices = new Set(restoredRender?.headIndices ?? []);
+	const tailIndices = new Set(restoredRender?.tailIndices ?? []);
+
+	for (let i = 0; i < numCells; i++) {
+		const cell = cells[i];
+		let resetState = cell.firstState;
+
+		if (restoredRender != null) {
+			if (headIndices.has(cell.pixelIndex)) {
+				resetState = CellState.HEAD;
+			} else if (tailIndices.has(cell.pixelIndex)) {
+				resetState = CellState.TAIL;
+			} else {
+				resetState = CellState.WIRE;
+			}
 		}
 
-		now = Date.now();
-
-		const diff = now - turboTime;
-		if (diff > maxFrameTime && turboStepSize > 1) {
-			turboStepSize >>= 1; // Halve it
-		} else if (diff * 2 < maxFrameTime) {
-			turboStepSize <<= 1; // Double it
+		cell.isWire = false;
+		switch (resetState) {
+			case CellState.HEAD:
+				if (firstHead == null) {
+					firstHead = cell;
+				} else {
+					lastHead.next = cell;
+				}
+				lastHead = cell;
+				break;
+			case CellState.TAIL:
+				if (firstTail == null) {
+					firstTail = cell;
+				} else {
+					lastTail.next = cell;
+				}
+				lastTail = cell;
+				break;
+			case CellState.WIRE:
+				cell.isWire = true;
+				break;
 		}
-		turboTime = now;
-
-		if (now - lastRender > desiredFrameTime) {
-			lastRender = now;
-			render();
-		}
-
-		turboTimeout = setTimeout(loopTurbo, 0);
-	};
-	loopTurbo();
-};
-
-const stopTurbo = () => {
-	turboActive = false;
-	clearTimeout(turboTimeout);
-	turboTimeout = null;
+	}
+	render();
 };
 
 const update = () => {
@@ -226,56 +182,101 @@ const update = () => {
 	firstHead = firstNewHead;
 };
 
+const render = () => {
+	const headIndices = [];
+	const tailIndices = [];
+	for (let cell = firstHead; cell != null; cell = cell.next) {
+		headIndices.push(cell.pixelIndex);
+	}
+	for (let cell = firstTail; cell != null; cell = cell.next) {
+		tailIndices.push(cell.pixelIndex);
+	}
+
+	let simulationSpeed = "---";
+	if (turboActive) {
+		simulationSpeed = numberFormatter.format(Math.round((1000 * (generation - turboStartGeneration)) / (Date.now() - turboStartTime)));
+	}
+
+	postMessage({
+		type: "render",
+		args: [
+			{
+				generation: numberFormatter.format(generation),
+				simulationSpeed,
+				width,
+				height,
+				headIndices,
+				tailIndices,
+			},
+		],
+	});
+};
+
 const advance = () => {
 	update();
 	render();
 };
 
-const reset = (restoredRender) => {
-	generation = restoredRender?.generation ?? 0;
-	firstHead = null;
-	firstTail = null;
-	let lastHead = null;
-	let lastTail = null;
+const startTurbo = () => {
+	turboActive = true;
+	turboStartGeneration = generation;
+	turboStartTime = Date.now();
+	let turboTime = turboStartTime;
+	let now;
+	let lastRender = turboStartTime;
 
-	const headIndices = new Set(restoredRender?.headIndices ?? []);
-	const tailIndices = new Set(restoredRender?.tailIndices ?? []);
-
-	cells.forEach((cell) => {
-		let resetState = cell.firstState;
-
-		if (restoredRender != null) {
-			if (headIndices.has(cell.pixelIndex)) {
-				resetState = CellState.HEAD;
-			} else if (tailIndices.has(cell.pixelIndex)) {
-				resetState = CellState.TAIL;
-			} else {
-				resetState = CellState.WIRE;
-			}
+	const loopTurbo = () => {
+		for (let i = 0; i < turboStepSize; i++) {
+			update();
+			update();
+			update();
+			update();
+			update();
+			update();
 		}
 
-		cell.isWire = false;
-		switch (resetState) {
-			case CellState.HEAD:
-				if (firstHead == null) {
-					firstHead = cell;
-				} else {
-					lastHead.next = cell;
-				}
-				lastHead = cell;
-				break;
-			case CellState.TAIL:
-				if (firstTail == null) {
-					firstTail = cell;
-				} else {
-					lastTail.next = cell;
-				}
-				lastTail = cell;
-				break;
-			case CellState.WIRE:
-				cell.isWire = true;
-				break;
+		now = Date.now();
+
+		const diff = now - turboTime;
+		if (diff > maxFrameTime && turboStepSize > 1) {
+			turboStepSize >>= 1; // Halve it
+		} else if (diff * 2 < maxFrameTime) {
+			turboStepSize <<= 1; // Double it
 		}
-	});
-	render();
+		turboTime = now;
+
+		if (now - lastRender > desiredFrameTime) {
+			lastRender = now;
+			render();
+		}
+
+		turboTimeout = setTimeout(loopTurbo, 0);
+	};
+	loopTurbo();
 };
+
+const stopTurbo = () => {
+	turboActive = false;
+	clearTimeout(turboTimeout);
+	turboTimeout = null;
+};
+
+self.addEventListener("message", (event) => {
+	switch (event.data.type) {
+		case "initialize":
+			initialize(...event.data.args);
+			break;
+		case "advance":
+			advance();
+			break;
+		case "reset":
+			reset(...evant.data.args);
+			break;
+		case "startTurbo":
+			startTurbo();
+			break;
+		case "stopTurbo":
+			stopTurbo();
+			break;
+	}
+});
