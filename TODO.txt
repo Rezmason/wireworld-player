@@ -1,14 +1,45 @@
 TODO
 
-OffscreenCanvas
-	Try making a third worker that just renders to the canvas
-		Engine sends render data to main thread AND offscreen canvas worker
+Minor improvements
+	Replace engine messaging switch with object
+	Rename pixel index to grid index, indices to grid indices
+	Improve paper — no need for pixelBytes
+
+Arraydiate
+	Convert cells to arrays
+		Change properties to indices
+			Create unused cell at zero
+			NULL = 0
+			Neighbors are indices into that array
+		Convert neighbors from object references to addresses
+			x ==> cells[x]
+		Convert next from object references to addresses
+	Flatten cells to one array
+		Modify addresses and numCells iteration
+		Convert double lookup to addition
+			cells[x][y] ==> cells[x + y]
+	Convert all values to unsigned integers
+	Convert array to Uint32 array
+
+Simplify GC
+	Delete properties of last render
+	Reuse "indices" arrays in engine render
+	Delete unused cells DS in engine
+	
+Glow
 
 
-Is there a better word than "paper"?
 
 
-BUG: investigate why dialog buttons don't look right in Chrome
+
+
+BUG: fix turbo-on issue in Firefox
+
+BUG: fix focus-within issue with popup buttons in Chrome and Firefox
+
+Put previous implementations in other engines
+	Load different engines based on URL param
+		Only change their data structures and update/render functions
 
 Photosensitivity warning
 	Detect intense flickering, and replace with "epilepsy guard" color
