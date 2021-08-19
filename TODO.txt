@@ -17,8 +17,6 @@ Scalarize the engine
 	Convert array to Uint32 array
 
 Simplify GC
-	Delete properties of last render
-	Reuse "indices" arrays in engine render
 	Delete unused cells DS in engine
 	
 Glow

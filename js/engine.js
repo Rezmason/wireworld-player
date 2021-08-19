@@ -4,6 +4,9 @@ const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
 const desiredFrameTime = 1000 / 60;
 
+const headGridIndices = [];
+const tailGridIndices = [];
+
 let width, height, cells, numCells, generation;
 let firstHead = null,
 	firstTail = null;
@@ -84,17 +87,17 @@ const reset = (restoredRender) => {
 	let lastHead = null;
 	let lastTail = null;
 
-	const headGridIndices = new Set(restoredRender?.headGridIndices ?? []);
-	const tailGridIndices = new Set(restoredRender?.tailGridIndices ?? []);
+	const restoredHeadGridIndices = new Set(restoredRender?.headGridIndices ?? []);
+	const restoredTailGridIndices = new Set(restoredRender?.tailGridIndices ?? []);
 
 	for (let i = 0; i < numCells; i++) {
 		const cell = cells[i];
 		let resetState = cell.firstState;
 
 		if (restoredRender != null) {
-			if (headGridIndices.has(cell.gridIndex)) {
+			if (restoredHeadGridIndices.has(cell.gridIndex)) {
 				resetState = CellState.HEAD;
-			} else if (tailGridIndices.has(cell.gridIndex)) {
+			} else if (restoredTailGridIndices.has(cell.gridIndex)) {
 				resetState = CellState.TAIL;
 			} else {
 				resetState = CellState.WIRE;
@@ -183,8 +186,8 @@ const update = () => {
 };
 
 const render = () => {
-	const headGridIndices = [];
-	const tailGridIndices = [];
+	headGridIndices.length = 0;
+	tailGridIndices.length = 0;
 	for (let cell = firstHead; cell != null; cell = cell.next) {
 		headGridIndices.push(cell.gridIndex);
 	}

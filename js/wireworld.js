@@ -9,9 +9,9 @@ const params = new URL(document.location).searchParams;
 const suppressSplash = params.has("nosplash");
 
 let engine;
+let queuedRender = null;
+let lastRender = null;
 
-let queuedRender = null,
-	lastRender = null;
 const checkRenderQueue = () => {
 	if (queuedRender != null) {
 		paper.update(queuedRender);
@@ -24,6 +24,11 @@ checkRenderQueue();
 const handleEngineMessage = (event) => {
 	switch (event.data.type) {
 		case "render":
+			if (lastRender != null) {
+				for (const prop in lastRender) {
+					delete lastRender[prop];
+				}
+			}
 			lastRender = event.data.args[0];
 			queuedRender = lastRender;
 			break;
