@@ -119,6 +119,7 @@ const reset = (restoredRender) => {
 		}
 
 		mem[cell + isWire_] = 0;
+		mem[cell + next_] = NULL;
 		switch (resetState) {
 			case CellState.HEAD:
 				if (firstHead == NULL) {
