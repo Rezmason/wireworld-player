@@ -49,8 +49,6 @@ const rebuildEngine = () => {
 
 rebuildEngine();
 
-let data;
-
 timing.initialize(
 	() => engine.postMessage({ type: "advance" }),
 	() => engine.postMessage({ type: "startTurbo" }),
@@ -84,7 +82,7 @@ const load = async (target, splash) => {
 		const isFile = target instanceof File;
 		filename = isFile ? target.name : target.split("/").pop();
 		const key = isFile ? `__local__${target.name}_${target.lastModified}` : target;
-		data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
+		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
 		paper.initialize(data);
