@@ -4,12 +4,14 @@ const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
 const desiredFrameTime = 1000 / 60;
 
+const NULL_ADDRESS = 0;
+
 const headGridIndices = [];
 const tailGridIndices = [];
 
 let width, height, cells, numCells, generation;
-let firstHead = null,
-	firstTail = null;
+let firstHead = null;
+let firstTail = null;
 
 let turboActive = false;
 let turboStepSize = 1;
@@ -19,7 +21,7 @@ let turboTimeout = null;
 
 const x_ = 0;
 const y_ = 1;
-const index_ = 2;
+const address_ = 2;
 const gridIndex_ = 3;
 const firstState_ = 4;
 const neighbors_ = 5;
@@ -35,7 +37,7 @@ const makeCell = (index, firstState, x, y) => {
 		index, // index
 		y * width + x, // gridIndex
 		firstState, // firstState
-		Array(8).fill(null), // neighbors
+		Array(8).fill(NULL_ADDRESS), // neighbors
 		0, // numNeighbors
 		null, // next
 		0, // headCount
@@ -47,8 +49,8 @@ const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	numCells = 0;
-	cells = [];
+	cells = [makeCell(NULL_ADDRESS, CellState.DEAD, 0, 0)];
+	numCells = 1;
 	const cellGrid = Array(height)
 		.fill()
 		.map((_) => Array(width));
@@ -82,7 +84,7 @@ const initialize = (data, restoredRender = null) => {
 				}
 				const neighbor = cellGrid[y + yOffset][x + xOffset];
 				if (neighbor != null) {
-					cell[neighbors_ + cell[numNeighbors_]] = neighbor;
+					cell[neighbors_ + cell[numNeighbors_]] = neighbor[address_];
 					cell[numNeighbors_]++;
 				}
 			}
@@ -155,16 +157,16 @@ const update = () => {
 		numNeighbors = cell[numNeighbors_];
 		for (let i = 0; i < numNeighbors; i++) {
 			neighbor = cell[neighbors_ + i];
-			if (neighbor[isWire_] === 1) {
-				if (neighbor[headCount_] === 0) {
+			if (cells[neighbor][isWire_] === 1) {
+				if (cells[neighbor][headCount_] === 0) {
 					if (firstNewHead == null) {
-						firstNewHead = neighbor;
+						firstNewHead = cells[neighbor];
 					} else {
-						lastNewHead[next_] = neighbor;
+						lastNewHead[next_] = cells[neighbor];
 					}
-					lastNewHead = neighbor;
+					lastNewHead = cells[neighbor];
 				}
-				neighbor[headCount_]++;
+				cells[neighbor][headCount_]++;
 			}
 		}
 	}
