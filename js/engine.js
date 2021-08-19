@@ -147,7 +147,7 @@ const update = () => {
 	// generate new list of heads from heads
 	let firstNewHead = NULL;
 	let lastNewHead = NULL;
-	let numNeighbors, neighbor;
+	let numNeighbors, neighbor, next;
 
 	// add all wire neighbors of heads to new heads list and count their head neighbors
 	for (let cell = firstHead; cell != NULL; cell = mem[cell + next_]) {
@@ -179,9 +179,11 @@ const update = () => {
 
 	// remove cells from list if they are invalid
 	for (let cell = firstNewHead; cell != NULL; cell = mem[cell + next_]) {
-		while (mem[cell + next_] != NULL && mem[mem[cell + next_] + headCount_] > 2) {
-			mem[mem[cell + next_] + headCount_] = 0;
-			mem[cell + next_] = mem[mem[cell + next_] + next_];
+		next = mem[cell + next_];
+		while (next != NULL && mem[next + headCount_] > 2) {
+			mem[next + headCount_] = 0;
+			mem[cell + next_] = mem[next + next_];
+			next = mem[cell + next_];
 		}
 		mem[cell + headCount_] = 0;
 		mem[cell + isWire_] = 0;
