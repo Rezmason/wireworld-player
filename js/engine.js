@@ -17,19 +17,30 @@ let turboStartTime = null;
 let turboStartGeneration;
 let turboTimeout = null;
 
+const x_ = 0;
+const y_ = 1;
+const index_ = 2;
+const gridIndex_ = 3;
+const firstState_ = 4;
+const neighbors_ = 5;
+const numNeighbors_ = 6;
+const next_ = 7;
+const headCount_ = 8;
+const isWire_ = 9;
+
 const makeCell = (index, firstState, x, y) => {
-	return {
-		x,
-		y,
-		index,
-		gridIndex: y * width + x,
-		firstState,
-		neighbors: [],
-		numNeighbors: 0,
-		next: null,
-		headCount: 0,
-		isWire: false,
-	};
+	return [
+		x, // x
+		y, // y
+		index, // index
+		y * width + x, // gridIndex
+		firstState, // firstState
+		[], // neighbors
+		0, // numNeighbors
+		null, // next
+		0, // headCount
+		false, // isWire
+	];
 };
 
 const initialize = (data, restoredRender = null) => {
@@ -56,7 +67,8 @@ const initialize = (data, restoredRender = null) => {
 	);
 
 	for (const cell of cells) {
-		const { x, y } = cell;
+		const x = cell[x_];
+		const y = cell[y_];
 		for (let yOffset = -1; yOffset < 2; yOffset++) {
 			if (y + yOffset < 0 || y + yOffset >= height) {
 				continue;
@@ -70,8 +82,8 @@ const initialize = (data, restoredRender = null) => {
 				}
 				const neighbor = cellGrid[y + yOffset][x + xOffset];
 				if (neighbor != null) {
-					cell.neighbors[cell.numNeighbors] = neighbor;
-					cell.numNeighbors++;
+					cell[neighbors_][cell[numNeighbors_]] = neighbor;
+					cell[numNeighbors_]++;
 				}
 			}
 		}
@@ -92,25 +104,25 @@ const reset = (restoredRender) => {
 
 	for (let i = 0; i < numCells; i++) {
 		const cell = cells[i];
-		let resetState = cell.firstState;
+		let resetState = cell[firstState_];
 
 		if (restoredRender != null) {
-			if (restoredHeadGridIndices.has(cell.gridIndex)) {
+			if (restoredHeadGridIndices.has(cell[gridIndex_])) {
 				resetState = CellState.HEAD;
-			} else if (restoredTailGridIndices.has(cell.gridIndex)) {
+			} else if (restoredTailGridIndices.has(cell[gridIndex_])) {
 				resetState = CellState.TAIL;
 			} else {
 				resetState = CellState.WIRE;
 			}
 		}
 
-		cell.isWire = false;
+		cell[isWire_] = false;
 		switch (resetState) {
 			case CellState.HEAD:
 				if (firstHead == null) {
 					firstHead = cell;
 				} else {
-					lastHead.next = cell;
+					lastHead[next_] = cell;
 				}
 				lastHead = cell;
 				break;
@@ -118,12 +130,12 @@ const reset = (restoredRender) => {
 				if (firstTail == null) {
 					firstTail = cell;
 				} else {
-					lastTail.next = cell;
+					lastTail[next_] = cell;
 				}
 				lastTail = cell;
 				break;
 			case CellState.WIRE:
-				cell.isWire = true;
+				cell[isWire_] = true;
 				break;
 		}
 	}
@@ -139,46 +151,46 @@ const update = () => {
 	let numNeighbors, neighbor;
 
 	// add all wire neighbors of heads to new heads list and count their head neighbors
-	for (let cell = firstHead; cell != null; cell = cell.next) {
-		numNeighbors = cell.numNeighbors;
+	for (let cell = firstHead; cell != null; cell = cell[next_]) {
+		numNeighbors = cell[numNeighbors_];
 		for (let i = 0; i < numNeighbors; i++) {
-			neighbor = cell.neighbors[i];
-			if (neighbor.isWire) {
-				if (neighbor.headCount === 0) {
+			neighbor = cell[neighbors_][i];
+			if (neighbor[isWire_]) {
+				if (neighbor[headCount_] === 0) {
 					if (firstNewHead == null) {
 						firstNewHead = neighbor;
 					} else {
-						lastNewHead.next = neighbor;
+						lastNewHead[next_] = neighbor;
 					}
 					lastNewHead = neighbor;
 				}
-				neighbor.headCount++;
+				neighbor[headCount_]++;
 			}
 		}
 	}
 	if (lastNewHead != null) {
-		lastNewHead.next = null;
+		lastNewHead[next_] = null;
 	}
 
 	// remove cells from front of list until first cell is a valid new head
-	while (firstNewHead != null && firstNewHead.headCount > 2) {
-		firstNewHead.headCount = 0;
-		firstNewHead = firstNewHead.next;
+	while (firstNewHead != null && firstNewHead[headCount_] > 2) {
+		firstNewHead[headCount_] = 0;
+		firstNewHead = firstNewHead[next_];
 	}
 
 	// remove cells from list if they are invalid
-	for (let cell = firstNewHead; cell != null; cell = cell.next) {
-		while (cell.next != null && cell.next.headCount > 2) {
-			cell.next.headCount = 0;
-			cell.next = cell.next.next;
+	for (let cell = firstNewHead; cell != null; cell = cell[next_]) {
+		while (cell[next_] != null && cell[next_][headCount_] > 2) {
+			cell[next_][headCount_] = 0;
+			cell[next_] = cell[next_][next_];
 		}
-		cell.headCount = 0;
-		cell.isWire = false;
+		cell[headCount_] = 0;
+		cell[isWire_] = false;
 	}
 
 	// turn all tails to wires
-	for (let cell = firstTail; cell != null; cell = cell.next) {
-		cell.isWire = true;
+	for (let cell = firstTail; cell != null; cell = cell[next_]) {
+		cell[isWire_] = true;
 	}
 
 	firstTail = firstHead;
@@ -188,11 +200,11 @@ const update = () => {
 const render = () => {
 	headGridIndices.length = 0;
 	tailGridIndices.length = 0;
-	for (let cell = firstHead; cell != null; cell = cell.next) {
-		headGridIndices.push(cell.gridIndex);
+	for (let cell = firstHead; cell != null; cell = cell[next_]) {
+		headGridIndices.push(cell[gridIndex_]);
 	}
-	for (let cell = firstTail; cell != null; cell = cell.next) {
-		tailGridIndices.push(cell.gridIndex);
+	for (let cell = firstTail; cell != null; cell = cell[next_]) {
+		tailGridIndices.push(cell[gridIndex_]);
 	}
 
 	let simulationSpeed = "---";
