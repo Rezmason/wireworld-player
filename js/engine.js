@@ -88,7 +88,7 @@ const initialize = (data, restoredRender = null) => {
 		}
 	}
 
-	mem = cells.flat();
+	mem = Uint32Array.from(cells.flat());
 	cells.length = null;
 
 	reset(restoredRender);
