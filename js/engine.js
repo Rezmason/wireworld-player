@@ -15,8 +15,6 @@ let firstTail = NULL;
 
 let turboActive = false;
 let turboStepSize = 1;
-let turboStartTime = null;
-let turboStartGeneration;
 let turboTimeout = null;
 
 const neighbors_ = 0;
@@ -26,6 +24,11 @@ const headCount_ = 10;
 const isWire_ = 11;
 
 const cellSize = isWire_ + 1;
+let lastTurboTime, lastTurboGeneration;
+const turboHistoryLength = 10;
+const turboHistory = Array(turboHistoryLength);
+let turboHistoryIndex = 0;
+let turboAverageSpeed = 0;
 
 const initialize = (data, restoredRender = null) => {
 	width = data.width;
@@ -134,6 +137,7 @@ const reset = (restoredRender) => {
 				break;
 		}
 	}
+	resetTurboHistory();
 	render();
 };
 
@@ -204,7 +208,13 @@ const render = () => {
 
 	let simulationSpeed = "---";
 	if (turboActive) {
-		simulationSpeed = numberFormatter.format(Math.round((1000 * (generation - turboStartGeneration)) / (Date.now() - turboStartTime)));
+		const now = Date.now();
+		const speed = (generation - lastTurboGeneration) / (now - lastTurboTime);
+		turboAverageSpeed -= turboHistory[turboHistoryIndex] / turboHistoryLength;
+		turboHistory[turboHistoryIndex] = speed;
+		turboAverageSpeed += speed / turboHistoryLength;
+		turboHistoryIndex = (turboHistoryIndex + 1) % turboHistoryLength;
+		simulationSpeed = numberFormatter.format(Math.round(1000 * turboAverageSpeed));
 	}
 
 	postMessage({
@@ -229,11 +239,10 @@ const advance = () => {
 
 const startTurbo = () => {
 	turboActive = true;
-	turboStartGeneration = generation;
-	turboStartTime = Date.now();
-	let turboTime = turboStartTime;
-	let now;
-	let lastRender = turboStartTime;
+	let now = Date.now();
+	let lastUpdate = now;
+	let lastRender = now;
+	resetTurboHistory();
 
 	const loopTurbo = () => {
 		for (let i = 0; i < turboStepSize; i++) {
@@ -247,13 +256,13 @@ const startTurbo = () => {
 
 		now = Date.now();
 
-		const diff = now - turboTime;
+		const diff = now - lastUpdate;
 		if (diff > maxFrameTime && turboStepSize > 1) {
-			turboStepSize >>= 1; // Halve it
+			turboStepSize >>= 1;
 		} else if (diff * 2 < maxFrameTime) {
-			turboStepSize <<= 1; // Double it
+			turboStepSize <<= 1;
 		}
-		turboTime = now;
+		lastUpdate = now;
 
 		if (now - lastRender > desiredFrameTime) {
 			lastRender = now;
@@ -271,6 +280,14 @@ const stopTurbo = () => {
 	turboTimeout = null;
 };
 
+const resetTurboHistory = () => {
+	lastTurboTime = Date.now();
+	lastTurboGeneration = generation;
+	turboHistory.fill(0);
+	turboHistoryIndex = 0;
+	turboAverageSpeed = 0;
+};
+
 const engine = {
 	initialize,
 	advance,
@@ -279,4 +296,4 @@ const engine = {
 	stopTurbo,
 };
 
-self.addEventListener("message", (event) => engine[event.data.type]?.(...(event.data.args ?? [])));
+self.addEventListener("message", ({ data }) => engine[data.type]?.(...(data.args ?? [])));
