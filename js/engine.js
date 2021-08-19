@@ -261,22 +261,12 @@ const stopTurbo = () => {
 	turboTimeout = null;
 };
 
-self.addEventListener("message", (event) => {
-	switch (event.data.type) {
-		case "initialize":
-			initialize(...event.data.args);
-			break;
-		case "advance":
-			advance();
-			break;
-		case "reset":
-			reset(...evant.data.args);
-			break;
-		case "startTurbo":
-			startTurbo();
-			break;
-		case "stopTurbo":
-			stopTurbo();
-			break;
-	}
-});
+const engine = {
+	initialize,
+	advance,
+	reset,
+	startTurbo,
+	stopTurbo,
+};
+
+self.addEventListener("message", (event) => engine[event.data.type]?.(...(event.data.args ?? [])));

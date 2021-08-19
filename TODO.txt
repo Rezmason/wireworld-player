@@ -1,11 +1,6 @@
 TODO
 
-Minor improvements
-	Replace engine messaging switch with object
-	Rename pixel index to grid index, indices to grid indices
-	Improve paper — no need for pixelBytes
-
-Arraydiate
+Scalarize the engine
 	Convert cells to arrays
 		Change properties to indices
 			Create unused cell at zero
