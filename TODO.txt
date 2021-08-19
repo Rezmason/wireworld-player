@@ -22,7 +22,9 @@ Simplify GC
 Glow
 
 
-
+Consider rearranging properties in cells
+	Move out gridIndex_ and firstState_ into a separate data structure
+		firstState
 
 
 

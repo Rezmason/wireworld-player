@@ -19,23 +19,17 @@ let turboStartTime = null;
 let turboStartGeneration;
 let turboTimeout = null;
 
-const x_ = 0;
-const y_ = 1;
-const address_ = 2;
-const gridIndex_ = 3;
-const firstState_ = 4;
-const neighbors_ = 5;
-const numNeighbors_ = 13;
-const next_ = 14;
-const headCount_ = 15;
-const isWire_ = 16;
+const gridIndex_ = 0;
+const firstState_ = 1;
+const neighbors_ = 2;
+const numNeighbors_ = 10;
+const next_ = 11;
+const headCount_ = 12;
+const isWire_ = 13;
 
-const makeCell = (address, firstState, x, y) => {
+const makeCell = (firstState, gridIndex) => {
 	return [
-		x, // x
-		y, // y
-		address, // address
-		y * width + x, // gridIndex
+		gridIndex, // gridIndex
 		firstState, // firstState
 		Array(8).fill(NULL), // neighbors
 		0, // numNeighbors
@@ -49,11 +43,11 @@ const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	const cells = [makeCell(NULL, CellState.DEAD, 0, 0)];
+	const cells = [makeCell(CellState.DEAD, 0)];
 	numCells = 1;
 	const cellGrid = Array(height)
 		.fill()
-		.map((_) => Array(width));
+		.map((_) => Array(width).fill(NULL));
 
 	data.cellStates.forEach((row, y) =>
 		row.forEach((firstState, x) => {
@@ -61,16 +55,17 @@ const initialize = (data, restoredRender = null) => {
 				return;
 			}
 
-			const cell = makeCell(numCells, firstState, x, y);
+			const cell = makeCell(firstState, y * width + x);
 			cells[numCells] = cell;
-			cellGrid[y][x] = cell;
+			cellGrid[y][x] = numCells;
 			numCells++;
 		})
 	);
 
 	for (const cell of cells) {
-		const x = cell[x_];
-		const y = cell[y_];
+		const gridIndex = cell[gridIndex_];
+		const y = Math.floor(gridIndex / width);
+		const x = gridIndex % width;
 		for (let yOffset = -1; yOffset < 2; yOffset++) {
 			if (y + yOffset < 0 || y + yOffset >= height) {
 				continue;
@@ -83,8 +78,8 @@ const initialize = (data, restoredRender = null) => {
 					continue;
 				}
 				const neighbor = cellGrid[y + yOffset][x + xOffset];
-				if (neighbor != null) {
-					cell[neighbors_ + cell[numNeighbors_]] = neighbor[address_];
+				if (neighbor != NULL) {
+					cell[neighbors_ + cell[numNeighbors_]] = neighbor;
 					cell[numNeighbors_]++;
 				}
 			}
