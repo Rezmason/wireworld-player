@@ -4,14 +4,14 @@ const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
 const desiredFrameTime = 1000 / 60;
 
-const NULL_ADDRESS = 0;
+const NULL = 0;
 
 const headGridIndices = [];
 const tailGridIndices = [];
 
-let width, height, cells, numCells, generation;
-let firstHead = null;
-let firstTail = null;
+let width, height, mem, numCells, generation;
+let firstHead = NULL;
+let firstTail = NULL;
 
 let turboActive = false;
 let turboStepSize = 1;
@@ -30,16 +30,16 @@ const next_ = 14;
 const headCount_ = 15;
 const isWire_ = 16;
 
-const makeCell = (index, firstState, x, y) => {
+const makeCell = (address, firstState, x, y) => {
 	return [
 		x, // x
 		y, // y
-		index, // index
+		address, // address
 		y * width + x, // gridIndex
 		firstState, // firstState
-		Array(8).fill(NULL_ADDRESS), // neighbors
+		Array(8).fill(NULL), // neighbors
 		0, // numNeighbors
-		null, // next
+		NULL, // next
 		0, // headCount
 		0, // isWire
 	].flat();
@@ -49,7 +49,7 @@ const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	cells = [makeCell(NULL_ADDRESS, CellState.DEAD, 0, 0)];
+	const cells = [makeCell(NULL, CellState.DEAD, 0, 0)];
 	numCells = 1;
 	const cellGrid = Array(height)
 		.fill()
@@ -91,53 +91,55 @@ const initialize = (data, restoredRender = null) => {
 		}
 	}
 
+	mem = cells;
+
 	reset(restoredRender);
 };
 
 const reset = (restoredRender) => {
 	generation = restoredRender?.generation ?? 0;
-	firstHead = null;
-	firstTail = null;
-	let lastHead = null;
-	let lastTail = null;
+	firstHead = NULL;
+	firstTail = NULL;
+	let lastHead = NULL;
+	let lastTail = NULL;
 
 	const restoredHeadGridIndices = new Set(restoredRender?.headGridIndices ?? []);
 	const restoredTailGridIndices = new Set(restoredRender?.tailGridIndices ?? []);
 
 	for (let i = 0; i < numCells; i++) {
-		const cell = cells[i];
-		let resetState = cell[firstState_];
+		const cell = i;
+		let resetState = mem[cell][firstState_];
 
 		if (restoredRender != null) {
-			if (restoredHeadGridIndices.has(cell[gridIndex_])) {
+			if (restoredHeadGridIndices.has(mem[cell][gridIndex_])) {
 				resetState = CellState.HEAD;
-			} else if (restoredTailGridIndices.has(cell[gridIndex_])) {
+			} else if (restoredTailGridIndices.has(mem[cell][gridIndex_])) {
 				resetState = CellState.TAIL;
 			} else {
 				resetState = CellState.WIRE;
 			}
 		}
 
-		cell[isWire_] = 0;
+		mem[cell][isWire_] = 0;
 		switch (resetState) {
 			case CellState.HEAD:
-				if (firstHead == null) {
+				if (firstHead == NULL) {
 					firstHead = cell;
 				} else {
-					lastHead[next_] = cell;
+					mem[lastHead][next_] = cell;
 				}
 				lastHead = cell;
 				break;
 			case CellState.TAIL:
-				if (firstTail == null) {
+				if (firstTail == NULL) {
 					firstTail = cell;
 				} else {
-					lastTail[next_] = cell;
+					mem[lastTail][next_] = cell;
 				}
 				lastTail = cell;
 				break;
 			case CellState.WIRE:
-				cell[isWire_] = 1;
+				mem[cell][isWire_] = 1;
 				break;
 		}
 	}
@@ -148,51 +150,51 @@ const update = () => {
 	generation++;
 
 	// generate new list of heads from heads
-	let firstNewHead = null;
-	let lastNewHead = null;
+	let firstNewHead = NULL;
+	let lastNewHead = NULL;
 	let numNeighbors, neighbor;
 
 	// add all wire neighbors of heads to new heads list and count their head neighbors
-	for (let cell = firstHead; cell != null; cell = cell[next_]) {
-		numNeighbors = cell[numNeighbors_];
+	for (let cell = firstHead; cell != NULL; cell = mem[cell][next_]) {
+		numNeighbors = mem[cell][numNeighbors_];
 		for (let i = 0; i < numNeighbors; i++) {
-			neighbor = cell[neighbors_ + i];
-			if (cells[neighbor][isWire_] === 1) {
-				if (cells[neighbor][headCount_] === 0) {
-					if (firstNewHead == null) {
-						firstNewHead = cells[neighbor];
+			neighbor = mem[cell][neighbors_ + i];
+			if (mem[neighbor][isWire_] === 1) {
+				if (mem[neighbor][headCount_] === 0) {
+					if (firstNewHead == NULL) {
+						firstNewHead = neighbor;
 					} else {
-						lastNewHead[next_] = cells[neighbor];
+						mem[lastNewHead][next_] = neighbor;
 					}
-					lastNewHead = cells[neighbor];
+					lastNewHead = neighbor;
 				}
-				cells[neighbor][headCount_]++;
+				mem[neighbor][headCount_]++;
 			}
 		}
 	}
-	if (lastNewHead != null) {
-		lastNewHead[next_] = null;
+	if (lastNewHead != NULL) {
+		mem[lastNewHead][next_] = NULL;
 	}
 
 	// remove cells from front of list until first cell is a valid new head
-	while (firstNewHead != null && firstNewHead[headCount_] > 2) {
-		firstNewHead[headCount_] = 0;
-		firstNewHead = firstNewHead[next_];
+	while (firstNewHead != NULL && mem[firstNewHead][headCount_] > 2) {
+		mem[firstNewHead][headCount_] = 0;
+		firstNewHead = mem[firstNewHead][next_];
 	}
 
 	// remove cells from list if they are invalid
-	for (let cell = firstNewHead; cell != null; cell = cell[next_]) {
-		while (cell[next_] != null && cell[next_][headCount_] > 2) {
-			cell[next_][headCount_] = 0;
-			cell[next_] = cell[next_][next_];
+	for (let cell = firstNewHead; cell != NULL; cell = mem[cell][next_]) {
+		while (mem[cell][next_] != NULL && mem[mem[cell][next_]][headCount_] > 2) {
+			mem[mem[cell][next_]][headCount_] = 0;
+			mem[cell][next_] = mem[mem[cell][next_]][next_];
 		}
-		cell[headCount_] = 0;
-		cell[isWire_] = 0;
+		mem[cell][headCount_] = 0;
+		mem[cell][isWire_] = 0;
 	}
 
 	// turn all tails to wires
-	for (let cell = firstTail; cell != null; cell = cell[next_]) {
-		cell[isWire_] = 1;
+	for (let cell = firstTail; cell != NULL; cell = mem[cell][next_]) {
+		mem[cell][isWire_] = 1;
 	}
 
 	firstTail = firstHead;
@@ -202,11 +204,11 @@ const update = () => {
 const render = () => {
 	headGridIndices.length = 0;
 	tailGridIndices.length = 0;
-	for (let cell = firstHead; cell != null; cell = cell[next_]) {
-		headGridIndices.push(cell[gridIndex_]);
+	for (let cell = firstHead; cell != NULL; cell = mem[cell][next_]) {
+		headGridIndices.push(mem[cell][gridIndex_]);
 	}
-	for (let cell = firstTail; cell != null; cell = cell[next_]) {
-		tailGridIndices.push(cell[gridIndex_]);
+	for (let cell = firstTail; cell != NULL; cell = mem[cell][next_]) {
+		tailGridIndices.push(mem[cell][gridIndex_]);
 	}
 
 	let simulationSpeed = "---";
