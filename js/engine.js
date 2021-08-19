@@ -39,7 +39,7 @@ const makeCell = (index, firstState, x, y) => {
 		0, // numNeighbors
 		null, // next
 		0, // headCount
-		false, // isWire
+		0, // isWire
 	].flat();
 };
 
@@ -116,7 +116,7 @@ const reset = (restoredRender) => {
 			}
 		}
 
-		cell[isWire_] = false;
+		cell[isWire_] = 0;
 		switch (resetState) {
 			case CellState.HEAD:
 				if (firstHead == null) {
@@ -135,7 +135,7 @@ const reset = (restoredRender) => {
 				lastTail = cell;
 				break;
 			case CellState.WIRE:
-				cell[isWire_] = true;
+				cell[isWire_] = 1;
 				break;
 		}
 	}
@@ -155,7 +155,7 @@ const update = () => {
 		numNeighbors = cell[numNeighbors_];
 		for (let i = 0; i < numNeighbors; i++) {
 			neighbor = cell[neighbors_ + i];
-			if (neighbor[isWire_]) {
+			if (neighbor[isWire_] === 1) {
 				if (neighbor[headCount_] === 0) {
 					if (firstNewHead == null) {
 						firstNewHead = neighbor;
@@ -185,12 +185,12 @@ const update = () => {
 			cell[next_] = cell[next_][next_];
 		}
 		cell[headCount_] = 0;
-		cell[isWire_] = false;
+		cell[isWire_] = 0;
 	}
 
 	// turn all tails to wires
 	for (let cell = firstTail; cell != null; cell = cell[next_]) {
-		cell[isWire_] = true;
+		cell[isWire_] = 1;
 	}
 
 	firstTail = firstHead;
