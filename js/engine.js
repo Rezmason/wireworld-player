@@ -9,7 +9,7 @@ const NULL = 0;
 const headGridIndices = [];
 const tailGridIndices = [];
 
-let width, height, mem, numCells, generation;
+let width, height, mem, allGridIndices, allFirstStates, numCells, generation;
 let firstHead = NULL;
 let firstTail = NULL;
 
@@ -19,33 +19,21 @@ let turboStartTime = null;
 let turboStartGeneration;
 let turboTimeout = null;
 
-const gridIndex_ = 0;
-const firstState_ = 1;
-const neighbors_ = 2;
-const numNeighbors_ = 10;
-const next_ = 11;
-const headCount_ = 12;
-const isWire_ = 13;
+const neighbors_ = 0;
+const numNeighbors_ = 8;
+const next_ = 9;
+const headCount_ = 10;
+const isWire_ = 11;
 
 const cellSize = isWire_ + 1;
-
-const makeCell = (firstState, gridIndex) => {
-	return [
-		gridIndex, // gridIndex
-		firstState, // firstState
-		Array(8).fill(NULL), // neighbors
-		0, // numNeighbors
-		NULL, // next
-		0, // headCount
-		0, // isWire
-	].flat();
-};
 
 const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	const cells = [makeCell(CellState.DEAD, 0)];
+	const firstStates = [CellState.DEAD];
+	const gridIndices = [0];
+
 	numCells = 1;
 	const cellGrid = Array(height)
 		.fill()
@@ -57,15 +45,17 @@ const initialize = (data, restoredRender = null) => {
 				return;
 			}
 
-			const cell = makeCell(firstState, y * width + x);
-			cells[numCells] = cell;
+			firstStates[numCells] = firstState;
+			gridIndices[numCells] = y * width + x;
 			cellGrid[y][x] = numCells * cellSize;
 			numCells++;
 		})
 	);
 
-	for (const cell of cells) {
-		const gridIndex = cell[gridIndex_];
+	const cells = Array(numCells * cellSize).fill(NULL);
+
+	for (let i = 0; i < numCells; i++) {
+		const gridIndex = gridIndices[i];
 		const y = Math.floor(gridIndex / width);
 		const x = gridIndex % width;
 		for (let yOffset = -1; yOffset < 2; yOffset++) {
@@ -81,14 +71,16 @@ const initialize = (data, restoredRender = null) => {
 				}
 				const neighbor = cellGrid[y + yOffset][x + xOffset];
 				if (neighbor != NULL) {
-					cell[neighbors_ + cell[numNeighbors_]] = neighbor;
-					cell[numNeighbors_]++;
+					cells[i * cellSize + neighbors_ + cells[i * cellSize + numNeighbors_]] = neighbor;
+					cells[i * cellSize + numNeighbors_]++;
 				}
 			}
 		}
 	}
 
-	mem = Uint32Array.from(cells.flat());
+	mem = Uint32Array.from(cells);
+	allGridIndices = Uint32Array.from(gridIndices);
+	allFirstStates = Uint32Array.from(firstStates);
 	cells.length = null;
 
 	reset(restoredRender);
@@ -106,12 +98,12 @@ const reset = (restoredRender) => {
 
 	for (let i = 0; i < numCells; i++) {
 		const cell = i * cellSize;
-		let resetState = mem[cell + firstState_];
+		let resetState = allFirstStates[cell / cellSize];
 
 		if (restoredRender != null) {
-			if (restoredHeadGridIndices.has(mem[cell + gridIndex_])) {
+			if (restoredHeadGridIndices.has(allGridIndices[cell / cellSize])) {
 				resetState = CellState.HEAD;
-			} else if (restoredTailGridIndices.has(mem[cell + gridIndex_])) {
+			} else if (restoredTailGridIndices.has(allGridIndices[cell / cellSize])) {
 				resetState = CellState.TAIL;
 			} else {
 				resetState = CellState.WIRE;
@@ -204,10 +196,10 @@ const render = () => {
 	headGridIndices.length = 0;
 	tailGridIndices.length = 0;
 	for (let cell = firstHead; cell != NULL; cell = mem[cell + next_]) {
-		headGridIndices.push(mem[cell + gridIndex_]);
+		headGridIndices.push(allGridIndices[cell / cellSize]);
 	}
 	for (let cell = firstTail; cell != NULL; cell = mem[cell + next_]) {
-		tailGridIndices.push(mem[cell + gridIndex_]);
+		tailGridIndices.push(allGridIndices[cell / cellSize]);
 	}
 
 	let simulationSpeed = "---";
