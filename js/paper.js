@@ -25,6 +25,8 @@ const headColor = formatColorForEndian(/*0xffff44ff*/ 0xff8800ff);
 
 let drawings;
 let gridIndices;
+let lastHeadIDs = [];
+let lastTailIDs = [];
 
 const initialize = (data) => {
 	const { width, height, cellStates } = data;
@@ -66,25 +68,33 @@ const setGridIndices = (indices) => {
 };
 
 const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }) => {
-	const activeDrawing = drawings.active;
+	const activePixels = drawings.active.pixels;
+	const activeImageData = drawings.active.imageData;
 
 	labels.generation.setText(generation);
 	labels.simulation_speed.setText(simulationSpeed);
 
-	activeDrawing.pixels.fill(0x00000000);
-
-	const numHeads = headIDs.length;
-	for (let i = 0; i < numHeads; i++) {
-		activeDrawing.pixels[gridIndices[headIDs[i]]] = headColor;
+	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
+		activePixels[gridIndices[lastHeadIDs[i]]] = 0x0;
 	}
 
-	const numTails = tailIDs.length;
-	for (let i = 0; i < numTails; i++) {
-		activeDrawing.pixels[gridIndices[tailIDs[i]]] = tailColor;
+	for (let i = 0, len = lastTailIDs.length; i < len; i++) {
+		activePixels[gridIndices[lastTailIDs[i]]] = 0x0;
 	}
 
-	activeDrawing.context.putImageData(activeDrawing.imageData, 0, 0);
-	drawings.glow.context.putImageData(activeDrawing.imageData, 0, 0);
+	lastHeadIDs = headIDs;
+	lastTailIDs = tailIDs;
+
+	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
+		activePixels[gridIndices[lastHeadIDs[i]]] = headColor;
+	}
+
+	for (let i = 0, len = lastTailIDs.length; i < len; i++) {
+		activePixels[gridIndices[lastTailIDs[i]]] = tailColor;
+	}
+
+	drawings.active.context.putImageData(activeImageData, 0, 0);
+	drawings.glow.context.putImageData(activeImageData, 0, 0);
 };
 
 const paper = {

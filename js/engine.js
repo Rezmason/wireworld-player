@@ -24,6 +24,7 @@ const headCount_ = 10;
 const isWire_ = 11;
 
 const cellSize = isWire_ + 1;
+
 let lastTurboTime, lastTurboGeneration;
 const turboHistoryLength = 10;
 const turboHistory = Array(turboHistoryLength);
