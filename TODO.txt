@@ -15,9 +15,6 @@ Scalarize the engine
 			cells[x][y] ==> cells[x + y]
 	Convert all values to unsigned integers
 	Convert array to Uint32 array
-
-Simplify GC
-	Delete unused cells DS in engine
 	
 Glow
 
