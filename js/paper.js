@@ -60,7 +60,7 @@ const initialize = (data) => {
 	setPanZoomSize(width, height);
 };
 
-const update = ({ generation, simulationSpeed, width, height, headIndices, tailIndices }) => {
+const update = ({ generation, simulationSpeed, width, height, headGridIndices, tailGridIndices }) => {
 	const activeDrawing = drawings.active;
 
 	labels.generation.setText(generation);
@@ -68,14 +68,14 @@ const update = ({ generation, simulationSpeed, width, height, headIndices, tailI
 
 	activeDrawing.pixels.fill(0x00000000);
 
-	const numHeads = headIndices.length;
+	const numHeads = headGridIndices.length;
 	for (let i = 0; i < numHeads; i++) {
-		activeDrawing.pixels[headIndices[i]] = headColor;
+		activeDrawing.pixels[headGridIndices[i]] = headColor;
 	}
 
-	const numTails = tailIndices.length;
+	const numTails = tailGridIndices.length;
 	for (let i = 0; i < numTails; i++) {
-		activeDrawing.pixels[tailIndices[i]] = tailColor;
+		activeDrawing.pixels[tailGridIndices[i]] = tailColor;
 	}
 
 	activeDrawing.context.putImageData(activeDrawing.imageData, 0, 0);

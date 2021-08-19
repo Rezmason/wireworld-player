@@ -19,7 +19,7 @@ const makeCell = (index, firstState, x, y) => {
 		x,
 		y,
 		index,
-		pixelIndex: y * width + x,
+		gridIndex: y * width + x,
 		firstState,
 		neighbors: [],
 		numNeighbors: 0,
@@ -84,17 +84,17 @@ const reset = (restoredRender) => {
 	let lastHead = null;
 	let lastTail = null;
 
-	const headIndices = new Set(restoredRender?.headIndices ?? []);
-	const tailIndices = new Set(restoredRender?.tailIndices ?? []);
+	const headGridIndices = new Set(restoredRender?.headGridIndices ?? []);
+	const tailGridIndices = new Set(restoredRender?.tailGridIndices ?? []);
 
 	for (let i = 0; i < numCells; i++) {
 		const cell = cells[i];
 		let resetState = cell.firstState;
 
 		if (restoredRender != null) {
-			if (headIndices.has(cell.pixelIndex)) {
+			if (headGridIndices.has(cell.gridIndex)) {
 				resetState = CellState.HEAD;
-			} else if (tailIndices.has(cell.pixelIndex)) {
+			} else if (tailGridIndices.has(cell.gridIndex)) {
 				resetState = CellState.TAIL;
 			} else {
 				resetState = CellState.WIRE;
@@ -183,13 +183,13 @@ const update = () => {
 };
 
 const render = () => {
-	const headIndices = [];
-	const tailIndices = [];
+	const headGridIndices = [];
+	const tailGridIndices = [];
 	for (let cell = firstHead; cell != null; cell = cell.next) {
-		headIndices.push(cell.pixelIndex);
+		headGridIndices.push(cell.gridIndex);
 	}
 	for (let cell = firstTail; cell != null; cell = cell.next) {
-		tailIndices.push(cell.pixelIndex);
+		tailGridIndices.push(cell.gridIndex);
 	}
 
 	let simulationSpeed = "---";
@@ -205,8 +205,8 @@ const render = () => {
 				simulationSpeed,
 				width,
 				height,
-				headIndices,
-				tailIndices,
+				headGridIndices,
+				tailGridIndices,
 			},
 		],
 	});
