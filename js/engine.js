@@ -9,7 +9,7 @@ const NULL = 0;
 const headIDs = [];
 const tailIDs = [];
 
-let width, height, mem, allFirstStates, numCells, generation;
+let width, height, mem, firstStates, numCells, generation;
 let firstHead = NULL;
 let firstTail = NULL;
 
@@ -35,8 +35,8 @@ const initialize = (data, restoredRender = null) => {
 	width = data.width;
 	height = data.height;
 
-	const firstStates = [CellState.DEAD];
-	const gridIndices = [0];
+	const cellFirstStates = [CellState.DEAD];
+	const cellGridIndices = [0];
 
 	numCells = 1;
 	const cellGrid = Array(height)
@@ -49,8 +49,8 @@ const initialize = (data, restoredRender = null) => {
 				return;
 			}
 
-			firstStates[numCells] = firstState;
-			gridIndices[numCells] = y * width + x;
+			cellFirstStates[numCells] = firstState;
+			cellGridIndices[numCells] = y * width + x;
 			cellGrid[y][x] = numCells * cellSize;
 			numCells++;
 		})
@@ -59,7 +59,7 @@ const initialize = (data, restoredRender = null) => {
 	const cells = Array(numCells * cellSize).fill(NULL);
 
 	for (let i = 0; i < numCells; i++) {
-		const gridIndex = gridIndices[i];
+		const gridIndex = cellGridIndices[i];
 		const y = Math.floor(gridIndex / width);
 		const x = gridIndex % width;
 		for (let yOffset = -1; yOffset < 2; yOffset++) {
@@ -83,12 +83,12 @@ const initialize = (data, restoredRender = null) => {
 	}
 
 	mem = Uint32Array.from(cells);
-	allFirstStates = Uint32Array.from(firstStates);
-	postMessage({ type: "gridIndices", args: [gridIndices] });
+	firstStates = Uint32Array.from(cellFirstStates);
+	postMessage({ type: "gridIndices", args: [cellGridIndices] });
 
 	cells.length = 0;
-	gridIndices.length = 0;
-	firstStates.length = 0;
+	cellGridIndices.length = 0;
+	cellFirstStates.length = 0;
 
 	reset(restoredRender);
 };
@@ -105,7 +105,7 @@ const reset = (restoredRender) => {
 
 	for (let i = 0; i < numCells; i++) {
 		const cell = i * cellSize;
-		let resetState = allFirstStates[cell / cellSize];
+		let resetState = firstStates[cell / cellSize];
 
 		if (restoredRender != null) {
 			if (restoredHeadIDs.has(cell / cellSize)) {
