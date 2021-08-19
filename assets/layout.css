@@ -75,7 +75,8 @@ paper canvas {
 }
 
 paper canvas.glow {
-	filter: blur(15px);
+	filter: blur(10px);
+	mix-blend-mode: screen;
 }
 
 button, input {
