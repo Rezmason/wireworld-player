@@ -36,10 +36,8 @@ const initialize = (data) => {
 			canvas.style.height = height;
 			const context = canvas.getContext("2d");
 			const imageData = context.createImageData(width, height);
-			const buffer = new ArrayBuffer(numBytes);
-			const pixels = new Uint32Array(buffer);
-			const pixelBytes = new Uint8ClampedArray(buffer);
-			return [id, { canvas, context, imageData, buffer, pixels, pixelBytes }];
+			const pixels = new Uint32Array(imageData.data.buffer);
+			return [id, { canvas, context, imageData, pixels }];
 		})
 	);
 
@@ -54,7 +52,6 @@ const initialize = (data) => {
 			}
 		}
 	}
-	baseDrawing.imageData.data.set(baseDrawing.pixelBytes);
 	baseDrawing.context.putImageData(baseDrawing.imageData, 0, 0);
 
 	labels.generation.setText("0");
@@ -81,7 +78,6 @@ const update = ({ generation, simulationSpeed, width, height, headIndices, tailI
 		activeDrawing.pixels[tailIndices[i]] = tailColor;
 	}
 
-	activeDrawing.imageData.data.set(activeDrawing.pixelBytes);
 	activeDrawing.context.putImageData(activeDrawing.imageData, 0, 0);
 };
 
