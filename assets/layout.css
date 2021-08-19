@@ -74,6 +74,10 @@ paper canvas {
 	pointer-events: none;
 }
 
+paper canvas.glow {
+	filter: blur(15px);
+}
+
 button, input {
 	font-size: unset;
 }

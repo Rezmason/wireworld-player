@@ -1,30 +1,5 @@
 TODO
 
-Scalarize the engine
-	Convert cells to arrays
-		Change properties to indices
-			Create unused cell at zero
-			NULL = 0
-			Neighbors are indices into that array
-		Convert neighbors from object references to addresses
-			x ==> cells[x]
-		Convert next from object references to addresses
-	Flatten cells to one array
-		Modify addresses and numCells iteration
-		Convert double lookup to addition
-			cells[x][y] ==> cells[x + y]
-	Convert all values to unsigned integers
-	Convert array to Uint32 array
-	
-Glow
-
-
-Consider rearranging properties in cells
-	Move out gridIndex_ and firstState_ into a separate data structure
-		firstState
-
-
-
 BUG: fix turbo-on issue in Firefox
 
 BUG: fix focus-within issue with popup buttons in Chrome and Firefox
