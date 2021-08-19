@@ -94,7 +94,6 @@ const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }
 	}
 
 	drawings.active.context.putImageData(activeImageData, 0, 0);
-	drawings.glow.context.putImageData(activeImageData, 0, 0);
 };
 
 const paper = {

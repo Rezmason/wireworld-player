@@ -74,11 +74,6 @@ paper canvas {
 	pointer-events: none;
 }
 
-paper canvas.glow {
-	filter: blur(10px);
-	mix-blend-mode: screen;
-}
-
 button, input {
 	font-size: unset;
 }
