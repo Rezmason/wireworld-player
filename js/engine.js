@@ -6,10 +6,10 @@ const desiredFrameTime = 1000 / 60;
 
 const NULL = 0;
 
-const headGridIndices = [];
-const tailGridIndices = [];
+const headIDs = [];
+const tailIDs = [];
 
-let width, height, mem, allGridIndices, allFirstStates, numCells, generation;
+let width, height, mem, allFirstStates, numCells, generation;
 let firstHead = NULL;
 let firstTail = NULL;
 
@@ -82,9 +82,12 @@ const initialize = (data, restoredRender = null) => {
 	}
 
 	mem = Uint32Array.from(cells);
-	allGridIndices = Uint32Array.from(gridIndices);
 	allFirstStates = Uint32Array.from(firstStates);
-	cells.length = null;
+	postMessage({ type: "gridIndices", args: [gridIndices] });
+
+	cells.length = 0;
+	gridIndices.length = 0;
+	firstStates.length = 0;
 
 	reset(restoredRender);
 };
@@ -96,17 +99,17 @@ const reset = (restoredRender) => {
 	let lastHead = NULL;
 	let lastTail = NULL;
 
-	const restoredHeadGridIndices = new Set(restoredRender?.headGridIndices ?? []);
-	const restoredTailGridIndices = new Set(restoredRender?.tailGridIndices ?? []);
+	const restoredHeadIDs = new Set(restoredRender?.headIDs ?? []);
+	const restoredTailIDs = new Set(restoredRender?.tailIDs ?? []);
 
 	for (let i = 0; i < numCells; i++) {
 		const cell = i * cellSize;
 		let resetState = allFirstStates[cell / cellSize];
 
 		if (restoredRender != null) {
-			if (restoredHeadGridIndices.has(allGridIndices[cell / cellSize])) {
+			if (restoredHeadIDs.has(cell / cellSize)) {
 				resetState = CellState.HEAD;
-			} else if (restoredTailGridIndices.has(allGridIndices[cell / cellSize])) {
+			} else if (restoredTailIDs.has(cell / cellSize)) {
 				resetState = CellState.TAIL;
 			} else {
 				resetState = CellState.WIRE;
@@ -199,13 +202,13 @@ const update = () => {
 };
 
 const render = () => {
-	headGridIndices.length = 0;
-	tailGridIndices.length = 0;
+	headIDs.length = 0;
+	tailIDs.length = 0;
 	for (let cell = firstHead; cell != NULL; cell = mem[cell + next_]) {
-		headGridIndices.push(allGridIndices[cell / cellSize]);
+		headIDs.push(cell / cellSize);
 	}
 	for (let cell = firstTail; cell != NULL; cell = mem[cell + next_]) {
-		tailGridIndices.push(allGridIndices[cell / cellSize]);
+		tailIDs.push(cell / cellSize);
 	}
 
 	let simulationSpeed = "---";
@@ -227,8 +230,8 @@ const render = () => {
 				simulationSpeed,
 				width,
 				height,
-				headGridIndices,
-				tailGridIndices,
+				headIDs,
+				tailIDs,
 			},
 		],
 	});

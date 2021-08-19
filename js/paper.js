@@ -24,6 +24,7 @@ const tailColor = formatColorForEndian(/*0xffdd22ff*/ 0xffee00ff);
 const headColor = formatColorForEndian(/*0xffff44ff*/ 0xff8800ff);
 
 let drawings;
+let gridIndices;
 
 const initialize = (data) => {
 	const { width, height, cellStates } = data;
@@ -60,7 +61,11 @@ const initialize = (data) => {
 	setPanZoomSize(width, height);
 };
 
-const update = ({ generation, simulationSpeed, width, height, headGridIndices, tailGridIndices }) => {
+const setGridIndices = (indices) => {
+	gridIndices = indices;
+};
+
+const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }) => {
 	const activeDrawing = drawings.active;
 
 	labels.generation.setText(generation);
@@ -68,14 +73,14 @@ const update = ({ generation, simulationSpeed, width, height, headGridIndices, t
 
 	activeDrawing.pixels.fill(0x00000000);
 
-	const numHeads = headGridIndices.length;
+	const numHeads = headIDs.length;
 	for (let i = 0; i < numHeads; i++) {
-		activeDrawing.pixels[headGridIndices[i]] = headColor;
+		activeDrawing.pixels[gridIndices[headIDs[i]]] = headColor;
 	}
 
-	const numTails = tailGridIndices.length;
+	const numTails = tailIDs.length;
 	for (let i = 0; i < numTails; i++) {
-		activeDrawing.pixels[tailGridIndices[i]] = tailColor;
+		activeDrawing.pixels[gridIndices[tailIDs[i]]] = tailColor;
 	}
 
 	activeDrawing.context.putImageData(activeDrawing.imageData, 0, 0);
@@ -85,6 +90,7 @@ const update = ({ generation, simulationSpeed, width, height, headGridIndices, t
 const paper = {
 	initialize,
 	update,
+	setGridIndices,
 };
 
 export { paper };

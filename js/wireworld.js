@@ -23,6 +23,9 @@ checkRenderQueue();
 
 const handleEngineMessage = (event) => {
 	switch (event.data.type) {
+		case "gridIndices":
+			paper.setGridIndices(event.data.args[0]);
+			break;
 		case "render":
 			if (lastRender != null) {
 				for (const prop in lastRender) {
