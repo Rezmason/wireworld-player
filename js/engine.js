@@ -23,10 +23,10 @@ const index_ = 2;
 const gridIndex_ = 3;
 const firstState_ = 4;
 const neighbors_ = 5;
-const numNeighbors_ = 6;
-const next_ = 7;
-const headCount_ = 8;
-const isWire_ = 9;
+const numNeighbors_ = 13;
+const next_ = 14;
+const headCount_ = 15;
+const isWire_ = 16;
 
 const makeCell = (index, firstState, x, y) => {
 	return [
@@ -35,12 +35,12 @@ const makeCell = (index, firstState, x, y) => {
 		index, // index
 		y * width + x, // gridIndex
 		firstState, // firstState
-		[], // neighbors
+		Array(8).fill(null), // neighbors
 		0, // numNeighbors
 		null, // next
 		0, // headCount
 		false, // isWire
-	];
+	].flat();
 };
 
 const initialize = (data, restoredRender = null) => {
@@ -82,7 +82,7 @@ const initialize = (data, restoredRender = null) => {
 				}
 				const neighbor = cellGrid[y + yOffset][x + xOffset];
 				if (neighbor != null) {
-					cell[neighbors_][cell[numNeighbors_]] = neighbor;
+					cell[neighbors_ + cell[numNeighbors_]] = neighbor;
 					cell[numNeighbors_]++;
 				}
 			}
@@ -154,7 +154,7 @@ const update = () => {
 	for (let cell = firstHead; cell != null; cell = cell[next_]) {
 		numNeighbors = cell[numNeighbors_];
 		for (let i = 0; i < numNeighbors; i++) {
-			neighbor = cell[neighbors_][i];
+			neighbor = cell[neighbors_ + i];
 			if (neighbor[isWire_]) {
 				if (neighbor[headCount_] === 0) {
 					if (firstNewHead == null) {
