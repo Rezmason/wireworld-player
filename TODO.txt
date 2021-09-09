@@ -3,7 +3,50 @@ TODO
 Put previous implementations in other engines
 	Make new engines based on old strategies
 		Extract common code, use importScripts to add it to all engines
+		"naive"
+			model every cell in the sim, including dead ones
+			update
+				loop over all cells
+				switch
+				nested adjacency loop
+			render
+				every cell
+		"alive"
+			only model the non-dead cells
+			update
+				loop over non-dead cells
+				switch
+				nested adjacency loop
+			render
+				every head and tail
+		"neighbors"
+			model cells as objects with fields
+				neighbor array
+			update
+				loop over non-dead cells
+				switch
+				neighbor loop
+			render
+				every head and tail
+		"linked"
+			model linked lists with object fields
+			update
+				loop over heads
+				neighbor loop
+				loop over newHeads
+				loop over tails
+			render
+				every head and tail
+		"flat"
+			model cells and linked lists as data in a buffer
+			(This already exists!)
 	Add UI for player to specify what engine they want
+
+New engines?
+	Maybe WebGL and WebGPU?
+		These don't go in a web worker
+	Maybe WebAssembly?
+		Make sure CORS isn't a problem
 
 BUG: fix turbo-on issue in Firefox
 
