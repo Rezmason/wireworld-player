@@ -1,5 +1,7 @@
 const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name, index) => [name, index]));
 
+const theme = [0x000000ff, 0x505050ff, 0xffee00ff, 0xff8800ff];
+
 const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
 const desiredFrameTime = 1000 / 60;
@@ -84,7 +86,17 @@ const initialize = (data, restoredRender = null) => {
 
 	mem = Uint32Array.from(cells);
 	firstStates = Uint32Array.from(cellFirstStates);
-	postMessage({ type: "gridIndices", args: [cellGridIndices] });
+	postMessage({
+		type: "setup",
+		args: [
+			{
+				width,
+				height,
+				cellGridIndices,
+				theme,
+			},
+		],
+	});
 
 	cells.length = 0;
 	cellGridIndices.length = 0;
@@ -229,6 +241,7 @@ const render = () => {
 			{
 				generation: numberFormatter.format(generation),
 				simulationSpeed,
+				theme,
 				width,
 				height,
 				headIDs,

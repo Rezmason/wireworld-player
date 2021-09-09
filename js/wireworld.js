@@ -5,10 +5,16 @@ import { paper } from "./paper.js";
 import { parseFile } from "./parse.js";
 import { timing } from "./timing.js";
 
+const engineFilenamesByName = {
+	["default"]: "engine",
+	engine2: "engine2", // TODO: remove/rename
+};
+
 const params = new URL(document.location).searchParams;
 const suppressSplash = params.has("nosplash");
 
 let engine;
+let engineName = params.get("engine") ?? "default";
 let queuedRender = null;
 let lastRender = null;
 
@@ -23,8 +29,8 @@ checkRenderQueue();
 
 const handleEngineMessage = (event) => {
 	switch (event.data.type) {
-		case "gridIndices":
-			paper.setGridIndices(event.data.args[0]);
+		case "setup":
+			paper.initialize(event.data.args[0]);
 			break;
 		case "render":
 			if (lastRender != null) {
@@ -46,7 +52,8 @@ const rebuildEngine = () => {
 		engine.terminate();
 		engine.removeEventListener("message", handleEngineMessage);
 	}
-	engine = new Worker("./js/engine.js");
+	const engineFilename = engineFilenamesByName[engineName] ?? engineFilenamesByName["default"];
+	engine = new Worker(`./js/engines/${engineFilename}.js`);
 	engine.addEventListener("message", handleEngineMessage);
 };
 
@@ -88,7 +95,6 @@ const load = async (target, splash) => {
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		paper.initialize(data);
 		engine.postMessage({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;

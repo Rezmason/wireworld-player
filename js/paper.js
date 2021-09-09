@@ -18,18 +18,28 @@ const formatColorForEndian = (rgba) => {
 	return rgba;
 };
 
-const deadColor = formatColorForEndian(/*0x224400ff*/ 0x000000ff);
-const wireColor = formatColorForEndian(/*0x448822ff*/ 0x505050ff);
-const tailColor = formatColorForEndian(/*0xffdd22ff*/ 0xffee00ff);
-const headColor = formatColorForEndian(/*0xffff44ff*/ 0xff8800ff);
+const makeTheme = (deadColor, wireColor, tailColor, headColor) => ({
+	dead: formatColorForEndian(deadColor),
+	wire: formatColorForEndian(wireColor),
+	tail: formatColorForEndian(tailColor),
+	head: formatColorForEndian(headColor),
+});
 
+const circuitTheme = makeTheme(0x224400ff, 0x448822ff, 0xffdd22ff, 0xffff44ff);
+const classicTheme = makeTheme(0x000000ff, 0x505050ff, 0xffee00ff, 0xff8800ff);
+
+let theme = circuitTheme;
 let drawings;
-let gridIndices;
+let cellGridIndices;
 let lastHeadIDs = [];
 let lastTailIDs = [];
 
 const initialize = (data) => {
-	const { width, height, cellStates } = data;
+	const { width, height } = data;
+	cellGridIndices = data.cellGridIndices;
+	if (data.theme != null) {
+		theme = makeTheme(...data.theme);
+	}
 	const numBytes = width * height * 4;
 	drawings = Object.fromEntries(
 		Object.entries(canvases).map(([id, canvas]) => {
@@ -44,18 +54,7 @@ const initialize = (data) => {
 		})
 	);
 
-	const baseDrawing = drawings.base;
-	baseDrawing.pixels.fill(deadColor);
-	for (let y = 0; y < height; y++) {
-		if (cellStates[y] != null) {
-			for (let x = 0; x < width; x++) {
-				const color = (cellStates[y][x] ?? CellState.DEAD) === CellState.DEAD ? deadColor : wireColor;
-				const pixelIndex = y * width + x;
-				baseDrawing.pixels[pixelIndex] = color;
-			}
-		}
-	}
-	baseDrawing.context.putImageData(baseDrawing.imageData, 0, 0);
+	drawBaseLayer();
 
 	labels.generation.setText("0");
 	labels.simulation_speed.setText("---");
@@ -63,8 +62,16 @@ const initialize = (data) => {
 	setPanZoomSize(width, height);
 };
 
-const setGridIndices = (indices) => {
-	gridIndices = indices;
+const drawBaseLayer = () => {
+	const basePixels = drawings.base.pixels;
+	const wireColor = theme.wire;
+	basePixels.fill(theme.dead);
+	// The first cell in cellGridIndices is not a real cell, so we start at index 1
+	for (let i = 1, len = cellGridIndices.length; i < len; i++) {
+		basePixels[cellGridIndices[i]] = wireColor;
+	}
+
+	drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
 };
 
 const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }) => {
@@ -75,22 +82,25 @@ const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }
 	labels.simulation_speed.setText(simulationSpeed);
 
 	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
-		activePixels[gridIndices[lastHeadIDs[i]]] = 0x0;
+		activePixels[cellGridIndices[lastHeadIDs[i]]] = 0x0;
 	}
 
 	for (let i = 0, len = lastTailIDs.length; i < len; i++) {
-		activePixels[gridIndices[lastTailIDs[i]]] = 0x0;
+		activePixels[cellGridIndices[lastTailIDs[i]]] = 0x0;
 	}
 
 	lastHeadIDs = headIDs;
 	lastTailIDs = tailIDs;
 
+	const tailColor = theme.tail;
+	const headColor = theme.head;
+
 	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
-		activePixels[gridIndices[lastHeadIDs[i]]] = headColor;
+		activePixels[cellGridIndices[lastHeadIDs[i]]] = headColor;
 	}
 
 	for (let i = 0, len = lastTailIDs.length; i < len; i++) {
-		activePixels[gridIndices[lastTailIDs[i]]] = tailColor;
+		activePixels[cellGridIndices[lastTailIDs[i]]] = tailColor;
 	}
 
 	drawings.active.context.putImageData(activeImageData, 0, 0);
@@ -99,7 +109,6 @@ const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }
 const paper = {
 	initialize,
 	update,
-	setGridIndices,
 };
 
 export { paper };

@@ -1,12 +1,13 @@
 TODO
 
+Put previous implementations in other engines
+	Make new engines based on old strategies
+		Extract common code, use importScripts to add it to all engines
+	Add UI for player to specify what engine they want
+
 BUG: fix turbo-on issue in Firefox
 
 BUG: fix focus-within issue with popup buttons in Chrome and Firefox
-
-Put previous implementations in other engines
-	Load different engines based on URL param
-		Only change their data structures and update/render functions
 
 Photosensitivity warning
 	Detect intense flickering, and replace with "epilepsy guard" color
