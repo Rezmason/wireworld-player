@@ -1,22 +1,9 @@
 TODO
 
-Put previous implementations in other engines
-	Make new engines based on old strategies
-		Extract common code, use importScripts to add it to all engines
-		"linked"
-			model linked lists with object fields
-			update
-				loop over heads
-				neighbor loop
-				loop over newHeads
-				loop over tails
-			render
-				every head and tail
+Implement support for transferring state between engines in reset/init
+	"restoredRender" is a bad name, anyway!
 
-	Implement support for transferring state between engines in reset/init
-		"restoredRender" is a bad name, anyway!
-
-	Add UI for player to specify what engine they want
+Add UI for player to specify what engine they want
 
 New engines?
 	Maybe WebGL and WebGPU?

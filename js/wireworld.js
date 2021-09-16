@@ -6,12 +6,12 @@ import { parseFile } from "./parse.js";
 import { timing } from "./timing.js";
 
 const engineFilenamesByName = {
-	["default"]: "engine",
+	["default"]: "flat",
 	naive: "naive",
 	alive: "alive",
 	neighbors: "neighbors",
 	linked: "linked",
-	flat: "engine",
+	flat: "flat",
 };
 
 const params = new URL(document.location).searchParams;
