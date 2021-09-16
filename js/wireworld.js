@@ -7,7 +7,11 @@ import { timing } from "./timing.js";
 
 const engineFilenamesByName = {
 	["default"]: "engine",
-	engine2: "engine2", // TODO: remove/rename
+	naive: "naive",
+	alive: "alive",
+	neighbors: "neighbors",
+	linked: "linked",
+	flat: "engine",
 };
 
 const params = new URL(document.location).searchParams;

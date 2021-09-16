@@ -37,9 +37,7 @@ Put previous implementations in other engines
 				loop over tails
 			render
 				every head and tail
-		"flat"
-			model cells and linked lists as data in a buffer
-			(This already exists!)
+
 	Add UI for player to specify what engine they want
 
 New engines?
@@ -47,6 +45,7 @@ New engines?
 		These don't go in a web worker
 	Maybe WebAssembly?
 		Make sure CORS isn't a problem
+	Hashlife!
 
 BUG: fix turbo-on issue in Firefox
 
