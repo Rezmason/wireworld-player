@@ -9,7 +9,7 @@ const xyToCellGridIndex = [];
 const nonDeadCells = [];
 
 class AliveEngine extends Engine {
-	_initialize(data, restoredRender = null) {
+	_initialize(data) {
 		xyToCellGridIndex.length = 0;
 		nonDeadCells.length = 0;
 		let numCells = 0;

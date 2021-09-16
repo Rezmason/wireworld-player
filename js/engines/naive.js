@@ -6,7 +6,7 @@ let oldCells, newCells, originalCells;
 const xyToCellGridIndex = [];
 
 class NaiveEngine extends Engine {
-	_initialize(data, restoredRender = null) {
+	_initialize(data) {
 		xyToCellGridIndex.length = 0;
 		let numCells = 0;
 		const cellGridIndices = [];

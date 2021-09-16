@@ -3,7 +3,7 @@ importScripts("engine_common.js");
 const theme = oldThemes["minty"];
 
 class LinkedEngine extends Engine {
-	_initialize(data, restoredRender = null) {
+	_initialize(data) {
 		const cellGridIndices = [0];
 
 		return cellGridIndices;

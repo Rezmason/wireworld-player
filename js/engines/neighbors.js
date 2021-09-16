@@ -12,12 +12,12 @@ const makeCell = (index, firstState, x, y) => {
 		index,
 		firstState,
 		neighbors: [],
-		numNeighbors: 0
+		numNeighbors: 0,
 	};
 };
 
 class NeighborsEngine extends Engine {
-	_initialize(data, restoredRender = null) {
+	_initialize(data) {
 		numCells = 0;
 		cells.length = 0;
 		const cellGrid = Array(height)
@@ -59,7 +59,7 @@ class NeighborsEngine extends Engine {
 			cell.numNeighbors = cell.neighbors.length;
 		}
 
-		return cells.map(cell => cell.y * width + cell.x);
+		return cells.map((cell) => cell.y * width + cell.x);
 	}
 
 	_reset(restoredRender) {
@@ -67,7 +67,6 @@ class NeighborsEngine extends Engine {
 	}
 
 	_update() {
-			
 		for (let i = 0; i < numCells; i++) {
 			cells[i].oldState = cells[i].state;
 		}

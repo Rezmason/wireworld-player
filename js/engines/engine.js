@@ -15,7 +15,7 @@ const isWire_ = 11;
 const cellSize = isWire_ + 1;
 
 class FastEngine extends Engine {
-	_initialize(data, restoredRender = null) {
+	_initialize(data) {
 		const cellFirstStates = [CellState.DEAD];
 		const cellGridIndices = [0];
 

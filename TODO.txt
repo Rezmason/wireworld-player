@@ -13,6 +13,9 @@ Put previous implementations in other engines
 			render
 				every head and tail
 
+	Implement support for transferring state between engines in reset/init
+		"restoredRender" is a bad name, anyway!
+
 	Add UI for player to specify what engine they want
 
 New engines?

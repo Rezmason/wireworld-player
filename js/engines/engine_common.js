@@ -50,7 +50,7 @@ class Engine {
 		width = data.width;
 		height = data.height;
 
-		const cellGridIndices = this._initialize(data, restoredRender);
+		const cellGridIndices = this._initialize(data);
 
 		postMessage({
 			type: "setup",
