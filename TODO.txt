@@ -3,14 +3,6 @@ TODO
 Put previous implementations in other engines
 	Make new engines based on old strategies
 		Extract common code, use importScripts to add it to all engines
-		"alive"
-			only model the non-dead cells
-			update
-				loop over non-dead cells
-				switch
-				nested adjacency loop
-			render
-				every head and tail
 		"neighbors"
 			model cells as objects with fields
 				neighbor array
