@@ -1,24 +1,165 @@
 importScripts("engine_common.js");
 
-const theme = oldThemes["minty"];
+let cells, numCells;
+
+const makeCell = (index, firstState, x, y) => {
+	return {
+		x,
+		y,
+		index,
+		firstState,
+		neighbors: [],
+		numNeighbors: 0,
+		next: null,
+		headCount: 0,
+		isWire: false,
+	};
+};
+
+let firstHead = null;
+let firstTail = null;
 
 class LinkedEngine extends Engine {
 	_initialize(data) {
-		const cellGridIndices = [0];
+		numCells = 0;
+		cells = [];
+		const cellGrid = Array(height)
+			.fill()
+			.map((_) => Array(width));
 
-		return cellGridIndices;
+		data.cellStates.forEach((row, y) =>
+			row.forEach((firstState, x) => {
+				if (firstState == null || firstState === CellState.DEAD) {
+					return;
+				}
+
+				const cell = makeCell(numCells, firstState, x, y);
+				cells[numCells] = cell;
+				cellGrid[y][x] = cell;
+				numCells++;
+			})
+		);
+
+		for (const cell of cells) {
+			const { x, y } = cell;
+			for (let yOffset = -1; yOffset < 2; yOffset++) {
+				if (y + yOffset < 0 || y + yOffset >= height) {
+					continue;
+				}
+				for (let xOffset = -1; xOffset < 2; xOffset++) {
+					if (yOffset === 0 && xOffset === 0) {
+						continue;
+					}
+					if (x + xOffset < 0 || x + xOffset >= width) {
+						continue;
+					}
+					const neighbor = cellGrid[y + yOffset][x + xOffset];
+					if (neighbor != null) {
+						cell.neighbors.push(neighbor);
+					}
+				}
+			}
+			cell.numNeighbors = cell.neighbors.length;
+		}
+
+		return cells.map((cell) => cell.y * width + cell.x);
 	}
 
 	_reset(restoredRender) {
-		
+		firstHead = null;
+		firstTail = null;
+		let lastHead = null;
+		let lastTail = null;
+
+		cells.forEach((cell) => {
+			cell.next = null;
+			cell.isWire = false;
+			switch (cell.firstState) {
+				case CellState.HEAD:
+					if (firstHead == null) {
+						firstHead = cell;
+					} else {
+						lastHead.next = cell;
+					}
+					lastHead = cell;
+					break;
+				case CellState.TAIL:
+					if (firstTail == null) {
+						firstTail = cell;
+					} else {
+						lastTail.next = cell;
+					}
+					lastTail = cell;
+					break;
+				case CellState.WIRE:
+					cell.isWire = true;
+					break;
+			}
+		});
 	}
 
 	_update() {
-		
+		// generate new list of heads from heads
+		let firstNewHead = null;
+		let lastNewHead = null;
+		let numNeighbors, neighbor;
+
+		// add all wire neighbors of heads to new heads list and count their head neighbors
+		for (let cell = firstHead; cell != null; cell = cell.next) {
+			numNeighbors = cell.numNeighbors;
+			for (let i = 0; i < numNeighbors; i++) {
+				neighbor = cell.neighbors[i];
+				if (neighbor.isWire) {
+					if (neighbor.headCount === 0) {
+						neighbor.headCount = 1;
+						neighbor.next = null;
+						if (firstNewHead == null) {
+							firstNewHead = neighbor;
+						} else {
+							lastNewHead.next = neighbor;
+						}
+						lastNewHead = neighbor;
+					} else {
+						neighbor.headCount++;
+					}
+				}
+			}
+		}
+
+		// remove cells from front of list until first cell is a valid new head
+		while (firstNewHead.headCount > 2) {
+			firstNewHead.headCount = 0;
+			firstNewHead = firstNewHead.next;
+		}
+
+		// remove cells from list if they are invalid
+		for (let newHead = firstNewHead; newHead != null; newHead = newHead.next) {
+			let cell = newHead.next;
+			while (cell != null && cell.headCount > 2) {
+				cell.headCount = 0;
+				cell = cell.next;
+			}
+			newHead.next = cell;
+			newHead.headCount = 0;
+			newHead.isWire = false;
+		}
+
+		// turn all tails to wires
+		for (let cell = firstTail; cell != null; cell = cell.next) {
+			cell.isWire = true;
+		}
+
+		firstTail = firstHead;
+		firstHead = firstNewHead;
 	}
 
 	_render(headIDs, tailIDs) {
-		
+		for (let cell = firstHead; cell != null; cell = cell.next) {
+			headIDs.push(cell.index);
+		}
+		for (let cell = firstTail; cell != null; cell = cell.next) {
+			tailIDs.push(cell.index);
+		}
 	}
 }
 
