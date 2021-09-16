@@ -3,15 +3,6 @@ TODO
 Put previous implementations in other engines
 	Make new engines based on old strategies
 		Extract common code, use importScripts to add it to all engines
-		"neighbors"
-			model cells as objects with fields
-				neighbor array
-			update
-				loop over non-dead cells
-				switch
-				neighbor loop
-			render
-				every head and tail
 		"linked"
 			model linked lists with object fields
 			update
