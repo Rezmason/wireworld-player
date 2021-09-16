@@ -3,14 +3,6 @@ TODO
 Put previous implementations in other engines
 	Make new engines based on old strategies
 		Extract common code, use importScripts to add it to all engines
-		"naive"
-			model every cell in the sim, including dead ones
-			update
-				loop over all cells
-				switch
-				nested adjacency loop
-			render
-				every cell
 		"alive"
 			only model the non-dead cells
 			update
