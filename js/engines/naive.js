@@ -3,11 +3,11 @@ importScripts("engine_common.js");
 const theme = oldThemes["minty"];
 
 let oldCells, newCells, originalCells;
-const xyToCellGridIndex = [];
+const cellIDsByGridIndex = [];
 
 class NaiveEngine extends Engine {
 	_initialize(data) {
-		xyToCellGridIndex.length = 0;
+		cellIDsByGridIndex.length = 0;
 		let numCells = 0;
 		const cellGridIndices = [];
 		originalCells = data.cellStates.map((row) => row.concat(Array(width - row.length).fill(CellState.DEAD)));
@@ -15,7 +15,7 @@ class NaiveEngine extends Engine {
 			for (let x = 0; x < width; x++) {
 				const state = originalCells[y][x];
 				if (state !== CellState.DEAD) {
-					xyToCellGridIndex[y * width + x] = numCells;
+					cellIDsByGridIndex[y * width + x] = numCells;
 					cellGridIndices.push(y * width + x);
 					numCells++;
 				}
@@ -24,9 +24,31 @@ class NaiveEngine extends Engine {
 		return cellGridIndices;
 	}
 
-	_reset(restoredRender) {
+	_reset(saveData) {
 		oldCells = originalCells.map((row) => row.slice());
-		newCells = originalCells.map((row) => row.slice());
+
+		if (saveData != null) {
+			const savedHeadIDs = new Set(saveData.headIDs);
+			const savedTailIDs = new Set(saveData.tailIDs);
+			for (let y = 0; y < height; y++) {
+				for (let x = 0; x < width; x++) {
+					if (originalCells[y][x] === CellState.DEAD) {
+						continue;
+					}
+					const cellGridIndex = cellIDsByGridIndex[y * width + x];
+					let state = CellState.WIRE;
+					if (savedHeadIDs.has(cellGridIndex)) {
+						state = CellState.HEAD;
+					}
+					if (savedTailIDs.has(cellGridIndex)) {
+						state = CellState.TAIL;
+					}
+					oldCells[y][x] = state;
+				}
+			}
+		}
+
+		newCells = oldCells.map((row) => row.slice());
 	}
 
 	_update() {
@@ -90,10 +112,10 @@ class NaiveEngine extends Engine {
 				const state = newCells[y][x];
 				switch (state) {
 					case CellState.HEAD:
-						headIDs.push(xyToCellGridIndex[y * width + x]);
+						headIDs.push(cellIDsByGridIndex[y * width + x]);
 						break;
 					case CellState.TAIL:
-						tailIDs.push(xyToCellGridIndex[y * width + x]);
+						tailIDs.push(cellIDsByGridIndex[y * width + x]);
 						break;
 				}
 			}

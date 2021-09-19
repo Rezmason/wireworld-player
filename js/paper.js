@@ -59,15 +59,16 @@ const initialize = (data) => {
 	labels.generation.setText("0");
 	labels.simulation_speed.setText("---");
 
-	setPanZoomSize(width, height);
+	if (!data.isRestore) {
+		setPanZoomSize(width, height);
+	}
 };
 
 const drawBaseLayer = () => {
 	const basePixels = drawings.base.pixels;
 	const wireColor = theme.wire;
 	basePixels.fill(theme.dead);
-	// The first cell in cellGridIndices is not a real cell, so we start at index 1
-	for (let i = 1, len = cellGridIndices.length; i < len; i++) {
+	for (let i = 0, len = cellGridIndices.length; i < len; i++) {
 		basePixels[cellGridIndices[i]] = wireColor;
 	}
 

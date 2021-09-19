@@ -154,6 +154,65 @@
 	}
 }
 
+/* select, aka "dropdown" */
+
+.wwgui select {
+	/* unset */
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	margin: 0;
+	border: none;
+	display: inline-block;
+
+	/* styling */
+	background-color: var(--element-bg);
+	color: var(--element-fg);
+	padding: 0 0.5em 0 1.75em;
+	font-family: inherit;
+	font-size: 0.75em;
+	font-weight: bold;
+	line-height: 1em;
+
+	height: 1.5em;
+	border-radius: 1.5em;
+	cursor: pointer;
+
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: 0em center;
+}
+
+@media (any-hover: hover) {
+	.wwgui select:hover {
+		background-color: var(--element-bg-hover);
+	}
+
+	.wwgui select:active {
+		background-color: var(--element-bg-active);
+	}
+}
+
+.wwgui select:focus {
+	box-shadow: inset 0 0 0 0.125em var(--element-focus);
+	outline: 0;
+}
+
+.wwgui select:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: 0;
+}
+
+.wwgui select:focus-visible {
+	box-shadow: inset 0 0 0 0.125em var(--element-focus);
+	outline: 0;
+}
+
+/* TODO: get this to work from wwicons.css */
+.wwgui select.engine {
+	background-image: url(./symbols/engine.svg);
+}
+
 /* slider, aka range-type input */
 
 .wwgui input[type="range"] {

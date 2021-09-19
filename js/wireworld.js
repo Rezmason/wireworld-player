@@ -1,5 +1,5 @@
 import { getDefaultURL } from "./data.js";
-import { delay, fetchLocalText, fetchRemoteText } from "./utils.js";
+import { params, delay, fetchLocalText, fetchRemoteText } from "./utils.js";
 import { gui } from "./gui.js";
 import { paper } from "./paper.js";
 import { parseFile } from "./parse.js";
@@ -14,11 +14,10 @@ const engineFilenamesByName = {
 	flat: "flat",
 };
 
-const params = new URL(document.location).searchParams;
-const suppressSplash = params.has("nosplash");
+const suppressSplash = params.nosplash ?? false;
 
 let engine;
-let engineName = params.get("engine") ?? "default";
+let engineName = params.engine ?? "flat";
 let queuedRender = null;
 let lastRender = null;
 
@@ -63,6 +62,23 @@ const rebuildEngine = () => {
 
 rebuildEngine();
 
+const swapEngines = (name) => {
+	let saveData = null;
+	const listenForSaveFile = (event) => {
+		if (event.data.type !== "saveData") {
+			return;
+		}
+		saveData = event.data.args[0];
+		engine.removeEventListener("message", listenForSaveFile);
+		engineName = name;
+		rebuildEngine();
+		engine.postMessage({ type: "initialize", args: [saveData] });
+		timing.setRhythm(gui.state, true);
+	};
+	engine.addEventListener("message", listenForSaveFile);
+	engine.postMessage({ type: "save" });
+};
+
 timing.initialize(
 	() => engine.postMessage({ type: "advance" }),
 	() => engine.postMessage({ type: "startTurbo" }),
@@ -70,6 +86,9 @@ timing.initialize(
 );
 
 gui.events.addEventListener("statechanged", () => {
+	if (engineName != gui.state.engineName) {
+		swapEngines(gui.state.engineName);
+	}
 	timing.setRhythm(gui.state);
 });
 

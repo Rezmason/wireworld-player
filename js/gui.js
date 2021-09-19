@@ -1,7 +1,7 @@
+import { params } from "./utils.js";
 import { collectUI, makeEventTarget, isUIElement, makeSlider, mapKeyToMouseEvent } from "./gui-utils.js";
 
-const params = new URL(document.location).searchParams;
-const a11y = params.has("a11y") || params.has("accessibility");
+const a11y = params.a11y ?? params.accessibility ?? false;
 if (a11y) {
 	document.body.classList.remove("wwgui");
 }
@@ -13,6 +13,8 @@ const advanceEvent = new Event("advance");
 
 const buttons = collectUI("button");
 const checkboxes = collectUI("input[type=checkbox]");
+const selects = collectUI("select");
+const options = collectUI("option");
 const labels = collectUI("label");
 const rangeInputs = collectUI("input[type=range]");
 const popups = collectUI("popup");
@@ -23,6 +25,7 @@ const initialState = {
 	playingUnderPopup: false,
 	turbo: checkboxes.turbo.checked,
 	speed: parseFloat(rangeInputs.speed.value),
+	engineName: (options[params.engine] ?? options.flat).value,
 };
 
 const hidePopup = () => {
@@ -171,6 +174,12 @@ listenToCheckbox("turbo", "KeyT", () => {
 	events.dispatchEvent(stateChangedEvent);
 });
 
+selects.engine.value = state.engineName;
+selects.engine.addEventListener("input", (event) => {
+	state.engineName = selects.engine.value;
+	events.dispatchEvent(stateChangedEvent);
+});
+
 listenToButton("snapshot", null, () => {
 	// TODO: copy current canvas to a PNG and download it
 });
@@ -192,13 +201,19 @@ const setFilePath = (path) => {
 };
 
 const reset = (filename) => {
-	const speed = state.speed;
-	const turbo = state.turbo;
+	const { speed, turbo, engineName } = state;
 	Object.assign(state, initialState);
 	if (speed != null) {
 		state.speed = speed;
 	}
-	state.turbo = turbo;
+	if (turbo != null) {
+		state.turbo = turbo;
+		checkboxes.turbo.checked = state.turbo;
+	}
+	if (engineName != null) {
+		state.engineName = engineName;
+		selects.engine.value = state.engineName;
+	}
 	setFilePath(filename);
 };
 

@@ -15,6 +15,7 @@ const oldThemes = {
 
 const headIDs = [];
 const tailIDs = [];
+let originalData, cellGridIndices;
 
 const numberFormatter = new Intl.NumberFormat();
 const maxFrameTime = 1000 / 10;
@@ -32,6 +33,8 @@ const turboHistory = Array(turboHistoryLength);
 let turboHistoryIndex = 0;
 let turboAverageSpeed = 0;
 
+const postDebug = (...args) => postMessage({ type: "debug", args });
+
 class Engine {
 	constructor(theme) {
 		this.theme = theme;
@@ -41,16 +44,18 @@ class Engine {
 			reset: this.reset.bind(this),
 			startTurbo: this.startTurbo.bind(this),
 			stopTurbo: this.stopTurbo.bind(this),
+			save: this.save.bind(this),
 		};
 
 		self.addEventListener("message", ({ data }) => api[data.type]?.(...(data.args ?? [])));
 	}
 
-	initialize(data, restoredRender = null) {
+	initialize(data) {
+		originalData = data;
 		width = data.width;
 		height = data.height;
 
-		const cellGridIndices = this._initialize(data);
+		cellGridIndices = this._initialize(data);
 
 		postMessage({
 			type: "setup",
@@ -60,18 +65,43 @@ class Engine {
 					height,
 					cellGridIndices,
 					theme: this.theme,
+					isRestore: data.saveData != null,
 				},
 			],
 		});
 
-		cellGridIndices.length = 0;
+		const idsByCellGridIndex = new Map(cellGridIndices.map((x, i) => [x, i]));
+		const saveData =
+			data.saveData == null
+				? null
+				: {
+						...data.saveData,
+						headIDs: data.saveData.headGridIndices.map((gridIndex) => idsByCellGridIndex.get(gridIndex)),
+						tailIDs: data.saveData.tailGridIndices.map((gridIndex) => idsByCellGridIndex.get(gridIndex)),
+				  };
 
-		this.reset(restoredRender);
+		this.reset(saveData);
 	}
 
-	reset(restoredRender) {
-		generation = restoredRender?.generation ?? 0;
-		this._reset(restoredRender);
+	save() {
+		postMessage({
+			type: "saveData",
+			args: [
+				{
+					...originalData,
+					saveData: {
+						generation,
+						headGridIndices: headIDs.map((id) => cellGridIndices[id]),
+						tailGridIndices: tailIDs.map((id) => cellGridIndices[id]),
+					},
+				},
+			],
+		});
+	}
+
+	reset(saveData) {
+		generation = saveData?.generation ?? 0;
+		this._reset(saveData);
 		this.resetTurboHistory();
 		this.render();
 	}

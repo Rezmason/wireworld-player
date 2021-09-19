@@ -62,8 +62,23 @@ class NeighborsEngine extends Engine {
 		return cells.map((cell) => cell.y * width + cell.x);
 	}
 
-	_reset(restoredRender) {
-		cells.forEach((cell) => (cell.state = cell.firstState));
+	_reset(saveData) {
+		if (saveData != null) {
+			const savedHeadIDs = new Set(saveData.headIDs);
+			const savedTailIDs = new Set(saveData.tailIDs);
+			cells.forEach((cell, id) => {
+				let state = CellState.WIRE;
+				if (savedHeadIDs.has(id)) {
+					state = CellState.HEAD;
+				}
+				if (savedTailIDs.has(id)) {
+					state = CellState.TAIL;
+				}
+				cell.state = state;
+			});
+		} else {
+			cells.forEach((cell) => (cell.state = cell.firstState));
+		}
 	}
 
 	_update() {

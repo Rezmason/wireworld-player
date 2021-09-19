@@ -16,9 +16,9 @@ const initialize = (advance, startTurbo, stopTurbo) => {
 	_stopTurbo = stopTurbo;
 };
 
-const setRhythm = (rhythmData) => {
+const setRhythm = (rhythmData, engineReset = false) => {
 	const wasPlaying = playing;
-	const wasTurbo = turbo;
+	const wasTurbo = turbo && !engineReset;
 	({ playing, speed, turbo } = rhythmData);
 	recomputeDelayMS();
 

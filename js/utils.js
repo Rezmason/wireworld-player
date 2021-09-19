@@ -1,5 +1,7 @@
 const delay = (seconds) => new Promise((resolve) => setTimeout(() => resolve(), seconds * 1000));
 
+const params = Object.fromEntries(new URL(document.location).searchParams.entries());
+
 const fetchLocalText = (file) =>
 	new Promise((resolve, reject) => {
 		const reader = new FileReader();
@@ -16,4 +18,4 @@ const fetchRemoteText = async (url) => {
 	return await file.text();
 };
 
-export { delay, fetchLocalText, fetchRemoteText };
+export { delay, params, fetchLocalText, fetchRemoteText };

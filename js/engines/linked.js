@@ -65,16 +65,31 @@ class LinkedEngine extends Engine {
 		return cells.map((cell) => cell.y * width + cell.x);
 	}
 
-	_reset(restoredRender) {
+	_reset(saveData) {
 		firstHead = null;
 		firstTail = null;
 		let lastHead = null;
 		let lastTail = null;
 
-		cells.forEach((cell) => {
+		const savedHeadIDs = new Set(saveData?.headIDs ?? []);
+		const savedTailIDs = new Set(saveData?.tailIDs ?? []);
+
+		cells.forEach((cell, id) => {
+			let resetState = cell.firstState;
+
+			if (saveData != null) {
+				if (savedHeadIDs.has(id)) {
+					resetState = CellState.HEAD;
+				} else if (savedTailIDs.has(id)) {
+					resetState = CellState.TAIL;
+				} else {
+					resetState = CellState.WIRE;
+				}
+			}
+
 			cell.next = null;
 			cell.isWire = false;
-			switch (cell.firstState) {
+			switch (resetState) {
 				case CellState.HEAD:
 					if (firstHead == null) {
 						firstHead = cell;

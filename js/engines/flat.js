@@ -17,7 +17,7 @@ const cellSize = isWire_ + 1;
 class FlatEngine extends Engine {
 	_initialize(data) {
 		const cellFirstStates = [CellState.DEAD];
-		const cellGridIndices = [0];
+		const cellGridIndices = [-1];
 
 		numCells = 1;
 		const cellGrid = Array(height)
@@ -70,23 +70,23 @@ class FlatEngine extends Engine {
 		return cellGridIndices;
 	}
 
-	_reset(restoredRender) {
+	_reset(saveData) {
 		firstHead = NULL;
 		firstTail = NULL;
 		let lastHead = NULL;
 		let lastTail = NULL;
 
-		const restoredHeadIDs = new Set(restoredRender?.headIDs ?? []);
-		const restoredTailIDs = new Set(restoredRender?.tailIDs ?? []);
+		const savedHeadIDs = new Set(saveData?.headIDs ?? []);
+		const savedTailIDs = new Set(saveData?.tailIDs ?? []);
 
 		for (let i = 0; i < numCells; i++) {
 			const cell = i * cellSize;
 			let resetState = firstStates[cell / cellSize];
 
-			if (restoredRender != null) {
-				if (restoredHeadIDs.has(cell / cellSize)) {
+			if (saveData != null) {
+				if (savedHeadIDs.has(cell / cellSize)) {
 					resetState = CellState.HEAD;
-				} else if (restoredTailIDs.has(cell / cellSize)) {
+				} else if (savedTailIDs.has(cell / cellSize)) {
 					resetState = CellState.TAIL;
 				} else {
 					resetState = CellState.WIRE;

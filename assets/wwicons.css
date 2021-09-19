@@ -65,3 +65,7 @@
 .wwgui button.load {
 	background-image: url(./symbols/file.svg);
 }
+/* TODO: why doesn't this work?*/
+.wwgui select.engine {
+	background-image: url(./symbols/engine.svg);
+}

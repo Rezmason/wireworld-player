@@ -3,14 +3,14 @@ importScripts("engine_common.js");
 const theme = oldThemes["minty"];
 
 let oldCells, newCells, originalCells;
-const xyToCellGridIndex = [];
+const cellIDsByGridIndex = [];
 
 // List all the cells that DO need to change (non-dead)
 const nonDeadCells = [];
 
 class AliveEngine extends Engine {
 	_initialize(data) {
-		xyToCellGridIndex.length = 0;
+		cellIDsByGridIndex.length = 0;
 		nonDeadCells.length = 0;
 		let numCells = 0;
 		originalCells = data.cellStates.map((row) => row.concat(Array(width - row.length).fill(CellState.DEAD)));
@@ -18,7 +18,7 @@ class AliveEngine extends Engine {
 			for (let x = 0; x < width; x++) {
 				const state = originalCells[y][x];
 				if (state !== CellState.DEAD) {
-					xyToCellGridIndex[y * width + x] = numCells;
+					cellIDsByGridIndex[y * width + x] = numCells;
 					nonDeadCells.push(y * width + x);
 					numCells++;
 				}
@@ -27,9 +27,31 @@ class AliveEngine extends Engine {
 		return nonDeadCells.slice();
 	}
 
-	_reset(restoredRender) {
+	_reset(saveData) {
 		oldCells = originalCells.map((row) => row.slice());
-		newCells = originalCells.map((row) => row.slice());
+
+		if (saveData != null) {
+			const savedHeadIDs = new Set(saveData.headIDs);
+			const savedTailIDs = new Set(saveData.tailIDs);
+			for (let y = 0; y < height; y++) {
+				for (let x = 0; x < width; x++) {
+					if (originalCells[y][x] === CellState.DEAD) {
+						continue;
+					}
+					const cellGridIndex = cellIDsByGridIndex[y * width + x];
+					let state = CellState.WIRE;
+					if (savedHeadIDs.has(cellGridIndex)) {
+						state = CellState.HEAD;
+					}
+					if (savedTailIDs.has(cellGridIndex)) {
+						state = CellState.TAIL;
+					}
+					oldCells[y][x] = state;
+				}
+			}
+		}
+
+		newCells = oldCells.map((row) => row.slice());
 	}
 
 	_update() {
@@ -97,10 +119,10 @@ class AliveEngine extends Engine {
 			const state = newCells[y][x];
 			switch (state) {
 				case CellState.HEAD:
-					headIDs.push(xyToCellGridIndex[index]);
+					headIDs.push(cellIDsByGridIndex[index]);
 					break;
 				case CellState.TAIL:
-					tailIDs.push(xyToCellGridIndex[index]);
+					tailIDs.push(cellIDsByGridIndex[index]);
 					break;
 			}
 		}
