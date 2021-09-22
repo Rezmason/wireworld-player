@@ -180,7 +180,7 @@
 
 	background-size: contain;
 	background-repeat: no-repeat;
-	background-position: 0em center;
+	background-position: 0.125em center;
 }
 
 @media (any-hover: hover) {
