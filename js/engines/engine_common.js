@@ -13,49 +13,33 @@ const oldThemes = {
 	bright: [0x000000ff, 0x404040ff, 0xffffffff, 0x909090ff],
 };
 
-const headIDs = [];
-const tailIDs = [];
-let originalData, cellGridIndices;
+const buildEngine = (theme, _initialize, _reset, _update, _render) => {
+	const headIDs = [];
+	const tailIDs = [];
+	let originalData, cellGridIndices;
 
-const numberFormatter = new Intl.NumberFormat();
-const maxFrameTime = 1000 / 10;
-const desiredFrameTime = 1000 / 60;
+	const numberFormatter = new Intl.NumberFormat();
+	const maxFrameTime = 1000 / 10;
+	const desiredFrameTime = 1000 / 60;
 
-let width, height, generation;
+	let width, height, generation;
 
-let turboActive = false;
-let turboStepSize = 1;
-let turboTimeout = null;
+	let turboActive = false;
+	let turboStepSize = 1;
+	let turboTimeout = null;
 
-let lastTurboTime, lastTurboGeneration;
-const turboHistoryLength = 10;
-const turboHistory = Array(turboHistoryLength);
-let turboHistoryIndex = 0;
-let turboAverageSpeed = 0;
+	let lastTurboTime, lastTurboGeneration;
+	const turboHistoryLength = 10;
+	const turboHistory = Array(turboHistoryLength);
+	let turboHistoryIndex = 0;
+	let turboAverageSpeed = 0;
 
-const postDebug = (...args) => postMessage({ type: "debug", args });
-
-class Engine {
-	constructor(theme) {
-		this.theme = theme;
-		const api = {
-			initialize: this.initialize.bind(this),
-			advance: this.advance.bind(this),
-			reset: this.reset.bind(this),
-			startTurbo: this.startTurbo.bind(this),
-			stopTurbo: this.stopTurbo.bind(this),
-			save: this.save.bind(this),
-		};
-
-		self.addEventListener("message", ({ data }) => api[data.type]?.(...(data.args ?? [])));
-	}
-
-	initialize(data) {
+	const initialize = (data) => {
 		originalData = data;
 		width = data.width;
 		height = data.height;
 
-		cellGridIndices = this._initialize(data);
+		cellGridIndices = _initialize(data);
 
 		postMessage({
 			type: "setup",
@@ -64,7 +48,7 @@ class Engine {
 					width,
 					height,
 					cellGridIndices,
-					theme: this.theme,
+					theme: theme,
 					isRestore: data.saveData != null,
 				},
 			],
@@ -80,10 +64,10 @@ class Engine {
 						tailIDs: data.saveData.tailGridIndices.map((gridIndex) => idsByCellGridIndex.get(gridIndex)),
 				  };
 
-		this.reset(saveData);
-	}
+		reset(saveData);
+	};
 
-	save() {
+	const save = () => {
 		postMessage({
 			type: "saveData",
 			args: [
@@ -97,25 +81,25 @@ class Engine {
 				},
 			],
 		});
-	}
+	};
 
-	reset(saveData) {
+	const reset = (saveData) => {
 		generation = saveData?.generation ?? 0;
-		this._reset(saveData);
-		this.resetTurboHistory();
-		this.render();
-	}
+		_reset(saveData);
+		resetTurboHistory();
+		render();
+	};
 
-	update() {
+	const update = () => {
 		generation++;
-		this._update();
-	}
+		_update();
+	};
 
-	render() {
+	const render = () => {
 		headIDs.length = 0;
 		tailIDs.length = 0;
 
-		this._render(headIDs, tailIDs);
+		_render(headIDs, tailIDs);
 
 		let simulationSpeed = "---";
 		if (turboActive) {
@@ -141,21 +125,19 @@ class Engine {
 				},
 			],
 		});
-	}
+	};
 
-	advance() {
-		this.update();
-		this.render();
-	}
+	const advance = () => {
+		update();
+		render();
+	};
 
-	startTurbo() {
+	const startTurbo = () => {
 		turboActive = true;
 		let now = Date.now();
 		let lastUpdate = now;
 		let lastRender = now;
-		this.resetTurboHistory();
-
-		const update = this.update.bind(this);
+		resetTurboHistory();
 
 		const loopTurbo = () => {
 			for (let i = 0; i < turboStepSize; i++) {
@@ -179,25 +161,38 @@ class Engine {
 
 			if (now - lastRender > desiredFrameTime) {
 				lastRender = now;
-				this.render();
+				render();
 			}
 
 			turboTimeout = setTimeout(loopTurbo, 0);
 		};
 		loopTurbo();
-	}
+	};
 
-	stopTurbo() {
+	const stopTurbo = () => {
 		turboActive = false;
 		clearTimeout(turboTimeout);
 		turboTimeout = null;
-	}
+	};
 
-	resetTurboHistory() {
+	const resetTurboHistory = () => {
 		lastTurboTime = Date.now();
 		lastTurboGeneration = generation;
 		turboHistory.fill(0);
 		turboHistoryIndex = 0;
 		turboAverageSpeed = 0;
-	}
-}
+	};
+
+	const api = {
+		initialize,
+		advance,
+		reset,
+		startTurbo,
+		stopTurbo,
+		save,
+	};
+
+	self.addEventListener("message", ({ data }) => api[data.type]?.(...(data.args ?? [])));
+};
+
+const postDebug = (...args) => postMessage({ type: "debug", args });
