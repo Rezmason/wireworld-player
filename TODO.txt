@@ -1,13 +1,13 @@
 TODO
 
-Sliders and selects should have labels in a11y mode
+Hashlife!
+	You've got what it takes to implement this all by yourself
+		(with the knowledge taught by others)
+		((but not by looking at their code))
+	You can do this, I believe in you!
 
-New engines?
-	Maybe WebGL and WebGPU?
-		These don't go in a web worker
-	Maybe WebAssembly?
-		Make sure CORS isn't a problem
-	Hashlife!
+
+Sliders and selects should have labels in a11y mode
 
 BUG: fix turbo-on issue in Firefox
 

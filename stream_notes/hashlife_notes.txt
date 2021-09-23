@@ -1,0 +1,80 @@
+Initial understanding
+	Model the world in a quadtree
+		The nodes are *cached*!
+
+
+		For Conway's game of Life, there are only two level-one nodes:
+
+			x 	o
+			1	0
+
+		— and sixteen level-two nodes:
+
+			a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p
+			xx xx xx xx xo xo xo xo ox ox ox ox oo oo oo oo
+			xx xo ox oo xx xo ox oo xx xo ox oo xx xo ox oo
+
+		— and some number of level-three nodes, such as:
+
+			0100 		jn 
+			1010 ==>	gj   
+			1001 		
+			0110 		    
+
+	Because the neighborhood in Conway's Game of Life is a 3x3 grid,
+		every level-three node can store the level-two future of its center:
+
+			0100 => ko => 10 => e
+			0101	lh 	  11
+			0110
+			0000
+
+		in other words, the level-three node 'kolh' has a central future of 'e'
+
+	This can be generalized to any node: a level-n node can store the level-(n-1) future of its center
+
+	However, nodes of a level > 3 have to *stitch together* the futures of their child nodes
+
+	But, once you can stitch these things together, the caching you do is multi-level!
+
+	But the *special sauce*, the *magic* of hashlife, is the superspeed!
+		With a clever twist to the algorithm, a level-n node can store its central future at 2^(n - 2) steps!
+
+	However, Conway's game of life has fewer states (two in fact!) and simpler rules than Wireworld
+		So there are clever programming tricks it can leverage that perhaps we cannot
+
+Notes from jennyhasahat research:
+	The method of hashing is significant
+		What will we use as keys in our hash table?
+		The hash table contains ALL MACROCELLS
+		Any time you have to Gosperize the future, you can then convert that data into a key into the hash table, in case that state's future is already represented
+		Are the futures stored in the hash table, keyed by their pasts?
+
+	Adopt the term "macrocell" to represent a node in the quadtree
+		nw, ne, sw, se, RESULT (aka "central 2^(n-2) future")
+
+	At some level, the result is trivial to brute-force
+
+	Gosper's algorithm, in simple terms:
+		Compute the future at the timestep of the children's computed futures
+		The corners are already solved
+		The five unsolved missing bits are made by temporarily constructing five small macrocells
+			You know their present; look up or Gosperize their future
+			The result is a "middleground" future
+		Make four more temporary macrocells from the middleground and look up or Gosperize them
+			THAT gives you a properly sized, properly timed result
+		Do the temporary macrocells get thrown away?
+			What scheme is used to prune the hash table?
+
+	To adjust the timestep, do you create a higher vs lower level quadtree?
+
+Notes from Tomas G. Rokicki's Dr. Dobbs article:
+	Create utility functions to generate the "temporary macrocells" from the child
+	macrocells of the child macrocells
+
+	(Carl Sagan voice) COMPRESSION OF TIIIIME
+
+Not looking at Fabian (aka copy)'s implementation
+	Or Rokicki's
+
+
