@@ -38,12 +38,12 @@ const reset = (saveData) => {
 				if (originalCells[y][x] === CellState.DEAD) {
 					continue;
 				}
-				const cellGridIndex = cellIDsByGridIndex[y * width + x];
+				const cellID = cellIDsByGridIndex[y * width + x];
 				let state = CellState.WIRE;
-				if (savedHeadIDs.has(cellGridIndex)) {
+				if (savedHeadIDs.has(cellID)) {
 					state = CellState.HEAD;
 				}
-				if (savedTailIDs.has(cellGridIndex)) {
+				if (savedTailIDs.has(cellID)) {
 					state = CellState.TAIL;
 				}
 				oldCells[y][x] = state;
