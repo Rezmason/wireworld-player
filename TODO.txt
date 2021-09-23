@@ -6,6 +6,7 @@ Hashlife!
 		((but not by looking at their code))
 	You can do this, I believe in you!
 
+Default engine should be specified in wireworld module, transmitted to GUI
 
 Sliders and selects should have labels in a11y mode
 

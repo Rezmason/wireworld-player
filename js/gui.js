@@ -25,7 +25,7 @@ const initialState = {
 	playingUnderPopup: false,
 	turbo: checkboxes.turbo.checked,
 	speed: parseFloat(rangeInputs.speed.value),
-	engineName: (options[params.engine] ?? options.flat).value,
+	engineName: (options[params.engine] ?? options.macrocell).value,
 };
 
 const hidePopup = () => {
