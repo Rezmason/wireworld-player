@@ -3,7 +3,7 @@
 	<style>
 		circle, path, polygon, rect {
 			--element-fg: #222;
-			/*fill: var(--element-fg);*/
+			fill: var(--element-fg);
 		}
 		line {
 			--element-fg: #222;
