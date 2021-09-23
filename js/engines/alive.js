@@ -1,7 +1,5 @@
 importScripts("engine_common.js");
 
-const theme = oldThemes["minty"];
-
 let oldCells, newCells, originalCells, width, height;
 const cellIDsByGridIndex = [];
 

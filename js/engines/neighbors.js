@@ -1,7 +1,5 @@
 importScripts("engine_common.js");
 
-const theme = oldThemes["minty"];
-
 let numCells, width, height;
 const cells = [];
 
