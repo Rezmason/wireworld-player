@@ -1,10 +1,13 @@
 TODO
 
-Hashlife!
-	You've got what it takes to implement this all by yourself
-		(with the knowledge taught by others)
-		((but not by looking at their code))
-	You can do this, I believe in you!
+Hashlife all by yourself
+	Quadtree of cached nodes: check
+	Render to screen
+		New rendering system based on bitmaps
+		Bitmap can also be used for saveFile instead of headIDs and tailIDs
+
+	Tricky: any time you make a new cell, you have to create its future
+	Tricky: how is the cache pruned/cleared? If it's pruned, how are GUIDs impacted?
 
 Default engine should be specified in wireworld module, transmitted to GUI
 
