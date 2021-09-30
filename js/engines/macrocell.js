@@ -14,8 +14,14 @@ const cellTemplate = {
 const cache = new Map();
 const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -state }]));
 
+const DEAD_LEAF = cellStatesToLeaves.get(CellState.DEAD);
+const TAIL_LEAF = cellStatesToLeaves.get(CellState.TAIL);
+const HEAD_LEAF = cellStatesToLeaves.get(CellState.HEAD);
+const WIRE_LEAF = cellStatesToLeaves.get(CellState.WIRE);
+
 let topCell = null;
 let ids = 0;
+let stepSize = 1; // TODO: configure through UI someplace, support acceleration
 
 let originalCells, width, height, size, treeDepth;
 const cellIDsByGridIndex = [];
@@ -93,32 +99,130 @@ const initCell = (cells, savedHeadIDs, savedTailIDs, depth, x, y) => {
 	}
 };
 
+const initEmptyCell = (depth) => {
+	if (depth === 0) {
+		return DEAD_LEAF;
+	} else {
+		const child = initEmptyCell(depth - 1);
+		return lookup(child, child, child, child);
+	}
+}
+
+const padCell = (cell) => {
+	const empty = initEmptyCell(cell.depth - 1);
+	return lookup(
+		lookup(empty, empty, empty, cell.nw),
+		lookup(empty, empty, cell.ne, empty),
+		lookup(empty, cell.sw, empty, empty),
+		lookup(cell.se, empty, empty, empty)
+	);
+};
+
 const reset = (saveData) => {
 	const savedHeadIDs = saveData != null ? new Set(saveData.headIDs) : null;
 	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
 
 	ids = 0;
 	// TODO: empty cache
-	const centerCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
-	const vacuum = initCell([], null, null, treeDepth - 2, 0, 0);
+	topCell = padCell(initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0));
+};
 
-	// prettier-ignore
-	const [
-			/*V*//*V*//*V*//*V*/
-			/*V*/ nw,  ne, /*V*/
-			/*V*/ sw,  se, /*V*/
-			/*V*//*V*//*V*//*V*/
-	] = [
-		lookup(vacuum, vacuum, vacuum, centerCell.nw),
-		lookup(vacuum, vacuum, centerCell.ne, vacuum),
-		lookup(vacuum, centerCell.sw, vacuum, vacuum),
-		lookup(centerCell.se, vacuum, vacuum, vacuum),
-	];
-	topCell = lookup(nw, ne, sw, se);
+const getCellResult = (cell) => {
+	if (cell.result == null) {
+		if (cell.depth === 2) {
+			// A 4x4 grid's 2x2 result can be naively solved
+
+			// prettier-ignore
+			const [
+				a, b, c, d,
+				e, f, g, h,
+				i, j, k, l,
+				m, n, o, p
+			] = [
+				cell.nw.nw, cell.nw.ne, cell.ne.nw, cell.ne.ne,
+				cell.nw.sw, cell.nw.se, cell.ne.sw, cell.ne.se,
+				cell.sw.nw, cell.sw.ne, cell.se.nw, cell.se.ne,
+				cell.sw.sw, cell.sw.se, cell.se.sw, cell.se.se,
+			];
+
+			const nw = computeLeaf(f, [a, b, c, e, g, i, j, k]);
+			const ne = computeLeaf(g, [b, c, d, f, h, j, k, l]);
+			const sw = computeLeaf(j, [e, f, g, i, k, m, n, o]);
+			const se = computeLeaf(k, [f, g, h, j, l, n, o, p]);
+
+			cell.result = lookup(nw, ne, sw, se);
+
+		} else {
+			// Piece together the solution from the child cells and temporary cells
+
+			// Phase 1: 3x3
+			// prettier-ignore
+			const [
+				a, b, c,
+				d, e, f,
+				g, h, i
+			] = [
+				getCellResult(cell.nw),
+				getCellResult(lookup(cell.nw.ne, cell.ne.nw, cell.nw.se, cell.ne.sw)),
+				getCellResult(cell.ne),
+				getCellResult(lookup(cell.nw.sw, cell.nw.se, cell.sw.nw, cell.sw.ne)),
+				getCellResult(lookup(cell.nw.se, cell.ne.sw, cell.sw.ne, cell.se.nw)),
+				getCellResult(lookup(cell.ne.sw, cell.ne.se, cell.se.nw, cell.se.ne)),
+				getCellResult(cell.sw),
+				getCellResult(lookup(cell.sw.ne, cell.se.nw, cell.sw.se, cell.se.sw)),
+				getCellResult(cell.se)
+			];
+
+			// Phase 2: 2x2
+			// prettier-ignore
+			const [
+				p, q,
+				r, s
+			] = [
+				getCellResult(lookup(a, b, d, e)),
+				getCellResult(lookup(b, c, e, f)),
+				getCellResult(lookup(d, g, e, h)),
+				getCellResult(lookup(e, f, h, i))
+			];
+
+			cell.result = lookup(p, q, r, s);
+		}
+	}
+	return cell.result;
+};
+
+const computeLeaf = (leaf, neighborLeaves) => {
+	switch (leaf.state) {
+		case CellState.DEAD:
+			return DEAD_LEAF;
+			break;
+		case CellState.TAIL:
+			return WIRE_LEAF;
+			break;
+		case CellState.HEAD:
+			return TAIL_LEAF;
+			break;
+		case CellState.WIRE:
+			let numHeadNeighbors = 0;
+			neighborCounting: for (let i = 0; i < 8; i++) {
+				if (neighborLeaves[i] === HEAD_LEAF) {
+					numHeadNeighbors++;
+					if (numHeadNeighbors === 3) {
+						break neighborCounting;
+					}
+				}
+			}
+			if (numHeadNeighbors === 1 || numHeadNeighbors === 2) {
+				return HEAD_LEAF;
+			} else {
+				return WIRE_LEAF;
+			}
+			break;
+	}
 };
 
 const update = () => {
-	// TODO
+	topCell = padCell(getCellResult(topCell));
 };
 
 const renderCell = (headIDs, tailIDs, cell, x, y) => {

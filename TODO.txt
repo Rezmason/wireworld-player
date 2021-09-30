@@ -8,13 +8,13 @@ Hashlife all by yourself
 
 
 		UPDATE FUNCTION
-			When do you calculate the future?
+			BUG: the results of some 4x4 macrocells contain 2x2 se children
 			Some notion of step size
 
 		Remove unused macrocells (Least Recently Used cache)
 			Maybe macrocells can be in a doubly linked list
 				When used, a macrocell is snipped from the list and prepended
-					AND SO ARE ALL ITS CHILDREN
+					AND SO ARE ALL ITS CHILDREN AND RESULTS
 					Maybe this is a bad idea?
 				Removal would just be taking N macrocells off the doubly linked list and deleting them from the map
 			Pool removed macrocells
