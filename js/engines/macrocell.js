@@ -16,36 +16,6 @@ const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [stat
 let topCell = null;
 let ids = 0;
 
-const initCell = (cells, height, x, y) => {
-	if (height === 0) {
-		const state = cells[y]?.[x] ?? CellState.DEAD;
-		const leaf = cellStatesToLeaves.get(state);
-		return leaf;
-	} else {
-		const childHeight = height - 1;
-		const offset = 2 ** childHeight;
-		const nw = initCell(cells, childHeight, x, y);
-		const ne = initCell(cells, childHeight, x + offset, y);
-		const sw = initCell(cells, childHeight, x, y + offset);
-		const se = initCell(cells, childHeight, x + offset, y + offset);
-
-		const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
-		if (!cache.has(key)) {
-			const cell = {
-				...cellTemplate,
-				id: ids++,
-				nw,
-				ne,
-				sw,
-				se,
-				// result?
-			};
-			cache.set(key, cell);
-		}
-		return cache.get(key);
-	}
-};
-
 let originalCells, width, height, size, treeHeight;
 const cellIDsByGridIndex = [];
 
@@ -74,16 +44,60 @@ const initialize = (data) => {
 		treeHeight++;
 	}
 
-	const cells = originalCells;
-	ids = 0;
-	topCell = initCell(cells, treeHeight, 0, 0);
-	postDebug(ids, topCell);
-
 	return cellGridIndices;
 };
 
+const initCell = (cells, savedHeadIDs, savedTailIDs, height, x, y) => {
+	if (height === 0) {
+		let state = cells[y]?.[x] ?? CellState.DEAD;
+
+		if (savedHeadIDs != null && state !== CellState.DEAD) {
+			const cellID = cellIDsByGridIndex[y * width + x];
+			state = CellState.WIRE;
+			if (savedHeadIDs.has(cellID)) {
+				state = CellState.HEAD;
+			}
+			if (savedTailIDs.has(cellID)) {
+				state = CellState.TAIL;
+			}
+		}
+
+		const leaf = cellStatesToLeaves.get(state);
+		return leaf;
+	} else {
+		const childHeight = height - 1;
+		const offset = 2 ** childHeight;
+		const nw = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x, y);
+		const ne = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x + offset, y);
+		const sw = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x, y + offset);
+		const se = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x + offset, y + offset);
+
+		const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
+		if (!cache.has(key)) {
+			const cell = {
+				...cellTemplate,
+				id: ids++,
+				nw,
+				ne,
+				sw,
+				se,
+				// result?
+			};
+			cache.set(key, cell);
+		}
+		return cache.get(key);
+	}
+};
+
 const reset = (saveData) => {
-	// TODO
+	const savedHeadIDs = saveData != null ? new Set(saveData.headIDs) : null;
+	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
+
+	const cells = originalCells;
+	ids = 0;
+	// TODO: empty cache
+	topCell = initCell(cells, savedHeadIDs, savedTailIDs, treeHeight, 0, 0);
+	postDebug(ids, topCell);
 };
 
 const update = () => {

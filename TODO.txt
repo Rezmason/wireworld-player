@@ -3,8 +3,8 @@ TODO
 Hashlife all by yourself
 	Canonicalized quadtree of cached macrocells: check
 	Render function: check
-
-	Reset function
+	Reset function: check
+	
 	UPDATE FUNCTION
 		Some notion of step size
 
