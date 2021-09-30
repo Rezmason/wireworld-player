@@ -1,10 +1,18 @@
 TODO
 
 Hashlife all by yourself
-	Quadtree of cached nodes: check
-	Render to screen
-		New rendering system based on bitmaps
-		Bitmap can also be used for saveFile instead of headIDs and tailIDs
+	Canonicalized quadtree of cached macrocells: check
+	Render function: check
+
+	Reset function
+	UPDATE FUNCTION
+		Some notion of step size
+
+	Remove unused macrocells
+		Maybe macrocells can be in a doubly linked list
+			When used, a macrocell is snipped from the list and prepended
+			Removal would just be taking N macrocells off the doubly linked list and deleting them from the map
+		Pool removed macrocells
 
 	Tricky: any time you make a new cell, you have to create its future
 	Tricky: how is the cache pruned/cleared? If it's pruned, how are GUIDs impacted?
