@@ -8,7 +8,6 @@ Hashlife all by yourself
 
 
 		UPDATE FUNCTION
-			BUG: the results of some 4x4 macrocells contain 2x2 se children
 			Some notion of step size
 
 		Remove unused macrocells (Least Recently Used cache)

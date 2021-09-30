@@ -12,7 +12,7 @@ const cellTemplate = {
 };
 
 const cache = new Map();
-const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -state }]));
+const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -1 - state }]));
 
 const DEAD_LEAF = cellStatesToLeaves.get(CellState.DEAD);
 const TAIL_LEAF = cellStatesToLeaves.get(CellState.TAIL);
