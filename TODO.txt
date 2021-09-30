@@ -1,21 +1,25 @@
 TODO
 
 Hashlife all by yourself
-	Canonicalized quadtree of cached macrocells: check
-	Render function: check
-	Reset function: check
-	
-	UPDATE FUNCTION
-		Some notion of step size
+	First, macrocells
+		Canonicalized quadtree of cached macrocells: check
+		Render function: check
+		Reset function: check
 
-	Remove unused macrocells
-		Maybe macrocells can be in a doubly linked list
-			When used, a macrocell is snipped from the list and prepended
-			Removal would just be taking N macrocells off the doubly linked list and deleting them from the map
-		Pool removed macrocells
 
-	Tricky: any time you make a new cell, you have to create its future
-	Tricky: how is the cache pruned/cleared? If it's pruned, how are GUIDs impacted?
+		UPDATE FUNCTION
+			When do you calculate the future?
+			Some notion of step size
+
+		Remove unused macrocells (Least Recently Used cache)
+			Maybe macrocells can be in a doubly linked list
+				When used, a macrocell is snipped from the list and prepended
+					AND SO ARE ALL ITS CHILDREN
+					Maybe this is a bad idea?
+				Removal would just be taking N macrocells off the doubly linked list and deleting them from the map
+			Pool removed macrocells
+			Macrocells KEEP THEIR GUIDS for when they're used again
+				Keep an eye on maximum GUID
 
 Default engine should be specified in wireworld module, transmitted to GUI
 

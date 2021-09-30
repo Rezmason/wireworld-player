@@ -6,8 +6,9 @@ const cellTemplate = {
 	sw: null,
 	se: null,
 	result: null,
-	state: null,
-	id: null,
+	state: -1,
+	id: -1,
+	depth: 0,
 };
 
 const cache = new Map();
@@ -16,7 +17,7 @@ const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [stat
 let topCell = null;
 let ids = 0;
 
-let originalCells, width, height, size, treeHeight;
+let originalCells, width, height, size, treeDepth;
 const cellIDsByGridIndex = [];
 
 const initialize = (data) => {
@@ -37,18 +38,35 @@ const initialize = (data) => {
 	}
 
 	size = 1;
-	treeHeight = 0;
+	treeDepth = 0;
 	const maxDimension = Math.max(width, height);
-	while (size < maxDimension) {
+	while (size < maxDimension * 2) {
 		size <<= 1;
-		treeHeight++;
+		treeDepth++;
 	}
 
 	return cellGridIndices;
 };
 
-const initCell = (cells, savedHeadIDs, savedTailIDs, height, x, y) => {
-	if (height === 0) {
+const lookup = (nw, ne, sw, se) => {
+	const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
+	if (!cache.has(key)) {
+		const cell = {
+			...cellTemplate,
+			depth: nw.depth + 1,
+			id: ids++,
+			nw,
+			ne,
+			sw,
+			se,
+		};
+		cache.set(key, cell);
+	}
+	return cache.get(key);
+};
+
+const initCell = (cells, savedHeadIDs, savedTailIDs, depth, x, y) => {
+	if (depth === 0) {
 		let state = cells[y]?.[x] ?? CellState.DEAD;
 
 		if (savedHeadIDs != null && state !== CellState.DEAD) {
@@ -65,27 +83,13 @@ const initCell = (cells, savedHeadIDs, savedTailIDs, height, x, y) => {
 		const leaf = cellStatesToLeaves.get(state);
 		return leaf;
 	} else {
-		const childHeight = height - 1;
-		const offset = 2 ** childHeight;
-		const nw = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x, y);
-		const ne = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x + offset, y);
-		const sw = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x, y + offset);
-		const se = initCell(cells, savedHeadIDs, savedTailIDs, childHeight, x + offset, y + offset);
-
-		const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
-		if (!cache.has(key)) {
-			const cell = {
-				...cellTemplate,
-				id: ids++,
-				nw,
-				ne,
-				sw,
-				se,
-				// result?
-			};
-			cache.set(key, cell);
-		}
-		return cache.get(key);
+		const childDepth = depth - 1;
+		const offset = 2 ** childDepth;
+		const nw = initCell(cells, savedHeadIDs, savedTailIDs, childDepth, x, y);
+		const ne = initCell(cells, savedHeadIDs, savedTailIDs, childDepth, x + offset, y);
+		const sw = initCell(cells, savedHeadIDs, savedTailIDs, childDepth, x, y + offset);
+		const se = initCell(cells, savedHeadIDs, savedTailIDs, childDepth, x + offset, y + offset);
+		return lookup(nw, ne, sw, se);
 	}
 };
 
@@ -93,21 +97,33 @@ const reset = (saveData) => {
 	const savedHeadIDs = saveData != null ? new Set(saveData.headIDs) : null;
 	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
 
-	const cells = originalCells;
 	ids = 0;
 	// TODO: empty cache
-	topCell = initCell(cells, savedHeadIDs, savedTailIDs, treeHeight, 0, 0);
-	postDebug(ids, topCell);
+	const centerCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
+	const vacuum = initCell([], null, null, treeDepth - 2, 0, 0);
+
+	// prettier-ignore
+	const [
+			/*V*//*V*//*V*//*V*/
+			/*V*/ nw,  ne, /*V*/
+			/*V*/ sw,  se, /*V*/
+			/*V*//*V*//*V*//*V*/
+	] = [
+		lookup(vacuum, vacuum, vacuum, centerCell.nw),
+		lookup(vacuum, vacuum, centerCell.ne, vacuum),
+		lookup(vacuum, centerCell.sw, vacuum, vacuum),
+		lookup(centerCell.se, vacuum, vacuum, vacuum),
+	];
+	topCell = lookup(nw, ne, sw, se);
 };
 
 const update = () => {
 	// TODO
 };
 
-const renderCell = (headIDs, tailIDs, cell, height, x, y) => {
-	if (height === 0) {
-		const state = cell.state;
-		switch (state) {
+const renderCell = (headIDs, tailIDs, cell, x, y) => {
+	if (cell.depth === 0) {
+		switch (cell.state) {
 			case CellState.HEAD:
 				headIDs.push(cellIDsByGridIndex[y * width + x]);
 				break;
@@ -116,17 +132,16 @@ const renderCell = (headIDs, tailIDs, cell, height, x, y) => {
 				break;
 		}
 	} else {
-		const childHeight = height - 1;
-		const offset = 2 ** childHeight;
-		renderCell(headIDs, tailIDs, cell.nw, childHeight, x, y);
-		renderCell(headIDs, tailIDs, cell.ne, childHeight, x + offset, y);
-		renderCell(headIDs, tailIDs, cell.sw, childHeight, x, y + offset);
-		renderCell(headIDs, tailIDs, cell.se, childHeight, x + offset, y + offset);
+		const offset = 2 ** (cell.depth - 1);
+		renderCell(headIDs, tailIDs, cell.nw, x, y);
+		renderCell(headIDs, tailIDs, cell.ne, x + offset, y);
+		renderCell(headIDs, tailIDs, cell.sw, x, y + offset);
+		renderCell(headIDs, tailIDs, cell.se, x + offset, y + offset);
 	}
 };
 
 const render = (headIDs, tailIDs) => {
-	renderCell(headIDs, tailIDs, topCell, treeHeight, 0, 0);
+	renderCell(headIDs, tailIDs, topCell, -size / 4, -size / 4);
 };
 
 buildEngine(oldThemes["currant"], initialize, reset, update, render);
