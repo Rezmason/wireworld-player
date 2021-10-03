@@ -10,6 +10,7 @@ Hashlife all by yourself
 		UPDATE FUNCTION
 			Some notion of step size
 
+		Separate result cache?
 		Remove unused macrocells (Least Recently Used cache)
 			Maybe macrocells can be in a doubly linked list
 				When used, a macrocell is snipped from the list and prepended

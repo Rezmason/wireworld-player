@@ -124,7 +124,7 @@ const reset = (saveData) => {
 
 	ids = 0;
 	// TODO: empty cache
-	topCell = padCell(initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0));
+	topCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
 };
 
 const getCellResult = (cell) => {
@@ -222,7 +222,7 @@ const computeLeaf = (leaf, neighborLeaves) => {
 };
 
 const update = () => {
-	topCell = padCell(getCellResult(topCell));
+	topCell = getCellResult(padCell(topCell));
 };
 
 const renderCell = (headIDs, tailIDs, cell, x, y) => {
@@ -245,7 +245,7 @@ const renderCell = (headIDs, tailIDs, cell, x, y) => {
 };
 
 const render = (headIDs, tailIDs) => {
-	renderCell(headIDs, tailIDs, topCell, -size / 4, -size / 4);
+	renderCell(headIDs, tailIDs, topCell, 0, 0);
 };
 
 buildEngine(oldThemes["currant"], initialize, reset, update, render);
