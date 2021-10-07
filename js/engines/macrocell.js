@@ -106,7 +106,7 @@ const initEmptyCell = (depth) => {
 		const child = initEmptyCell(depth - 1);
 		return lookup(child, child, child, child);
 	}
-}
+};
 
 const padCell = (cell) => {
 	const empty = initEmptyCell(cell.depth - 1);
@@ -151,7 +151,6 @@ const getCellResult = (cell) => {
 			const se = computeLeaf(k, [f, g, h, j, l, n, o, p]);
 
 			cell.result = lookup(nw, ne, sw, se);
-
 		} else {
 			// Piece together the solution from the child cells and temporary cells
 
@@ -173,19 +172,22 @@ const getCellResult = (cell) => {
 				getCellResult(cell.se)
 			];
 
-			// Phase 2: 2x2
-			// prettier-ignore
-			const [
-				p, q,
-				r, s
-			] = [
-				getCellResult(lookup(a, b, d, e)),
-				getCellResult(lookup(b, c, e, f)),
-				getCellResult(lookup(d, g, e, h)),
-				getCellResult(lookup(e, f, h, i))
-			];
-
-			cell.result = lookup(p, q, r, s);
+			if (cell.depth - 2 < stepSize) {
+				cell.result = lookup(
+					getCellResult(lookup(a, b, d, e)),
+					getCellResult(lookup(b, c, e, f)),
+					getCellResult(lookup(d, e, g, h)),
+					getCellResult(lookup(e, f, h, i))
+				);
+			} else {
+				// prettier-ignore
+				cell.result = lookup(
+					lookup(a.se, b.sw, d.ne, e.nw),
+					lookup(b.se, c.sw, e.ne, f.nw),
+					lookup(d.se, e.sw, g.ne, h.nw),
+					lookup(e.se, f.sw, h.ne, i.nw)
+				);
+			}
 		}
 	}
 	return cell.result;

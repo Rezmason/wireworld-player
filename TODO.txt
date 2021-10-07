@@ -5,10 +5,12 @@ Hashlife all by yourself
 		Canonicalized quadtree of cached macrocells: check
 		Render function: check
 		Reset function: check
+		Update function: check
+		Update at higher step sizes: check
 
+		Update generation
 
-		UPDATE FUNCTION
-			Some notion of step size
+		Caching
 
 		Separate result cache?
 		Remove unused macrocells (Least Recently Used cache)
@@ -20,6 +22,8 @@ Hashlife all by yourself
 			Pool removed macrocells
 			Macrocells KEEP THEIR GUIDS for when they're used again
 				Keep an eye on maximum GUID
+
+	BUG: Macrocell engine has delayed response to messages
 
 Default engine should be specified in wireworld module, transmitted to GUI
 
