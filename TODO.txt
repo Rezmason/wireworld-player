@@ -1,16 +1,25 @@
 TODO
 
 Hashlife all by yourself
-	First, macrocells
-		Remove unused macrocells (Least Recently Used cache)
-			Maybe macrocells can be in a doubly linked list
-				When used, a macrocell is snipped from the list and prepended
-					AND SO ARE ALL ITS CHILDREN AND RESULTS
-					Maybe this is a bad idea?
-				Removal would just be taking N macrocells off the doubly linked list and deleting them from the map
-			Pool removed macrocells
+	Least Recently Used cache
+		Dictionary backed by doubly linked list
+		Pool removed macrocells
 			Macrocells KEEP THEIR GUIDS for when they're used again
-				Keep an eye on maximum GUID
+				Keep an eye on cells-in-use count
+
+		"usage" = any reference, any "lookup" operation
+			Result, computation
+			Child?
+
+		How do we prevent a child from being collected?
+			"touch" in lookup
+			"touch" in getComputedResult
+				recursive
+			"touch" in "touchCell"
+				recursive
+
+		Maybe have different garbage collection policies for different macrocell levels
+		
 
 	BUG: Macrocell engine has delayed response to messages
 
