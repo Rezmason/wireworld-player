@@ -50,6 +50,8 @@ const initialize = (data) => {
 		size <<= 1;
 		treeDepth++;
 	}
+	treeDepth = Math.max(1, treeDepth); // TODO: verify
+	stepSize = Math.max(1, Math.min(treeDepth - 3)); // TODO: verify
 
 	return cellGridIndices;
 };
