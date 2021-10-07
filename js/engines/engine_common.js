@@ -91,8 +91,8 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 	};
 
 	const update = () => {
-		generation++;
-		_update();
+		const step = _update() ?? 1;
+		generation += step;
 	};
 
 	const render = () => {

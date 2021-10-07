@@ -225,6 +225,7 @@ const computeLeaf = (leaf, neighborLeaves) => {
 
 const update = () => {
 	topCell = getCellResult(padCell(topCell));
+	return 2 ** (stepSize - 1);
 };
 
 const renderCell = (headIDs, tailIDs, cell, x, y) => {
