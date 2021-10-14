@@ -58,7 +58,7 @@ const stop = () => {
 };
 
 const run = () => {
-	_advance();
+	_advance(Date.now());
 	if (playing) {
 		if (speed >= 1) {
 			animationFrameID = requestAnimationFrame(run);

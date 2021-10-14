@@ -81,7 +81,7 @@ const swapEngines = (name) => {
 };
 
 timing.initialize(
-	() => engine.postMessage({ type: "advance" }),
+	(now) => engine.postMessage({ type: "advance", args: [now] }),
 	() => engine.postMessage({ type: "startTurbo" }),
 	() => engine.postMessage({ type: "stopTurbo" })
 );

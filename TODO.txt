@@ -19,9 +19,7 @@ Hashlife all by yourself
 				recursive
 
 		Maybe have different garbage collection policies for different macrocell levels
-		
 
-	BUG: Macrocell engine has delayed response to messages
 
 Default engine should be specified in wireworld module, transmitted to GUI
 

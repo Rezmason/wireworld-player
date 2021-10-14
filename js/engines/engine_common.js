@@ -38,6 +38,8 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 	let turboHistoryIndex = 0;
 	let turboAverageSpeed = 0;
 
+	const maxThreadDelay = 1000 / 30;
+
 	const initialize = (data) => {
 		originalData = data;
 		width = data.width;
@@ -131,9 +133,11 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 		});
 	};
 
-	const advance = () => {
-		update();
-		render();
+	const advance = (mainThreadTime) => {
+		if (Date.now() - mainThreadTime < maxThreadDelay) {
+			update();
+			render();
+		}
 	};
 
 	const startTurbo = () => {
