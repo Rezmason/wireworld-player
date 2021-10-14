@@ -11,6 +11,10 @@ const oldThemes = {
 	night: [0x000040ff, 0x4040a0ff, 0x8080ddff, 0xffffddff],
 	gleam: [0x000000ff, 0xffff00ff, 0xfffff80ff, 0xffffffff],
 	bright: [0x000000ff, 0x404040ff, 0x909090ff, 0xffffffff],
+
+	paprika: [0x330800ff, 0xff6600ff, 0xffaa00ff, 0xffffffff],
+	gourd: [0x081100ff, 0x88aa33ff, 0xccff33ff, 0xffffaaff],
+	aubergine: [0x040008ff, 0x443366ff, 0x448800ff, 0xaaff33ff],
 };
 
 const buildEngine = (theme, _initialize, _reset, _update, _render) => {

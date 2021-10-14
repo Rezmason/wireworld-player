@@ -253,4 +253,4 @@ const render = (headIDs, tailIDs) => {
 	renderCell(headIDs, tailIDs, topCell, 0, 0);
 };
 
-buildEngine(oldThemes["currant"], initialize, reset, update, render);
+buildEngine(oldThemes["aubergine"], initialize, reset, update, render);
