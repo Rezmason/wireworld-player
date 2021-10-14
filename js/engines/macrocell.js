@@ -21,7 +21,7 @@ const WIRE_LEAF = cellStatesToLeaves.get(CellState.WIRE);
 
 let topCell = null;
 let ids = 0;
-let stepSize = 1; // TODO: configure through UI someplace, support acceleration
+let stepSize = 10; // TODO: configure through UI someplace, support acceleration
 
 let originalCells, width, height, size, treeDepth;
 const cellIDsByGridIndex = [];
@@ -51,7 +51,7 @@ const initialize = (data) => {
 		treeDepth++;
 	}
 	treeDepth = Math.max(1, treeDepth); // TODO: verify
-	stepSize = Math.max(1, Math.min(treeDepth - 3)); // TODO: verify
+	stepSize = Math.max(1, Math.min(stepSize, treeDepth - 1));
 
 	return cellGridIndices;
 };
