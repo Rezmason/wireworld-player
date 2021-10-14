@@ -1,12 +1,13 @@
 const minDelayMS = 10; // TODO: ought to be pinned to the RAF delay
 const maxDelayMS = 1000;
 
-let playing = false,
-	speed = 1,
-	delayMS = minDelayMS,
-	turbo = false,
-	animationFrameID,
-	timeoutID;
+let playing = false;
+let speed = 1;
+let delayMS = minDelayMS;
+let turbo = false;
+let animationFrameID;
+let timeoutID;
+let forceNextAdvance = true;
 
 let _advance, _startTurbo, _stopTurbo;
 
@@ -26,6 +27,7 @@ const setRhythm = (rhythmData, engineReset = false) => {
 		if (turbo) {
 			_startTurbo();
 		} else {
+			forceNextAdvance = true;
 			run();
 		}
 	} else if (!playing && wasPlaying) {
@@ -40,6 +42,7 @@ const setRhythm = (rhythmData, engineReset = false) => {
 			stop();
 		} else if (!turbo && wasTurbo) {
 			_stopTurbo();
+			forceNextAdvance = true;
 			run();
 		}
 	}
@@ -58,7 +61,8 @@ const stop = () => {
 };
 
 const run = () => {
-	_advance(Date.now());
+	_advance(forceNextAdvance, Date.now());
+	forceNextAdvance = false;
 	if (playing) {
 		if (speed >= 1) {
 			animationFrameID = requestAnimationFrame(run);

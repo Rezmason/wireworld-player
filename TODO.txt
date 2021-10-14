@@ -1,6 +1,12 @@
 TODO
 
 Hashlife all by yourself
+
+
+	Memory management
+		Dumping the cache when you reach its limit throws away too much work and costs too much to do
+			We don't know what all is being reconstructed, but a lot of it can probably stay in place
+
 	Least Recently Used cache
 		Dictionary backed by doubly linked list
 		Pool removed macrocells

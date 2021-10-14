@@ -81,7 +81,7 @@ const swapEngines = (name) => {
 };
 
 timing.initialize(
-	(now) => engine.postMessage({ type: "advance", args: [now] }),
+	(force, time) => engine.postMessage({ type: "advance", args: [force, time] }),
 	() => engine.postMessage({ type: "startTurbo" }),
 	() => engine.postMessage({ type: "stopTurbo" })
 );
@@ -94,7 +94,7 @@ gui.events.addEventListener("statechanged", () => {
 });
 
 gui.events.addEventListener("advance", () => {
-	engine.postMessage({ type: "advance" });
+	engine.postMessage({ type: "advance", args: [true, 0] });
 });
 
 gui.events.addEventListener("resetsim", () => {

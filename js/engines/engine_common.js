@@ -133,8 +133,8 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 		});
 	};
 
-	const advance = (mainThreadTime) => {
-		if (Date.now() - mainThreadTime < maxThreadDelay) {
+	const advance = (force, mainThreadTime) => {
+		if (force || Date.now() - mainThreadTime < maxThreadDelay) {
 			update();
 			render();
 		}
