@@ -75,3 +75,13 @@ Milestone: drag-and-drop themes
 	Old Wireworld themes
 
 Milestone: switch favicon to indicate sim is running
+
+Milestone: EDITOR FUNCTIONALITY
+	Research Computer Aided Circuit Design (thanks, Dad!)
+	Look at Mike Ash's editor in classic Mac emulator
+	Drawing wires, then painting electrons along wires
+	Simplify the construction and instantiation of COMPONENTS
+		Components can contain multiple "snapshots" of electrons
+		Global snapshots?
+		Save and load format should persist all this
+	Don't assume the user will run the simulator an exact number of steps just to recover an electron state
