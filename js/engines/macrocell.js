@@ -9,9 +9,13 @@ const cellTemplate = {
 	state: -1,
 	id: -1,
 	depth: 0,
+	nextPooled: null,
 };
 
 const cache = new Map();
+let cacheSize = 0;
+let firstPooled = null;
+let poolSize = 0;
 const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -1 - state }]));
 
 const DEAD_LEAF = cellStatesToLeaves.get(CellState.DEAD);
@@ -21,7 +25,7 @@ const WIRE_LEAF = cellStatesToLeaves.get(CellState.WIRE);
 
 let topCell = null;
 let ids = 0;
-let stepSize = 10; // TODO: configure through UI someplace, support acceleration
+let stepSize = 1; // TODO: configure through UI someplace, support acceleration
 
 let originalCells, width, height, size, treeDepth;
 const cellIDsByGridIndex = [];
@@ -59,16 +63,25 @@ const initialize = (data) => {
 const lookup = (nw, ne, sw, se) => {
 	const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
 	if (!cache.has(key)) {
-		const cell = {
-			...cellTemplate,
-			depth: nw.depth + 1,
-			id: ids++,
-			nw,
-			ne,
-			sw,
-			se,
-		};
+		let cell;
+		if (firstPooled != null) {
+			cell = firstPooled;
+			firstPooled = cell.nextPooled;
+			poolSize--;
+			cell.nextPooled = null;
+		} else {
+			cell = { ...cellTemplate };
+		}
+
+		cell.depth = nw.depth + 1;
+		cell.id = ids++;
+		cell.nw = nw;
+		cell.ne = ne;
+		cell.sw = sw;
+		cell.se = se;
+
 		cache.set(key, cell);
+		cacheSize++;
 	}
 	return cache.get(key);
 };
@@ -125,7 +138,13 @@ const reset = (saveData) => {
 	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
 
 	ids = 0;
-	// TODO: empty cache
+	for (const cell of cache) {
+		cell.nextPooled = firstPooled;
+		firstPooled = cell;
+		poolSize++;
+	}
+	cache.clear();
+	cacheSize = 0;
 	topCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
 };
 
@@ -251,6 +270,7 @@ const renderCell = (headIDs, tailIDs, cell, x, y) => {
 
 const render = (headIDs, tailIDs) => {
 	renderCell(headIDs, tailIDs, topCell, 0, 0);
+	postDebug(poolSize, cacheSize);
 };
 
 buildEngine(oldThemes["aubergine"], initialize, reset, update, render);

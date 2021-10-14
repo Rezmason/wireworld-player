@@ -20,8 +20,20 @@ Hashlife all by yourself
 
 		Maybe have different garbage collection policies for different macrocell levels
 
-
-Default engine should be specified in wireworld module, transmitted to GUI
+When is HashLife ready for the main branch?
+	Caching issue
+		Make it a non-default engine
+	Interactive step size choice
+		Replace turbo with dropdown:
+			1x
+			Turbo 1x
+			Turbo 2x
+			Turbo 4x
+			Turbo 8x
+			Turbo 16x
+			etc
+		Or maybe a weird slider
+			Like a stick shift, I dunno
 
 Sliders and selects should have labels in a11y mode
 
@@ -31,6 +43,11 @@ BUG: fix focus-within issue with popup buttons in Chrome and Firefox
 
 Photosensitivity warning
 	Detect intense flickering, and replace with "epilepsy guard" color
+
+Hybrid engine, conventional + HashLife
+	Maybe an opportunity to create a more intuitive UI regarding speed control
+
+New UI
 
 EPISODE Milestone: gallery
 	Most of the files are small!
