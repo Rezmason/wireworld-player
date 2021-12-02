@@ -1,6 +1,6 @@
 importScripts("engine_common.js");
 
-const MAX_CACHE_SIZE = 1000000; // 2000000
+const MAX_CACHE_SIZE = 2000000; // 2000000
 
 const cellTemplate = {
 	nw: null,
