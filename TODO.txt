@@ -1,34 +1,35 @@
 TODO
 
 Hashlife all by yourself
+	Central question: how do you know a macrocell can be destroyed?
+	Hypothesis: a macrocell won't outlive its parent or cause if:
+		- a macrocell is referenced whenever it is returned form lookup (obviously), and
+		- each child macrocell is referenced when getting the result (maybe excessive)
 
+	Test theory (though it seems to work! ^_^)
+		If the theory is wrong, the simulation may explode at an indeterminate point in the future
+		Write a recursive inspection function that verifies there are no destroyed cells in the quadtree or its resulting quadtrees
 
-	Memory management
-		Dumping the cache when you reach its limit throws away too much work and costs too much to do
-			We don't know what all is being reconstructed, but a lot of it can probably stay in place
+	Switch to a pool of nodes, created up front
+		Create every new node from lastNode
 
-	Least Recently Used cache
-		Dictionary backed by doubly linked list
-		Pool removed macrocells
-			Macrocells KEEP THEIR GUIDS for when they're used again
-				Keep an eye on cells-in-use count
+	The maximum memory shouldn't be some arbitrary value
+		What to base it on, though?
 
-		"usage" = any reference, any "lookup" operation
-			Result, computation
-			Child?
+	It would be nice to see the relationship between the contents of the cache and how useful they are
+		At the moment we're just deleting the least useful ones
+		We don't know whether we can delete MORE
 
-		How do we prevent a child from being collected?
-			"touch" in lookup
-			"touch" in getComputedResult
-				recursive
-			"touch" in "touchCell"
-				recursive
+	It would be nice to see how many function calls of each type occur per update
+		Because it looks like the recursive functions are being called a whole lot less often than we thought!
+	And it would be nice to know how deep each recursion went per update
 
-		Maybe have different garbage collection policies for different macrocell levels
+Download the 12/1/2021 episode from Twitch if you can!
+	It went really well actually!
+	Future Rezmason will be glad that you did!
 
 When is HashLife ready for the main branch?
 	Caching issue
-		Make it a non-default engine
 	Interactive step size choice
 		Replace turbo with dropdown:
 			1x
@@ -80,6 +81,7 @@ Milestone: EDITOR FUNCTIONALITY
 	Research Computer Aided Circuit Design (thanks, Dad!)
 	Look at Mike Ash's editor in classic Mac emulator
 	Drawing wires, then painting electrons along wires
+		Painting electrons could be like choosing a distance, a start point and an end point
 	Simplify the construction and instantiation of COMPONENTS
 		Components can contain multiple "snapshots" of electrons
 		Global snapshots?

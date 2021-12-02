@@ -1,5 +1,7 @@
 importScripts("engine_common.js");
 
+const MAX_CACHE_SIZE = 1000000; // 2000000
+
 const cellTemplate = {
 	nw: null,
 	ne: null,
@@ -9,14 +11,18 @@ const cellTemplate = {
 	state: -1,
 	id: -1,
 	depth: 0,
-	nextPooled: null,
+	nextCell: null,
+	prevCell: null,
+	key: null,
+	destroyed: false,
+	lastUseGen: -1,
 };
 
 const cache = new Map();
 let cacheSize = 0;
-let firstPooled = null;
-let poolSize = 0;
-const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -1 - state }]));
+let firstCell = null;
+let lastCell = null;
+const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -1 - state, key: state }]));
 
 const DEAD_LEAF = cellStatesToLeaves.get(CellState.DEAD);
 const TAIL_LEAF = cellStatesToLeaves.get(CellState.TAIL);
@@ -25,10 +31,46 @@ const WIRE_LEAF = cellStatesToLeaves.get(CellState.WIRE);
 
 let topCell = null;
 let ids = 0;
-let stepSize = 1; // TODO: configure through UI someplace, support acceleration
+let gen = 0;
+// Note: the max step size for WW computer is 10.
+let stepSize = 10; // TODO: configure through UI someplace, support acceleration
 
 let originalCells, width, height, size, treeDepth;
 const cellIDsByGridIndex = [];
+
+const wipeCell = (cell) => Object.assign(cell, cellTemplate);
+
+const refCell = (cell) => {
+	cell.lastUseGen = gen;
+
+	if (cell === firstCell) {
+		return cell;
+	}
+
+	if (firstCell == null) {
+		firstCell = cell;
+		lastCell = cell;
+		return cell;
+	}
+
+	// Move the cell to the front of the linked list
+
+	if (cell.nextCell != null) {
+		cell.nextCell.prevCell = cell.prevCell;
+	}
+	if (cell.prevCell != null) {
+		cell.prevCell.nextCell = cell.nextCell;
+	}
+
+	if (lastCell === cell) {
+		lastCell = cell.prevCell;
+	}
+
+	firstCell.prevCell = cell;
+	cell.nextCell = firstCell;
+	firstCell = cell;
+	return cell;
+};
 
 const initialize = (data) => {
 	({ width, height } = data);
@@ -63,15 +105,7 @@ const initialize = (data) => {
 const lookup = (nw, ne, sw, se) => {
 	const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
 	if (!cache.has(key)) {
-		let cell;
-		if (firstPooled != null) {
-			cell = firstPooled;
-			firstPooled = cell.nextPooled;
-			poolSize--;
-			cell.nextPooled = null;
-		} else {
-			cell = { ...cellTemplate };
-		}
+		const cell = { ...cellTemplate }; // TODO: grab from pool
 
 		cell.depth = nw.depth + 1;
 		cell.id = ids++;
@@ -79,11 +113,12 @@ const lookup = (nw, ne, sw, se) => {
 		cell.ne = ne;
 		cell.sw = sw;
 		cell.se = se;
+		cell.key = key;
 
 		cache.set(key, cell);
 		cacheSize++;
 	}
-	return cache.get(key);
+	return refCell(cache.get(key));
 };
 
 const initCell = (cells, savedHeadIDs, savedTailIDs, depth, x, y) => {
@@ -139,10 +174,10 @@ const reset = (saveData) => {
 
 	ids = 0;
 	for (const cell of cache) {
-		cell.nextPooled = firstPooled;
-		firstPooled = cell;
-		poolSize++;
+		wipeCell(cell);
 	}
+	firstCell = null;
+	lastCell = null;
 	cache.clear();
 	cacheSize = 0;
 	topCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
@@ -150,6 +185,11 @@ const reset = (saveData) => {
 
 const getCellResult = (cell) => {
 	if (cell.result == null) {
+		refCell(cell.nw);
+		refCell(cell.ne);
+		refCell(cell.sw);
+		refCell(cell.se);
+
 		if (cell.depth === 2) {
 			// A 4x4 grid's 2x2 result can be naively solved
 
@@ -244,8 +284,22 @@ const computeLeaf = (leaf, neighborLeaves) => {
 	}
 };
 
-const update = () => {
+const update = (generation) => {
+	gen = generation;
 	topCell = getCellResult(padCell(topCell));
+
+	if (cacheSize > MAX_CACHE_SIZE) {
+		// postDebug("Limiting cache:", cacheSize, cacheSize - MAX_CACHE_SIZE);
+
+		while (cacheSize > MAX_CACHE_SIZE) {
+			cache.delete(lastCell.key);
+			lastCell = lastCell.prevCell;
+			lastCell.nextCell = null;
+			lastCell.destroyed = true; // TODO: verify that nothing under topCell is destroyed
+			cacheSize--;
+		}
+	}
+
 	return 2 ** (stepSize - 1);
 };
 
@@ -270,7 +324,7 @@ const renderCell = (headIDs, tailIDs, cell, x, y) => {
 
 const render = (headIDs, tailIDs) => {
 	renderCell(headIDs, tailIDs, topCell, 0, 0);
-	postDebug(poolSize, cacheSize);
+	// postDebug("cache size:", (cacheSize / MAX_CACHE_SIZE).toPrecision(2));
 };
 
 buildEngine(oldThemes["aubergine"], initialize, reset, update, render);
