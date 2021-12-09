@@ -203,7 +203,10 @@ const padCell = (cell) => {
 const reset = (saveData) => {
 	const savedHeadIDs = saveData != null ? new Set(saveData.headIDs) : null;
 	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
+	reinitialize(savedHeadIDs, savedTailIDs);
+};
 
+const reinitialize = (headIDs, tailIDs) => {
 	ids = 0;
 	for (const cell of cache.values()) {
 		wipeCell(cell);
@@ -212,7 +215,7 @@ const reset = (saveData) => {
 	lastCell = null;
 	cache.clear();
 	zeroCount = 0;
-	topCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
+	topCell = initCell(originalCells, headIDs, tailIDs, treeDepth - 1, 0, 0);
 	incrementReferenceCount(topCell);
 };
 
@@ -327,54 +330,75 @@ const update = (generation) => {
 	incrementReferenceCount(topCell);
 
 	if (cache.size > MAX_CACHE_SIZE) {
-		const originalFirstCell = firstCell;
-		let cell = lastCell;
-
-		while (cell !== originalFirstCell && cache.size > MAX_CACHE_SIZE) {
-			if (cell.referenceCount > 0) {
-				cell = cell.prevCell;
-				refCell(cell.nextCell);
-			} else {
-				if (cell.nextCell != null) {
-					cell.nextCell.prevCell = cell.prevCell;
-				}
-
-				cell.prevCell.nextCell = cell.nextCell;
-
-				if (!cache.delete(cell.key)) {
-					postDebug("Key not found", cell.key);
-				}
-
-				const destroyedCell = cell;
-				if (lastCell === destroyedCell) {
-					lastCell = cell.prevCell;
-				}
-				cell = cell.prevCell;
-				zeroCount--;
-				cache.delete(destroyedCell.key);
-
-				if (destroyedCell.nw != null) {
-					decrementReferenceCount(destroyedCell.nw);
-					decrementReferenceCount(destroyedCell.ne);
-					decrementReferenceCount(destroyedCell.sw);
-					decrementReferenceCount(destroyedCell.se);
-					destroyedCell.nw = null;
-					destroyedCell.ne = null;
-					destroyedCell.sw = null;
-					destroyedCell.se = null;
-				}
-				if (destroyedCell.result != null) {
-					decrementReferenceCount(destroyedCell.result);
-					destroyedCell.result = null;
-				}
-				destroyedCell.prevCell = null;
-				destroyedCell.nextCell = null;
-				destroyedCell.destroyed = true; // TODO: verify that nothing under topCell is destroyed
-			}
+		if (zeroCount / MAX_CACHE_SIZE < 0.5) {
+			// postDebug("Wipe and rebuild");
+			wipeAndRebuild();
+		} else {
+			// postDebug("Destroy least used zero reference cells");
+			destroyLeastUsedZeroReferenceCells();
 		}
+		// TODO: ask someone who knows better whether some other strategy or overlooked characteristic of Hashlife can improve this stuff
+
+		// postDebug((zeroCount / MAX_CACHE_SIZE).toPrecision(3));
 	}
 
 	return 2 ** (stepSize - 1);
+};
+
+const wipeAndRebuild = () => {
+	const headIDs = [];
+	const tailIDs = [];
+	renderCell(headIDs, tailIDs, topCell, 0, 0);
+	reinitialize(new Set(headIDs), new Set(tailIDs));
+};
+
+const destroyLeastUsedZeroReferenceCells = () => {
+	const originalFirstCell = firstCell;
+	let cell = lastCell;
+
+	while (cell !== originalFirstCell && cache.size > MAX_CACHE_SIZE) {
+		if (cell.referenceCount > 0) {
+			cell = cell.prevCell;
+			refCell(cell.nextCell);
+			continue;
+		}
+
+		if (cell.nextCell != null) {
+			cell.nextCell.prevCell = cell.prevCell;
+		}
+		cell.prevCell.nextCell = cell.nextCell;
+
+		if (!cache.delete(cell.key)) {
+			postDebug("Key not found", cell.key);
+		}
+
+		const destroyedCell = cell;
+		if (lastCell === destroyedCell) {
+			lastCell = cell.prevCell;
+		}
+		cell = cell.prevCell;
+
+		zeroCount--;
+		cache.delete(destroyedCell.key);
+
+		if (destroyedCell.nw != null) {
+			decrementReferenceCount(destroyedCell.nw);
+			decrementReferenceCount(destroyedCell.ne);
+			decrementReferenceCount(destroyedCell.sw);
+			decrementReferenceCount(destroyedCell.se);
+			destroyedCell.nw = null;
+			destroyedCell.ne = null;
+			destroyedCell.sw = null;
+			destroyedCell.se = null;
+		}
+		if (destroyedCell.result != null) {
+			decrementReferenceCount(destroyedCell.result);
+			destroyedCell.result = null;
+		}
+		destroyedCell.prevCell = null;
+		destroyedCell.nextCell = null;
+		destroyedCell.destroyed = true;
+	}
 };
 
 const renderCell = (headIDs, tailIDs, cell, x, y) => {
