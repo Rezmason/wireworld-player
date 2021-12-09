@@ -3,18 +3,13 @@ TODO
 	Hashlife
 
 		Hashlife investigation (ongoing)
-			
-		Interactive step size choice
-			Replace turbo with dropdown:
-				1x
-				Turbo 1x
-				Turbo 2x
-				Turbo 4x
-				Turbo 8x
-				Turbo 16x
-				etc
-			Or maybe a weird slider
-				Like a stick shift, I dunno
+
+		Auto engine
+			Two workers— flat and macrocell
+			When turbo is on, both workers are initialized to the same state
+				When macrocell's generation and speed surpass flat's it takes over
+					That's when flat pauses
+			When turbo is turned off, if the macrocell worker was active, it turns off and transfers to flat
 
 		Flatten
 			Replace interlinked objects with addresses in a giant buffer

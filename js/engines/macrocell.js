@@ -143,7 +143,8 @@ const initialize = (data) => {
 		treeDepth++;
 	}
 	treeDepth = Math.max(1, treeDepth) - 1;
-	stepSize = Math.max(1, Math.min(stepSize, treeDepth));
+	// stepSize = Math.max(1, Math.min(stepSize, treeDepth));
+	stepSize = treeDepth;
 
 	return cellGridIndices;
 };
