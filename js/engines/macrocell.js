@@ -1,6 +1,6 @@
 importScripts("engine_common.js");
 
-const MAX_CACHE_SIZE = 2000000; // 2000000
+const MAX_CACHE_SIZE = 2e6;
 
 const cellTemplate = {
 	nw: null,
@@ -14,12 +14,13 @@ const cellTemplate = {
 	nextCell: null,
 	prevCell: null,
 	key: null,
+	referenceCount: 0,
 	destroyed: false,
 	lastUseGen: -1,
 };
 
 const cache = new Map();
-let cacheSize = 0;
+let zeroCount = 0;
 let firstCell = null;
 let lastCell = null;
 const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -1 - state, key: state }]));
@@ -40,8 +41,32 @@ const cellIDsByGridIndex = [];
 
 const wipeCell = (cell) => Object.assign(cell, cellTemplate);
 
+const incrementReferenceCount = (cell) => {
+	if (cell == null) {
+		return;
+	}
+	if (cell.referenceCount === 0) {
+		zeroCount--;
+	}
+	cell.referenceCount++;
+};
+
+const decrementReferenceCount = (cell) => {
+	if (cell == null) {
+		return;
+	}
+	cell.referenceCount--;
+	if (cell.referenceCount === 0) {
+		zeroCount++;
+	}
+};
+
 const refCell = (cell) => {
 	cell.lastUseGen = gen;
+
+	if (cell.destroyed) {
+		throw new Error("Referencing a destroyed cell.");
+	}
 
 	if (cell === firstCell) {
 		return cell;
@@ -106,6 +131,7 @@ const lookup = (nw, ne, sw, se) => {
 	const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
 	if (!cache.has(key)) {
 		const cell = { ...cellTemplate }; // TODO: grab from pool
+		zeroCount++;
 
 		cell.depth = nw.depth + 1;
 		cell.id = ids++;
@@ -113,10 +139,13 @@ const lookup = (nw, ne, sw, se) => {
 		cell.ne = ne;
 		cell.sw = sw;
 		cell.se = se;
+		incrementReferenceCount(nw);
+		incrementReferenceCount(ne);
+		incrementReferenceCount(sw);
+		incrementReferenceCount(se);
 		cell.key = key;
 
 		cache.set(key, cell);
-		cacheSize++;
 	}
 	return refCell(cache.get(key));
 };
@@ -150,6 +179,9 @@ const initCell = (cells, savedHeadIDs, savedTailIDs, depth, x, y) => {
 };
 
 const initEmptyCell = (depth) => {
+	if (depth < 0) {
+		throw new Error("Why is this happening?!");
+	}
 	if (depth === 0) {
 		return DEAD_LEAF;
 	} else {
@@ -173,14 +205,15 @@ const reset = (saveData) => {
 	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
 
 	ids = 0;
-	for (const cell of cache) {
+	for (const cell of cache.values()) {
 		wipeCell(cell);
 	}
 	firstCell = null;
 	lastCell = null;
 	cache.clear();
-	cacheSize = 0;
+	zeroCount = 0;
 	topCell = initCell(originalCells, savedHeadIDs, savedTailIDs, treeDepth - 1, 0, 0);
+	incrementReferenceCount(topCell);
 };
 
 const getCellResult = (cell) => {
@@ -250,6 +283,7 @@ const getCellResult = (cell) => {
 				);
 			}
 		}
+		incrementReferenceCount(cell.result);
 	}
 	return cell.result;
 };
@@ -281,22 +315,62 @@ const computeLeaf = (leaf, neighborLeaves) => {
 				return WIRE_LEAF;
 			}
 			break;
+		default:
+			throw new Error(`Cell isn't a leaf: ${[leaf.state, leaf.id, leaf.nw?.id, leaf.ne?.id, leaf.sw?.id, leaf.ne?.id]}`);
 	}
 };
 
 const update = (generation) => {
 	gen = generation;
+	decrementReferenceCount(topCell);
 	topCell = getCellResult(padCell(topCell));
+	incrementReferenceCount(topCell);
 
-	if (cacheSize > MAX_CACHE_SIZE) {
-		// postDebug("Limiting cache:", cacheSize, cacheSize - MAX_CACHE_SIZE);
+	if (cache.size > MAX_CACHE_SIZE) {
+		const originalFirstCell = firstCell;
+		let cell = lastCell;
 
-		while (cacheSize > MAX_CACHE_SIZE) {
-			cache.delete(lastCell.key);
-			lastCell = lastCell.prevCell;
-			lastCell.nextCell = null;
-			lastCell.destroyed = true; // TODO: verify that nothing under topCell is destroyed
-			cacheSize--;
+		while (cell !== originalFirstCell && cache.size > MAX_CACHE_SIZE) {
+			if (cell.referenceCount > 0) {
+				cell = cell.prevCell;
+				refCell(cell.nextCell);
+			} else {
+				if (cell.nextCell != null) {
+					cell.nextCell.prevCell = cell.prevCell;
+				}
+
+				cell.prevCell.nextCell = cell.nextCell;
+
+				if (!cache.delete(cell.key)) {
+					postDebug("Key not found", cell.key);
+				}
+
+				const destroyedCell = cell;
+				if (lastCell === destroyedCell) {
+					lastCell = cell.prevCell;
+				}
+				cell = cell.prevCell;
+				zeroCount--;
+				cache.delete(destroyedCell.key);
+
+				if (destroyedCell.nw != null) {
+					decrementReferenceCount(destroyedCell.nw);
+					decrementReferenceCount(destroyedCell.ne);
+					decrementReferenceCount(destroyedCell.sw);
+					decrementReferenceCount(destroyedCell.se);
+					destroyedCell.nw = null;
+					destroyedCell.ne = null;
+					destroyedCell.sw = null;
+					destroyedCell.se = null;
+				}
+				if (destroyedCell.result != null) {
+					decrementReferenceCount(destroyedCell.result);
+					destroyedCell.result = null;
+				}
+				destroyedCell.prevCell = null;
+				destroyedCell.nextCell = null;
+				destroyedCell.destroyed = true; // TODO: verify that nothing under topCell is destroyed
+			}
 		}
 	}
 
@@ -324,7 +398,7 @@ const renderCell = (headIDs, tailIDs, cell, x, y) => {
 
 const render = (headIDs, tailIDs) => {
 	renderCell(headIDs, tailIDs, topCell, 0, 0);
-	// postDebug("cache size:", (cacheSize / MAX_CACHE_SIZE).toPrecision(2));
+	// postDebug("cache size:", (cache.size / MAX_CACHE_SIZE).toPrecision(2));
 };
 
 buildEngine(oldThemes["aubergine"], initialize, reset, update, render);

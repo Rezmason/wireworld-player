@@ -2,13 +2,37 @@ TODO
 
 Hashlife all by yourself
 	Central question: how do you know a macrocell can be destroyed?
-	Hypothesis: a macrocell won't outlive its parent or cause if:
-		- a macrocell is referenced whenever it is returned form lookup (obviously), and
-		- each child macrocell is referenced when getting the result (maybe excessive)
+	
+		[
+			Hypothesis: a macrocell won't outlive its parent or cause if:
+				- a macrocell is referenced whenever it is returned form lookup (obviously), and
+				- each child macrocell is referenced when getting the result (maybe excessive)
 
-	Test theory (though it seems to work! ^_^)
-		If the theory is wrong, the simulation may explode at an indeterminate point in the future
-		Write a recursive inspection function that verifies there are no destroyed cells in the quadtree or its resulting quadtrees
+			Test theory (though it seems to work! ^_^)
+				If the theory is wrong, the simulation may explode at an indeterminate point in the future
+				Write a recursive inspection function that verifies there are no destroyed cells in the quadtree or its resulting quadtrees
+		]
+
+	Rokicki strategy
+		when you fill up your cache, DUMP IT and repopulate it with the children and results of topCell
+	LRU strategy
+		while you exceed your cache, delete the least recently used nodes
+		Problem: it seems as though the least recently used ones are still referenced somewhere
+			"Long term memory of the system"
+			Idea: multiple caches and LRUs?
+				Along the lines of John Williamson's work
+			Idea: manually count the references to a macrocell
+				Store that value on the macrocell
+				Increment and decrement it wherever
+				Keep track of how many macrocells in the cache have zero references
+				Only remove macrocells that have zero references
+				Problem: it seems as thought the percent of macrocells with a reference > 0 increases
+					Idea: fall back on Rokicki
+
+	Followup question:
+		What is there between the nonzero-ref macrocells and non-present macrocells?
+		Is the "id" property causing trouble, preventing cache hits that would succeed in other implementations?
+		Contact John Wililamson! Be polite.
 
 	Switch to a pool of nodes, created up front
 		Create every new node from lastNode
@@ -16,13 +40,25 @@ Hashlife all by yourself
 	The maximum memory shouldn't be some arbitrary value
 		What to base it on, though?
 
-	It would be nice to see the relationship between the contents of the cache and how useful they are
-		At the moment we're just deleting the least useful ones
-		We don't know whether we can delete MORE
+	How does this operate?
+		It would be nice to see the relationship between the contents of the cache and how useful they are
+			At the moment we're just deleting the least useful ones
+			We don't know whether we can delete MORE
 
-	It would be nice to see how many function calls of each type occur per update
-		Because it looks like the recursive functions are being called a whole lot less often than we thought!
-	And it would be nice to know how deep each recursion went per update
+		It would be nice to see how many function calls of each type occur per update
+			Because it looks like the recursive functions are being called a whole lot less often than we thought!
+		And it would be nice to know how deep each recursion went per update
+
+	Afterwards
+		Optimization of macrocell shape
+			Replace state with identifying a leaf as the dead leaf, wire leaf, tail leaf or head leaf
+				Removes the need for "state" on macrocell
+			Remove "depth" from macrocell
+				Or at least replace it with arg to recursive functions and then comment it out
+			Comment out "destroyed" and "lastUseGen" properties
+
+		Flatten
+			Replace interlinked objects with addresses in a giant buffer
 
 Download the 12/1/2021 episode from Twitch if you can!
 	It went really well actually!
