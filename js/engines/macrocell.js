@@ -1,6 +1,6 @@
 importScripts("engine_common.js");
 
-const MAX_CACHE_SIZE = 2e6;
+const MAX_CACHE_SIZE = 1e6;
 
 const cellTemplate = {
 	nw: null,
@@ -8,22 +8,23 @@ const cellTemplate = {
 	sw: null,
 	se: null,
 	result: null,
-	state: -1,
-	id: -1,
-	depth: 0,
 	nextCell: null,
 	prevCell: null,
+	id: -1,
 	key: null,
+	depth: 0,
 	referenceCount: 0,
-	destroyed: false,
-	lastUseGen: -1,
+	inUse: false,
+	// lastUseGen: -1,
 };
 
 const cache = new Map();
 let zeroCount = 0;
 let firstCell = null;
 let lastCell = null;
-const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, state, id: -1 - state, key: state }]));
+const firstPoolCell = { ...cellTemplate };
+let lastPoolCell = firstPoolCell;
+const cellStatesToLeaves = new Map(Object.values(CellState).map((state) => [state, { ...cellTemplate, id: -1 - state, key: state, inUse: true }]));
 
 const DEAD_LEAF = cellStatesToLeaves.get(CellState.DEAD);
 const TAIL_LEAF = cellStatesToLeaves.get(CellState.TAIL);
@@ -39,7 +40,27 @@ let stepSize = 10; // TODO: configure through UI someplace, support acceleration
 let originalCells, width, height, size, treeDepth;
 const cellIDsByGridIndex = [];
 
-const wipeCell = (cell) => Object.assign(cell, cellTemplate);
+const poolCell = (cell) => {
+	if (!cell.inUse) {
+		throw new Error("Pooling a cell that isn't in use.");
+	}
+	cell.nw = null;
+	cell.ne = null;
+	cell.sw = null;
+	cell.se = null;
+	cell.result = null;
+	cell.id = -1;
+	cell.depth = 0;
+	cell.key = null;
+	cell.referenceCount = 0;
+	cell.inUse = false;
+	// cell.lastUseGen = -1;
+
+	cell.nextCell = null;
+	cell.prevCell = lastPoolCell;
+	lastPoolCell.nextCell = cell;
+	lastPoolCell = cell;
+};
 
 const incrementReferenceCount = (cell) => {
 	if (cell == null) {
@@ -62,10 +83,10 @@ const decrementReferenceCount = (cell) => {
 };
 
 const refCell = (cell) => {
-	cell.lastUseGen = gen;
+	// cell.lastUseGen = gen;
 
-	if (cell.destroyed) {
-		throw new Error("Referencing a destroyed cell.");
+	if (!cell.inUse) {
+		throw new Error("Referencing a cell that isn't in use.");
 	}
 
 	if (cell === firstCell) {
@@ -121,8 +142,8 @@ const initialize = (data) => {
 		size <<= 1;
 		treeDepth++;
 	}
-	treeDepth = Math.max(1, treeDepth); // TODO: verify
-	stepSize = Math.max(1, Math.min(stepSize, treeDepth - 1));
+	treeDepth = Math.max(1, treeDepth) - 1;
+	stepSize = Math.max(1, Math.min(stepSize, treeDepth));
 
 	return cellGridIndices;
 };
@@ -130,9 +151,18 @@ const initialize = (data) => {
 const lookup = (nw, ne, sw, se) => {
 	const key = `${nw.id},${ne.id},${sw.id},${se.id}`;
 	if (!cache.has(key)) {
-		const cell = { ...cellTemplate }; // TODO: grab from pool
+		let cell = lastPoolCell;
+		if (cell === firstPoolCell) {
+			cell = { ...cellTemplate };
+		} else {
+			lastPoolCell = lastPoolCell.prevCell;
+			lastPoolCell.nextCell = null;
+			cell.prevCell = null;
+		}
+
 		zeroCount++;
 
+		cell.inUse = true;
 		cell.depth = nw.depth + 1;
 		cell.id = ids++;
 		cell.nw = nw;
@@ -209,13 +239,13 @@ const reset = (saveData) => {
 const reinitialize = (headIDs, tailIDs) => {
 	ids = 0;
 	for (const cell of cache.values()) {
-		wipeCell(cell);
+		poolCell(cell);
 	}
 	firstCell = null;
 	lastCell = null;
 	cache.clear();
 	zeroCount = 0;
-	topCell = initCell(originalCells, headIDs, tailIDs, treeDepth - 1, 0, 0);
+	topCell = initCell(originalCells, headIDs, tailIDs, treeDepth, 0, 0);
 	incrementReferenceCount(topCell);
 };
 
@@ -292,17 +322,17 @@ const getCellResult = (cell) => {
 };
 
 const computeLeaf = (leaf, neighborLeaves) => {
-	switch (leaf.state) {
-		case CellState.DEAD:
+	switch (leaf) {
+		case DEAD_LEAF:
 			return DEAD_LEAF;
 			break;
-		case CellState.TAIL:
+		case TAIL_LEAF:
 			return WIRE_LEAF;
 			break;
-		case CellState.HEAD:
+		case HEAD_LEAF:
 			return TAIL_LEAF;
 			break;
-		case CellState.WIRE:
+		case WIRE_LEAF:
 			let numHeadNeighbors = 0;
 			neighborCounting: for (let i = 0; i < 8; i++) {
 				if (neighborLeaves[i] === HEAD_LEAF) {
@@ -319,7 +349,7 @@ const computeLeaf = (leaf, neighborLeaves) => {
 			}
 			break;
 		default:
-			throw new Error(`Cell isn't a leaf: ${[leaf.state, leaf.id, leaf.nw?.id, leaf.ne?.id, leaf.sw?.id, leaf.ne?.id]}`);
+			throw new Error(`Cell isn't a leaf: ${[leaf.id, leaf.nw?.id, leaf.ne?.id, leaf.sw?.id, leaf.ne?.id]}`);
 	}
 };
 
@@ -331,7 +361,7 @@ const update = (generation) => {
 
 	if (cache.size > MAX_CACHE_SIZE) {
 		if (zeroCount / MAX_CACHE_SIZE < 0.5) {
-			// postDebug("Wipe and rebuild");
+			postDebug("Wipe and rebuild");
 			wipeAndRebuild();
 		} else {
 			// postDebug("Destroy least used zero reference cells");
@@ -339,7 +369,7 @@ const update = (generation) => {
 		}
 		// TODO: ask someone who knows better whether some other strategy or overlooked characteristic of Hashlife can improve this stuff
 
-		// postDebug((zeroCount / MAX_CACHE_SIZE).toPrecision(3));
+		postDebug((zeroCount / MAX_CACHE_SIZE).toPrecision(3));
 	}
 
 	return 2 ** (stepSize - 1);
@@ -372,44 +402,41 @@ const destroyLeastUsedZeroReferenceCells = () => {
 			postDebug("Key not found", cell.key);
 		}
 
-		const destroyedCell = cell;
-		if (lastCell === destroyedCell) {
+		const removedCell = cell;
+		if (lastCell === removedCell) {
 			lastCell = cell.prevCell;
 		}
 		cell = cell.prevCell;
 
 		zeroCount--;
-		cache.delete(destroyedCell.key);
+		cache.delete(removedCell.key);
 
-		if (destroyedCell.nw != null) {
-			decrementReferenceCount(destroyedCell.nw);
-			decrementReferenceCount(destroyedCell.ne);
-			decrementReferenceCount(destroyedCell.sw);
-			decrementReferenceCount(destroyedCell.se);
-			destroyedCell.nw = null;
-			destroyedCell.ne = null;
-			destroyedCell.sw = null;
-			destroyedCell.se = null;
+		if (removedCell.nw != null) {
+			decrementReferenceCount(removedCell.nw);
+			decrementReferenceCount(removedCell.ne);
+			decrementReferenceCount(removedCell.sw);
+			decrementReferenceCount(removedCell.se);
+			removedCell.nw = null;
+			removedCell.ne = null;
+			removedCell.sw = null;
+			removedCell.se = null;
 		}
-		if (destroyedCell.result != null) {
-			decrementReferenceCount(destroyedCell.result);
-			destroyedCell.result = null;
+		if (removedCell.result != null) {
+			decrementReferenceCount(removedCell.result);
+			removedCell.result = null;
 		}
-		destroyedCell.prevCell = null;
-		destroyedCell.nextCell = null;
-		destroyedCell.destroyed = true;
+		removedCell.prevCell = null;
+		removedCell.nextCell = null;
+		removedCell.destroyed = true;
 	}
 };
 
 const renderCell = (headIDs, tailIDs, cell, x, y) => {
 	if (cell.depth === 0) {
-		switch (cell.state) {
-			case CellState.HEAD:
-				headIDs.push(cellIDsByGridIndex[y * width + x]);
-				break;
-			case CellState.TAIL:
-				tailIDs.push(cellIDsByGridIndex[y * width + x]);
-				break;
+		if (cell === HEAD_LEAF) {
+			headIDs.push(cellIDsByGridIndex[y * width + x]);
+		} else if (cell === TAIL_LEAF) {
+			tailIDs.push(cellIDsByGridIndex[y * width + x]);
 		}
 	} else {
 		const offset = 2 ** (cell.depth - 1);

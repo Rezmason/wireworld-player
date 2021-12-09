@@ -1,38 +1,23 @@
 TODO
 
-	Hashlife investigation (ongoing)
+	Hashlife
 
-	Switch to a pool of nodes, created up front
-		Create every new node from lastNode
-
-	Afterwards
-		Optimization of macrocell shape
-			Replace state with identifying a leaf as the dead leaf, wire leaf, tail leaf or head leaf
-				Removes the need for "state" on macrocell
-			Remove "depth" from macrocell
-				Or at least replace it with arg to recursive functions and then comment it out
-			Comment out "destroyed" and "lastUseGen" properties
+		Hashlife investigation (ongoing)
+			
+		Interactive step size choice
+			Replace turbo with dropdown:
+				1x
+				Turbo 1x
+				Turbo 2x
+				Turbo 4x
+				Turbo 8x
+				Turbo 16x
+				etc
+			Or maybe a weird slider
+				Like a stick shift, I dunno
 
 		Flatten
 			Replace interlinked objects with addresses in a giant buffer
-
-Download the 12/1/2021 episode from Twitch if you can!
-	It went really well actually!
-	Future Rezmason will be glad that you did!
-
-When is HashLife ready for the main branch?
-	Caching issue
-	Interactive step size choice
-		Replace turbo with dropdown:
-			1x
-			Turbo 1x
-			Turbo 2x
-			Turbo 4x
-			Turbo 8x
-			Turbo 16x
-			etc
-		Or maybe a weird slider
-			Like a stick shift, I dunno
 
 Sliders and selects should have labels in a11y mode
 
