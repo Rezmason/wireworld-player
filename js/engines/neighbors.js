@@ -132,4 +132,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(oldThemes["bright"], initialize, reset, update, render);
+buildEngine(themes["tamarind"], initialize, reset, update, render);

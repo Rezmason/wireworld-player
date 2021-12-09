@@ -126,4 +126,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(oldThemes["night"], initialize, reset, update, render);
+buildEngine(themes["gourd"], initialize, reset, update, render);

@@ -183,4 +183,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(oldThemes["default"], initialize, reset, update, render);
+buildEngine(themes["bright"], initialize, reset, update, render);

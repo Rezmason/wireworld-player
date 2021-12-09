@@ -1,20 +1,18 @@
 const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name, index) => [name, index]));
 
-const oldThemes = {
-	["default"]: [0x000000ff, 0x505050ff, 0xff8800ff, 0xffee00ff],
-	classic: [0x000000ff, 0xff8800ff, 0x2c82f6ff, 0xffffffff],
-	minty: [0x000000ff, 0x505050ff, 0x00c000ff, 0x80ff80ff],
-	bubbleGum: [0x000000ff, 0x4c4c4cff, 0xff4c4cff, 0xff4cffff],
-	brass: [0x101000ff, 0x404020ff, 0x808020ff, 0xffff20ff],
-	freon: [0x000000ff, 0x4c4c4cff, 0x4c4cffff, 0x4cffffff],
-	currant: [0x000000ff, 0x300050ff, 0x8000a0ff, 0xffff00ff],
-	night: [0x000040ff, 0x4040a0ff, 0x8080ddff, 0xffffddff],
-	gleam: [0x000000ff, 0xffff00ff, 0xfffff80ff, 0xffffffff],
-	bright: [0x000000ff, 0x404040ff, 0x909090ff, 0xffffffff],
+const themes = {
+	["default"]: [0x000000ff, 0x505050ff, 0xff8800ff, 0xffee00ff], // Orange and yellow over grey and black
+	classic: [0x000000ff, 0xff8800ff, 0x2c82f6ff, 0xffffffff], // White and blue over orange and black
+	minty: [0x000000ff, 0x505050ff, 0x00c000ff, 0x80ff80ff], // Spearmint over grey and black
+	bright: [0x000000ff, 0x404040ff, 0x909090ff, 0xffffffff], // White and grey over grey and black
 
-	paprika: [0x330800ff, 0xff6600ff, 0xffaa00ff, 0xffffffff],
-	gourd: [0x081100ff, 0x88aa33ff, 0xccff33ff, 0xffffaaff],
-	aubergine: [0x040008ff, 0x443366ff, 0x448800ff, 0xaaff33ff],
+	tamarind: [0x440800ff, 0xbb4411ff, 0xff8822ff, 0xffddaaff], // brown, red, orange
+	gourd: [0x081100ff, 0x669911ff, 0x99cc44ff, 0xffffaaff], // green and yellow
+	aubergine: [0x0f001eff, 0x443366ff, 0x448800ff, 0xaaff33ff], // purple and green
+	frigid: [0x001144ff, 0x336688ff, 0x33ddffff, 0xffffffff], // blue, cyan and white
+	coffee: [0x100400ff, 0x664422ff, 0xbbaa99ff, 0xffeeccff], // brown and white
+	regal: [0x10050aff, 0xd09911ff, 0xffee88ff, 0xffffffff], // dark purple and gold
+	birthday: [0x770511ff, 0xee6688ff, 0xffaabbff, 0xffffddff], // fuschia, pink and buttercream
 };
 
 const buildEngine = (theme, _initialize, _reset, _update, _render) => {

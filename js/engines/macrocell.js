@@ -453,4 +453,4 @@ const render = (headIDs, tailIDs) => {
 	// postDebug("cache size:", (cache.size / MAX_CACHE_SIZE).toPrecision(2));
 };
 
-buildEngine(oldThemes["aubergine"], initialize, reset, update, render);
+buildEngine(themes["aubergine"], initialize, reset, update, render);
