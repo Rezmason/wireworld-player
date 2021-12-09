@@ -6,7 +6,7 @@ import { parseFile } from "./parse.js";
 import { timing } from "./timing.js";
 
 const engineFilenamesByName = {
-	["default"]: "macrocell",
+	["default"]: "flat",
 	naive: "naive",
 	alive: "alive",
 	neighbors: "neighbors",
@@ -18,7 +18,7 @@ const engineFilenamesByName = {
 const suppressSplash = params.nosplash ?? false;
 
 let engine;
-let engineName = params.engine ?? "macrocell";
+let engineName = params.engine ?? "flat";
 let queuedRender = null;
 let lastRender = null;
 

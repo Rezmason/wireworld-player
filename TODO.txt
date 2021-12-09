@@ -1,36 +1,36 @@
 TODO
 
-	Auto engine
-		Two workers— flat and macrocell
-		Both workers are initialized to the same state
-		If turbo is on or speed is at full,
-			Both engines are told to advance
-			Initial state is "flat"
-			states
-				"flat"
-					both engines run
-					flat engine drives the renderer
-					When the macrocell engine is faster AND further along than the flat engine,
-						set state to "macrocell"
-				"macrocell"
-					only macrocell engine runs
-					macrocell engine drives the renderer
-					When the macrocell engine speed drops below a specific threshold, or there is a specific event in the macrocell simulation, like a Rokicki contingency,
-						copy macrocell's state to "flat"
-						set state to "flat"
-		When turbo is off and speed is not at full,
-			copy macrocell's state to "flat"
-			set state to "flat"
-		When tapping "step" (aka "advance")
-			copy macrocell's state to "flat"
-			set state to "flat"
+Auto engine
+	Two workers— flat and macrocell
+	Both workers are initialized to the same state
+	If turbo is on or speed is at full,
+		Both engines are told to advance
+		Initial state is "flat"
+		states
+			"flat"
+				both engines run
+				flat engine drives the renderer
+				When the macrocell engine is faster AND further along than the flat engine,
+					set state to "macrocell"
+			"macrocell"
+				only macrocell engine runs
+				macrocell engine drives the renderer
+				When the macrocell engine speed drops below a specific threshold, or there is a specific event in the macrocell simulation, like a Rokicki contingency,
+					copy macrocell's state to "flat"
+					set state to "flat"
+	When turbo is off and speed is not at full,
+		copy macrocell's state to "flat"
+		set state to "flat"
+	When tapping "step" (aka "advance")
+		copy macrocell's state to "flat"
+		set state to "flat"
 
-	Hashlife investigation (ongoing)
+Hashlife investigation (ongoing)
 
-	Flatten macrocell
-		Allocate giant buffer
-			It should allocate pretty quickly, because it's one object
-		Replace interlinked objects with addresses into the buffer
+Flatten macrocell
+	Allocate giant buffer
+		It should allocate pretty quickly, because it's one object
+	Replace interlinked objects with addresses into the buffer
 
 Sliders and selects should have labels in a11y mode
 
