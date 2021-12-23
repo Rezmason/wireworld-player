@@ -16,6 +16,8 @@ const themes = {
 };
 
 const buildEngine = (theme, _initialize, _reset, _update, _render) => {
+	let mainPort;
+
 	const headIDs = [];
 	const tailIDs = [];
 	let originalData, cellGridIndices;
@@ -45,7 +47,7 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 
 		cellGridIndices = _initialize(data);
 
-		postMessage({
+		mainPort.postMessage({
 			type: "initializePaper",
 			args: [
 				{
@@ -72,7 +74,7 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 	};
 
 	const save = () => {
-		postMessage({
+		mainPort.postMessage({
 			type: "saveData",
 			args: [
 				{
@@ -116,7 +118,7 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 			simulationSpeed = numberFormatter.format(Math.round(1000 * turboAverageSpeed));
 		}
 
-		postMessage({
+		mainPort.postMessage({
 			type: "render",
 			args: [
 				{
@@ -198,7 +200,15 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 		save,
 	};
 
-	self.addEventListener("message", ({ data }) => api[data.type]?.(...(data.args ?? [])));
+	self.addEventListener("message", ({ data }) => {
+		if (data.type == "channel") {
+			mainPort = data.mainPort;
+			mainPort.addEventListener("message", ({ data }) => {
+				api[data.type]?.(...(data.args ?? []));
+			});
+			mainPort.start();
+		}
+	});
 };
 
-const postDebug = (...args) => postMessage({ type: "debug", args });
+const postDebug = (...args) => mainPort.postMessage({ type: "debug", args });

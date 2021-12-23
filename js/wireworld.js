@@ -35,6 +35,7 @@ const engineDefinitionsByName = {
 
 const suppressSplash = params.nosplash ?? false;
 
+let messageChannel;
 let engine;
 let engineName = params.engine ?? "auto";
 let queuedRender = null;
@@ -72,11 +73,17 @@ const handleEngineMessage = (event) => {
 const rebuildEngine = () => {
 	if (engine != null) {
 		engine.terminate();
-		engine.removeEventListener("message", handleEngineMessage);
+		messageChannel.port1.removeEventListener("message", handleEngineMessage);
+		messageChannel.port1.close();
 	}
 	const definition = engineDefinitionsByName[engineName] ?? engineDefinitionsByName["default"];
 	engine = new Worker(`./js/engines/${definition.filename}.js`);
-	engine.addEventListener("message", handleEngineMessage);
+
+	messageChannel = new MessageChannel();
+	engine.postMessage({ type: "channel", port: messageChannel.port2 }, [messageChannel.port2]);
+
+	messageChannel.port1.addEventListener("message", handleEngineMessage);
+	messageChannel.port1.start();
 };
 
 rebuildEngine();
@@ -91,17 +98,17 @@ const swapEngines = (name) => {
 		engine.removeEventListener("message", listenForSaveFile);
 		engineName = name;
 		rebuildEngine();
-		engine.postMessage({ type: "initialize", args: [saveData] });
+		messageChannel.port1.postMessage({ type: "initialize", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
 	engine.addEventListener("message", listenForSaveFile);
-	engine.postMessage({ type: "save" });
+	messageChannel.port1.postMessage({ type: "save" });
 };
 
 timing.initialize(
-	(force, time) => engine.postMessage({ type: "advance", args: [force, time] }),
-	() => engine.postMessage({ type: "startTurbo" }),
-	() => engine.postMessage({ type: "stopTurbo" })
+	(force, time) => messageChannel.port1.postMessage({ type: "advance", args: [force, time] }),
+	() => messageChannel.port1.postMessage({ type: "startTurbo" }),
+	() => messageChannel.port1.postMessage({ type: "stopTurbo" })
 );
 
 gui.events.addEventListener("statechanged", () => {
@@ -112,11 +119,11 @@ gui.events.addEventListener("statechanged", () => {
 });
 
 gui.events.addEventListener("advance", () => {
-	engine.postMessage({ type: "advance", args: [true, 0] });
+	messageChannel.port1.postMessage({ type: "advance", args: [true, 0] });
 });
 
 gui.events.addEventListener("resetsim", () => {
-	engine.postMessage({ type: "reset" });
+	messageChannel.port1.postMessage({ type: "reset" });
 });
 
 gui.events.addEventListener("load", () => {
@@ -137,7 +144,7 @@ const load = async (target, splash) => {
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		engine.postMessage({ type: "initialize", args: [data] });
+		messageChannel.port1.postMessage({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {
