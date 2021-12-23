@@ -15,9 +15,10 @@ const themes = {
 	birthday: [0x770511ff, 0xee6688ff, 0xffaabbff, 0xffffddff], // fuschia, pink and buttercream
 };
 
-const buildEngine = (theme, _initialize, _reset, _update, _render) => {
-	let mainPort;
+let mainPort;
+let delegatePorts;
 
+const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 	const headIDs = [];
 	const tailIDs = [];
 	let originalData, cellGridIndices;
@@ -207,8 +208,18 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 				api[data.type]?.(...(data.args ?? []));
 			});
 			mainPort.start();
+			delegatePorts = data.delegatePorts ?? {};
+			for (const name in delegatePorts) {
+				const port = delegatePorts[name];
+				port.addEventListener("message", ({ data }) => {
+					postDebug("Data from delegate: ", data);
+				});
+				port.start();
+			}
 		}
 	});
 };
 
-const postDebug = (...args) => mainPort.postMessage({ type: "debug", args });
+const postDebug = (...args) => {
+	mainPort.postMessage({ type: "debug", args });
+};

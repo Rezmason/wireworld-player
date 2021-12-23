@@ -29,13 +29,12 @@ const engineDefinitionsByName = {
 	},
 	auto: {
 		filename: "auto",
-		children: ["flat", "macrocell"],
+		delegates: ["flat", "macrocell"],
 	},
 };
 
 const suppressSplash = params.nosplash ?? false;
 
-let messageChannel;
 let engine;
 let engineName = params.engine ?? "auto";
 let queuedRender = null;
@@ -72,18 +71,38 @@ const handleEngineMessage = (event) => {
 
 const rebuildEngine = () => {
 	if (engine != null) {
-		engine.terminate();
-		messageChannel.port1.removeEventListener("message", handleEngineMessage);
-		messageChannel.port1.close();
+		engine.worker.terminate();
+		engine.port.removeEventListener("message", handleEngineMessage);
+		engine.port.close();
+		for (const delegate of engine.delegates) {
+			delegate.worker.terminate();
+		}
 	}
+	const messageChannel = new MessageChannel();
 	const definition = engineDefinitionsByName[engineName] ?? engineDefinitionsByName["default"];
-	engine = new Worker(`./js/engines/${definition.filename}.js`);
+	engine = {
+		worker: new Worker(`./js/engines/${definition.filename}.js`),
+		port: messageChannel.port1,
+		delegates: {},
+	};
 
-	messageChannel = new MessageChannel();
-	engine.postMessage({ type: "channel", port: messageChannel.port2 }, [messageChannel.port2]);
+	const delegatePorts = {};
 
-	messageChannel.port1.addEventListener("message", handleEngineMessage);
-	messageChannel.port1.start();
+	for (const name of definition.delegates) {
+		const messageChannel = new MessageChannel();
+		const definition = engineDefinitionsByName[name];
+		const delegate = {
+			worker: new Worker(`./js/engines/${definition.filename}.js`),
+			port: messageChannel.port1,
+		};
+		delegate.worker.postMessage({ type: "channel", mainPort: messageChannel.port2 }, [messageChannel.port2]);
+		engine.delegates[name] = delegate;
+		delegatePorts[name] = delegate.port;
+	}
+
+	engine.worker.postMessage({ type: "channel", mainPort: messageChannel.port2, delegatePorts }, [messageChannel.port2, ...Object.values(delegatePorts)]);
+	engine.port.addEventListener("message", handleEngineMessage);
+	engine.port.start();
 };
 
 rebuildEngine();
@@ -95,20 +114,20 @@ const swapEngines = (name) => {
 			return;
 		}
 		saveData = event.data.args[0];
-		engine.removeEventListener("message", listenForSaveFile);
+		engine.port.removeEventListener("message", listenForSaveFile);
 		engineName = name;
 		rebuildEngine();
-		messageChannel.port1.postMessage({ type: "initialize", args: [saveData] });
+		engine.port.postMessage({ type: "initialize", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
-	engine.addEventListener("message", listenForSaveFile);
-	messageChannel.port1.postMessage({ type: "save" });
+	engine.port.addEventListener("message", listenForSaveFile);
+	engine.port.postMessage({ type: "save" });
 };
 
 timing.initialize(
-	(force, time) => messageChannel.port1.postMessage({ type: "advance", args: [force, time] }),
-	() => messageChannel.port1.postMessage({ type: "startTurbo" }),
-	() => messageChannel.port1.postMessage({ type: "stopTurbo" })
+	(force, time) => engine.port.postMessage({ type: "advance", args: [force, time] }),
+	() => engine.port.postMessage({ type: "startTurbo" }),
+	() => engine.port.postMessage({ type: "stopTurbo" })
 );
 
 gui.events.addEventListener("statechanged", () => {
@@ -119,11 +138,11 @@ gui.events.addEventListener("statechanged", () => {
 });
 
 gui.events.addEventListener("advance", () => {
-	messageChannel.port1.postMessage({ type: "advance", args: [true, 0] });
+	engine.port.postMessage({ type: "advance", args: [true, 0] });
 });
 
 gui.events.addEventListener("resetsim", () => {
-	messageChannel.port1.postMessage({ type: "reset" });
+	engine.port.postMessage({ type: "reset" });
 });
 
 gui.events.addEventListener("load", () => {
@@ -144,7 +163,7 @@ const load = async (target, splash) => {
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		messageChannel.port1.postMessage({ type: "initialize", args: [data] });
+		engine.port.postMessage({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {
