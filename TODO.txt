@@ -2,7 +2,8 @@ TODO
 
 Auto engine
 	Two workers— flat and macrocell
-	Both workers are initialized to the same state
+		Wrapped in a third worker, maybe?
+	Both internal workers are initialized to the same state
 	If turbo is on or speed is at full,
 		Both engines are told to advance
 		Initial state is "flat"
@@ -15,13 +16,13 @@ Auto engine
 			"macrocell"
 				only macrocell engine runs
 				macrocell engine drives the renderer
-				When the macrocell engine speed drops below a specific threshold, or there is a specific event in the macrocell simulation, like a Rokicki contingency,
+				When the recent macrocell engine speed drops below a specific threshold,
 					copy macrocell's state to "flat"
 					set state to "flat"
 	When turbo is off and speed is not at full,
 		copy macrocell's state to "flat"
 		set state to "flat"
-	When tapping "step" (aka "advance")
+	When tapping "step" (aka "advance") and not running
 		copy macrocell's state to "flat"
 		set state to "flat"
 
