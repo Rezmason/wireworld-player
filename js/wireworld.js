@@ -5,30 +5,36 @@ import { paper } from "./paper.js";
 import { parseFile } from "./parse.js";
 import { timing } from "./timing.js";
 
+const defaultEngineName = "auto";
+
 const engineDefinitionsByName = {
-	["default"]: {
-		filename: "auto",
-	},
 	naive: {
-		filename: "naive",
+		themeName: "regal",
+		workers: ["naive"],
 	},
 	alive: {
-		filename: "alive",
+		themeName: "gourd",
+		workers: ["alive"],
 	},
 	neighbors: {
-		filename: "neighbors",
+		themeName: "tamarind",
+		workers: ["neighbors"],
 	},
 	linked: {
-		filename: "linked",
+		themeName: "birthday",
+		workers: ["linked"],
 	},
 	flat: {
-		filename: "flat",
+		themeName: "frigid",
+		workers: ["flat"],
 	},
 	macrocell: {
-		filename: "macrocell",
+		themeName: "aubergine",
+		workers: ["macrocell"],
 	},
 	auto: {
-		filename: "flat",
+		themeName: "coffee",
+		workers: ["flat", "macrocell"],
 	},
 };
 
@@ -51,7 +57,7 @@ checkRenderQueue();
 const handleEngineMessage = (event) => {
 	switch (event.data.type) {
 		case "initializePaper":
-			paper.initialize(event.data.args[0]);
+			paper.initialize(engineDefinitionsByName[engineName].themeName, event.data.args[0]);
 			break;
 		case "render":
 			if (lastRender != null) {
@@ -73,8 +79,8 @@ const rebuildEngine = () => {
 		engine.terminate();
 		engine.removeEventListener("message", handleEngineMessage);
 	}
-	const definition = engineDefinitionsByName[engineName] ?? engineDefinitionsByName["default"];
-	engine = new Worker(`./js/engines/${definition.filename}.js`);
+	const definition = engineDefinitionsByName[engineName] ?? engineDefinitionsByName[defaultEngineName];
+	engine = new Worker(`./js/engines/${definition.workers[0]}.js`);
 	engine.addEventListener("message", handleEngineMessage);
 };
 

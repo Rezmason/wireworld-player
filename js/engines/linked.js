@@ -177,4 +177,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(themes["birthday"], initialize, reset, update, render);
+buildEngine(initialize, reset, update, render);

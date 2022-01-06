@@ -183,4 +183,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(themes["frigid"], initialize, reset, update, render);
+buildEngine(initialize, reset, update, render);

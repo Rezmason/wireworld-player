@@ -120,4 +120,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(themes["regal"], initialize, reset, update, render);
+buildEngine(initialize, reset, update, render);

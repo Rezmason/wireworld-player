@@ -1,45 +1,21 @@
 import { CellState } from "./data.js";
 import { collectUI } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
+import themes from "./themes.js";
 
 const labels = collectUI("label");
 const canvases = collectUI("canvas");
 
-const isLittleEndian = (() => {
-	const buf = new ArrayBuffer(2);
-	new Uint16Array(buf)[0] = 1;
-	return new Uint8ClampedArray(buf)[0] === 1;
-})();
-
-const formatColorForEndian = (rgba) => {
-	if (isLittleEndian) {
-		return parseInt(rgba.toString(0x10).padStart(8, "0").match(/..?/g).reverse().join(""), 16);
-	}
-	return rgba;
-};
-
-const makeTheme = (deadColor, wireColor, tailColor, headColor) => ({
-	dead: formatColorForEndian(deadColor),
-	wire: formatColorForEndian(wireColor),
-	tail: formatColorForEndian(tailColor),
-	head: formatColorForEndian(headColor),
-});
-
-const circuitTheme = makeTheme(0x224400ff, 0x448822ff, 0xffdd22ff, 0xffff44ff);
-const classicTheme = makeTheme(0x000000ff, 0x505050ff, 0xffee00ff, 0xff8800ff);
-
-let theme = circuitTheme;
+let theme = themes["circuit"];
 let drawings;
 let cellGridIndices;
 let lastHeadIDs = [];
 let lastTailIDs = [];
 
-const initialize = (data) => {
+const initialize = (themeName, data) => {
 	const { width, height } = data;
 	cellGridIndices = data.cellGridIndices;
-	if (data.theme != null) {
-		theme = makeTheme(...data.theme);
-	}
+	theme = themes[themeName];
 	const numBytes = width * height * 4;
 	drawings = Object.fromEntries(
 		Object.entries(canvases).map(([id, canvas]) => {
