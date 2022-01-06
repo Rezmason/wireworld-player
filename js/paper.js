@@ -6,6 +6,7 @@ import themes from "./themes.js";
 const labels = collectUI("label");
 const canvases = collectUI("canvas");
 
+const numberFormatter = new Intl.NumberFormat();
 let theme = themes["circuit"];
 let drawings;
 let cellGridIndices;
@@ -51,12 +52,17 @@ const drawBaseLayer = () => {
 	drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
 };
 
-const update = ({ generation, simulationSpeed, width, height, headIDs, tailIDs }) => {
+const update = ({ generation, turboSpeed, width, height, headIDs, tailIDs }) => {
 	const activePixels = drawings.active.pixels;
 	const activeImageData = drawings.active.imageData;
 
-	labels.generation.setText(generation);
-	labels.simulation_speed.setText(simulationSpeed);
+	labels.generation.setText(numberFormatter.format(generation));
+
+	labels.simulation_speed.setText(
+		turboSpeed > 0
+		? numberFormatter.format(Math.round(1000 * turboSpeed))
+		: "---"
+	);
 
 	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
 		activePixels[cellGridIndices[lastHeadIDs[i]]] = 0x0;

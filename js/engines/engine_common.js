@@ -5,7 +5,6 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 	const tailIDs = [];
 	let originalData, cellGridIndices;
 
-	const numberFormatter = new Intl.NumberFormat();
 	const maxFrameTime = 1000 / 10;
 	const desiredFrameTime = 1000 / 60;
 
@@ -89,7 +88,7 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 
 		_render(headIDs, tailIDs);
 
-		let simulationSpeed = "---";
+		let turboSpeed = 0;
 		if (turboActive) {
 			const now = Date.now();
 			const speed = (generation - lastTurboGeneration) / (now - lastTurboTime);
@@ -97,15 +96,15 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 			turboHistory[turboHistoryIndex] = speed;
 			turboAverageSpeed += speed / turboHistoryLength;
 			turboHistoryIndex = (turboHistoryIndex + 1) % turboHistoryLength;
-			simulationSpeed = numberFormatter.format(Math.round(1000 * turboAverageSpeed));
+			turboSpeed = turboAverageSpeed;
 		}
 
 		postMessage({
 			type: "render",
 			args: [
 				{
-					generation: numberFormatter.format(generation),
-					simulationSpeed,
+					generation,
+					turboSpeed,
 					width,
 					height,
 					headIDs,
