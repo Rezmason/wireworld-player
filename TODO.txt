@@ -1,29 +1,31 @@
 TODO
 
+Move themes to engine definitions
 Auto engine
 	Two workers— flat and macrocell
-	Both workers are initialized to the same state
+	Both internal workers are initialized to the same state
+	Engines should report *recent* speed
+		(Recent is maybe the past quarter second)
+	states
+		"presentFlat"
+			both engines update
+			flat engine drives the renderer
+			When the macrocell engine is faster AND further along than the flat engine,
+				set state to "presentMacrocell"
+		"presentMacrocell"
+			only macrocell engine updates
+			macrocell engine drives the renderer
+			When the *recent* macrocell engine speed drops below a specific threshold,
+				copy macrocell's state to "presentFlat"
+				set state to "presentFlat"
 	If turbo is on or speed is at full,
-		Both engines are told to advance
-		Initial state is "flat"
-		states
-			"flat"
-				both engines run
-				flat engine drives the renderer
-				When the macrocell engine is faster AND further along than the flat engine,
-					set state to "macrocell"
-			"macrocell"
-				only macrocell engine runs
-				macrocell engine drives the renderer
-				When the macrocell engine speed drops below a specific threshold, or there is a specific event in the macrocell simulation, like a Rokicki contingency,
-					copy macrocell's state to "flat"
-					set state to "flat"
+		set state is "presentFlat"
 	When turbo is off and speed is not at full,
-		copy macrocell's state to "flat"
-		set state to "flat"
-	When tapping "step" (aka "advance")
-		copy macrocell's state to "flat"
-		set state to "flat"
+		copy macrocell's state to "presentFlat"
+		set state to "presentFlat"
+	When not running
+		copy macrocell's state to "presentFlat"
+		set state to "presentFlat"
 
 Hashlife investigation (ongoing)
 

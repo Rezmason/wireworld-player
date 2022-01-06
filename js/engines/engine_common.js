@@ -46,7 +46,7 @@ const buildEngine = (theme, _initialize, _reset, _update, _render) => {
 		cellGridIndices = _initialize(data);
 
 		postMessage({
-			type: "setup",
+			type: "initializePaper",
 			args: [
 				{
 					width,
