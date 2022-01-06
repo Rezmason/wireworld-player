@@ -1,31 +1,11 @@
 TODO
 
-Move themes to engine definitions
-Auto engine
-	Two workers— flat and macrocell
-	Both internal workers are initialized to the same state
-	Engines should report *recent* speed
-		(Recent is maybe the past quarter second)
-	states
-		"presentFlat"
-			both engines update
-			flat engine drives the renderer
-			When the macrocell engine is faster AND further along than the flat engine,
-				set state to "presentMacrocell"
-		"presentMacrocell"
-			only macrocell engine updates
-			macrocell engine drives the renderer
-			When the *recent* macrocell engine speed drops below a specific threshold,
-				copy macrocell's state to "presentFlat"
-				set state to "presentFlat"
-	If turbo is on or speed is at full,
-		set state is "presentFlat"
-	When turbo is off and speed is not at full,
-		copy macrocell's state to "presentFlat"
-		set state to "presentFlat"
-	When not running
-		copy macrocell's state to "presentFlat"
-		set state to "presentFlat"
+Auto engine coordination bugs
+	Only run deepWorker in turbo mode
+	Transfer render from shallow to deep when entering turbo mode
+	Macrocell: step button should always be ONE generation
+
+Safari BUG: canvases larger than a certain size render incorrectly when scaled up
 
 Hashlife investigation (ongoing)
 

@@ -3,7 +3,9 @@ const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name,
 const buildEngine = (_initialize, _reset, _update, _render) => {
 	const headIDs = [];
 	const tailIDs = [];
-	let originalData, cellGridIndices;
+	let originalData, cellGridIndices, idsByCellGridIndex;
+	let transferredCellGridIndices;
+	let transferredTurboSpeed = 0;
 
 	const maxFrameTime = 1000 / 10;
 	const desiredFrameTime = 1000 / 60;
@@ -41,7 +43,7 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 			],
 		});
 
-		const idsByCellGridIndex = new Map(cellGridIndices.map((x, i) => [x, i]));
+		idsByCellGridIndex = new Map(cellGridIndices.map((x, i) => [x, i]));
 		const saveData =
 			data.saveData == null
 				? null
@@ -89,7 +91,7 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 		_render(headIDs, tailIDs);
 
 		let turboSpeed = 0;
-		if (turboActive) {
+		if (turboActive && transferredCellGridIndices != null) {
 			const now = Date.now();
 			const speed = (generation - lastTurboGeneration) / (now - lastTurboTime);
 			turboAverageSpeed -= turboHistory[turboHistoryIndex] / turboHistoryLength;
@@ -98,6 +100,8 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 			turboHistoryIndex = (turboHistoryIndex + 1) % turboHistoryLength;
 			turboSpeed = turboAverageSpeed;
 		}
+
+		turboSpeed = Math.max(turboSpeed, transferredTurboSpeed);
 
 		postMessage({
 			type: "render",
@@ -170,6 +174,22 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 		turboHistory.fill(0);
 		turboHistoryIndex = 0;
 		turboAverageSpeed = 0;
+		transferredTurboSpeed = 0;
+	};
+
+	const initTransfer = (cellGridIndices) => {
+		transferredCellGridIndices = cellGridIndices;
+	};
+
+	const transfer = (saveData) => {
+		generation = saveData.generation ?? 0;
+		transferredTurboSpeed = saveData.turboSpeed;
+		_reset({
+			...saveData,
+			headIDs: saveData.headIDs.map((id) => idsByCellGridIndex.get(transferredCellGridIndices[id])),
+			tailIDs: saveData.tailIDs.map((id) => idsByCellGridIndex.get(transferredCellGridIndices[id])),
+		});
+		render();
 	};
 
 	const api = {
@@ -179,6 +199,9 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 		startTurbo,
 		stopTurbo,
 		save,
+
+		initTransfer,
+		transfer,
 	};
 
 	self.addEventListener("message", ({ data }) => api[data.type]?.(...(data.args ?? [])));

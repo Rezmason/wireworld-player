@@ -10,37 +10,39 @@ const defaultEngineName = "auto";
 const engineDefinitionsByName = {
 	naive: {
 		themeName: "regal",
-		workers: ["naive"],
+		shallowWorker: "naive",
 	},
 	alive: {
 		themeName: "gourd",
-		workers: ["alive"],
+		shallowWorker: "alive",
 	},
 	neighbors: {
 		themeName: "tamarind",
-		workers: ["neighbors"],
+		shallowWorker: "neighbors",
 	},
 	linked: {
 		themeName: "birthday",
-		workers: ["linked"],
+		shallowWorker: "linked",
 	},
 	flat: {
 		themeName: "frigid",
-		workers: ["flat"],
+		shallowWorker: "flat",
 	},
 	macrocell: {
 		themeName: "aubergine",
-		workers: ["macrocell"],
+		shallowWorker: "macrocell",
 	},
 	auto: {
 		themeName: "coffee",
-		workers: ["flat", "macrocell"],
+		shallowWorker: "flat",
+		deepWorker: "macrocell",
 	},
 };
 
 const suppressSplash = params.nosplash ?? false;
 
-let engine;
+let shallowWorker = null;
+let deepWorker = null;
 let engineName = params.engine ?? "auto";
 let queuedRender = null;
 let lastRender = null;
@@ -55,18 +57,32 @@ const checkRenderQueue = () => {
 checkRenderQueue();
 
 const handleEngineMessage = (event) => {
+	const worker = event.target;
 	switch (event.data.type) {
 		case "initializePaper":
-			paper.initialize(engineDefinitionsByName[engineName].themeName, event.data.args[0]);
+			const data = event.data.args[0];
+			if (worker === shallowWorker) {
+				paper.initialize(engineDefinitionsByName[engineName].themeName, data);
+				deepWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
+			} else {
+				shallowWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
+			}
 			break;
 		case "render":
-			if (lastRender != null) {
-				for (const prop in lastRender) {
-					delete lastRender[prop];
+			const render = event.data.args[0];
+			if (worker === shallowWorker) {
+				if (lastRender != null) {
+					for (const prop in lastRender) {
+						delete lastRender[prop];
+					}
+				}
+				lastRender = render;
+				queuedRender = lastRender;
+			} else {
+				if (lastRender == null || lastRender.generation < render.generation) {
+					shallowWorker.postMessage({ type: "transfer", args: [render] });
 				}
 			}
-			lastRender = event.data.args[0];
-			queuedRender = lastRender;
 			break;
 		case "debug":
 			console.log(...event.data.args);
@@ -75,13 +91,28 @@ const handleEngineMessage = (event) => {
 };
 
 const rebuildEngine = () => {
-	if (engine != null) {
-		engine.terminate();
-		engine.removeEventListener("message", handleEngineMessage);
+	if (shallowWorker != null) {
+		shallowWorker.terminate();
+		shallowWorker.removeEventListener("message", handleEngineMessage);
+		shallowWorker = null;
+	}
+	if (deepWorker != null) {
+		deepWorker.terminate();
+		deepWorker.removeEventListener("message", handleEngineMessage);
+		deepWorker = null;
 	}
 	const definition = engineDefinitionsByName[engineName] ?? engineDefinitionsByName[defaultEngineName];
-	engine = new Worker(`./js/engines/${definition.workers[0]}.js`);
-	engine.addEventListener("message", handleEngineMessage);
+	shallowWorker = new Worker(`./js/engines/${definition.shallowWorker}.js`);
+	shallowWorker.addEventListener("message", handleEngineMessage);
+	if (definition.deepWorker != null) {
+		deepWorker = new Worker(`./js/engines/${definition.deepWorker}.js`);
+		deepWorker.addEventListener("message", handleEngineMessage);
+	}
+};
+
+const postMessageToBothWorkers = (message) => {
+	shallowWorker.postMessage(message);
+	deepWorker?.postMessage(message);
 };
 
 rebuildEngine();
@@ -93,20 +124,20 @@ const swapEngines = (name) => {
 			return;
 		}
 		saveData = event.data.args[0];
-		engine.removeEventListener("message", listenForSaveFile);
+		shallowWorker.removeEventListener("message", listenForSaveFile);
 		engineName = name;
 		rebuildEngine();
-		engine.postMessage({ type: "initialize", args: [saveData] });
+		postMessageToBothWorkers({ type: "initialize", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
-	engine.addEventListener("message", listenForSaveFile);
-	engine.postMessage({ type: "save" });
+	shallowWorker.addEventListener("message", listenForSaveFile);
+	shallowWorker.postMessage({ type: "save" });
 };
 
 timing.initialize(
-	(force, time) => engine.postMessage({ type: "advance", args: [force, time] }),
-	() => engine.postMessage({ type: "startTurbo" }),
-	() => engine.postMessage({ type: "stopTurbo" })
+	(force, time) => postMessageToBothWorkers({ type: "advance", args: [force, time] }),
+	() => postMessageToBothWorkers({ type: "startTurbo" }),
+	() => postMessageToBothWorkers({ type: "stopTurbo" })
 );
 
 gui.events.addEventListener("statechanged", () => {
@@ -116,17 +147,11 @@ gui.events.addEventListener("statechanged", () => {
 	timing.setRhythm(gui.state);
 });
 
-gui.events.addEventListener("advance", () => {
-	engine.postMessage({ type: "advance", args: [true, 0] });
-});
+gui.events.addEventListener("advance", () => postMessageToBothWorkers({ type: "advance", args: [true, 0] }));
 
-gui.events.addEventListener("resetsim", () => {
-	engine.postMessage({ type: "reset" });
-});
+gui.events.addEventListener("resetsim", () => postMessageToBothWorkers({ type: "reset" }));
 
-gui.events.addEventListener("load", () => {
-	load(gui.state.file ?? gui.state.url, false);
-});
+gui.events.addEventListener("load", () => load(gui.state.file ?? gui.state.url, false));
 
 const load = async (target, splash) => {
 	let filename;
@@ -142,7 +167,7 @@ const load = async (target, splash) => {
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		engine.postMessage({ type: "initialize", args: [data] });
+		postMessageToBothWorkers({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {

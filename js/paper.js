@@ -58,11 +58,7 @@ const update = ({ generation, turboSpeed, width, height, headIDs, tailIDs }) => 
 
 	labels.generation.setText(numberFormatter.format(generation));
 
-	labels.simulation_speed.setText(
-		turboSpeed > 0
-		? numberFormatter.format(Math.round(1000 * turboSpeed))
-		: "---"
-	);
+	labels.simulation_speed.setText(turboSpeed > 0 ? numberFormatter.format(Math.round(1000 * turboSpeed)) : "---");
 
 	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
 		activePixels[cellGridIndices[lastHeadIDs[i]]] = 0x0;
