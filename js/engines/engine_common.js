@@ -7,6 +7,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 	let originalData, cellGridIndices, idsByCellGridIndex;
 	let transferredCellGridIndices;
 	let transferredTurboSpeed = 0;
+	let slow = false;
 
 	const maxFrameTime = 1000 / 10;
 	const desiredFrameTime = 1000 / 60;
@@ -86,8 +87,9 @@ const buildEngine = (_load, _reset, _update, _render) => {
 	};
 
 	const update = () => {
-		const step = _update(generation) ?? 1;
-		generation += step;
+		const stats = _update(generation);
+		generation += stats?.step ?? 1;
+		slow ||= stats?.slow ?? false;
 	};
 
 	const render = () => {
@@ -114,6 +116,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 			args: [
 				{
 					name,
+					slow,
 					generation,
 					turboSpeed,
 					width,
@@ -126,6 +129,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 	};
 
 	const advance = (force, mainThreadTime) => {
+		slow = false;
 		if (force || Date.now() - mainThreadTime < maxThreadDelay) {
 			update();
 			render();
@@ -140,6 +144,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 		resetTurboHistory();
 
 		const loopTurbo = () => {
+			slow = false;
 			for (let i = 0; i < turboStepSize; i++) {
 				update();
 				update();
@@ -158,6 +163,10 @@ const buildEngine = (_load, _reset, _update, _render) => {
 				turboStepSize <<= 1;
 			}
 			lastUpdate = now;
+
+			if (now - lastRender > desiredFrameTime * 2) {
+				slow = true;
+			}
 
 			if (now - lastRender > desiredFrameTime) {
 				lastRender = now;

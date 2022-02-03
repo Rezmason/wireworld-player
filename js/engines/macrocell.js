@@ -360,20 +360,23 @@ const update = (generation) => {
 	topCell = getCellResult(padCell(topCell));
 	incrementReferenceCount(topCell);
 
+	let slow = false;
+
 	if (cache.size > MAX_CACHE_SIZE) {
 		if (zeroCount / MAX_CACHE_SIZE < 0.5) {
-			postDebug("Wipe and rebuild");
+			// postDebug("Wipe and rebuild");
 			wipeAndRebuild();
+			slow = true;
 		} else {
 			// postDebug("Destroy least used zero reference cells");
 			destroyLeastUsedZeroReferenceCells();
 		}
 		// TODO: ask someone who knows better whether some other strategy or overlooked characteristic of Hashlife can improve this stuff
 
-		postDebug((zeroCount / MAX_CACHE_SIZE).toPrecision(3));
+		// postDebug((zeroCount / MAX_CACHE_SIZE).toPrecision(3));
 	}
 
-	return 2 ** (stepSize - 1);
+	return { step: 2 ** (stepSize - 1), slow };
 };
 
 const wipeAndRebuild = () => {

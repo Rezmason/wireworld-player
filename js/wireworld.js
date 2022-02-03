@@ -151,8 +151,14 @@ timing.initialize(
 			fastWorker?.postMessage({ type: "advance", args: [force, time] });
 		}
 	},
-	() => hardWorker.postMessage({ type: "startTurbo" }),
-	() => hardWorker.postMessage({ type: "stopTurbo" })
+	() => {
+		hardWorker.postMessage({ type: "startTurbo" });
+		fastWorker?.postMessage({ type: "startTurbo" });
+	},
+	() => {
+		hardWorker.postMessage({ type: "stopTurbo" });
+		fastWorker?.postMessage({ type: "stopTurbo" });
+	}
 );
 
 gui.events.addEventListener("statechanged", () => {

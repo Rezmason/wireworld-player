@@ -26,7 +26,6 @@ const setTheme = (themeName) => {
 
 const registerWorker = (data) => {
 	const { width, height } = data;
-	console.log(data.name);
 	cellGridIndicesByWorkerName.set(data.name, data.cellGridIndices);
 
 	if (cellGridIndicesByWorkerName.size > 1) {
