@@ -9,14 +9,19 @@ const canvases = collectUI("canvas");
 const numberFormatter = new Intl.NumberFormat();
 const cellGridIndicesByWorkerName = new Map();
 let theme = themes["circuit"];
+let themeChanged = false;
 let drawings;
 let lastWorkerName = null;
 let lastHeadIDs = [];
 let lastTailIDs = [];
 
-const reset = (themeName) => {
-	theme = themes[themeName];
+const reset = () => {
 	cellGridIndicesByWorkerName.clear();
+};
+
+const setTheme = (themeName) => {
+	theme = themes[themeName];
+	themeChanged = true;
 };
 
 const registerWorker = (data) => {
@@ -42,8 +47,6 @@ const registerWorker = (data) => {
 		})
 	);
 
-	drawBaseLayer(data.name);
-
 	labels.generation.setText("0");
 	labels.simulation_speed.setText("---");
 
@@ -65,20 +68,28 @@ const drawBaseLayer = (name) => {
 };
 
 const update = ({ name, generation, turboSpeed, width, height, headIDs, tailIDs }) => {
-	const activePixels = drawings.active.pixels;
-	const activeImageData = drawings.active.imageData;
-	const lastCellGridIndices = cellGridIndicesByWorkerName.get(lastWorkerName);
-
-	labels.generation.setText(numberFormatter.format(generation));
-
-	labels.simulation_speed.setText(turboSpeed > 0 ? numberFormatter.format(Math.round(1000 * turboSpeed)) : "---");
-
-	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
-		activePixels[lastCellGridIndices[lastHeadIDs[i]]] = 0x0;
+	if (themeChanged) {
+		themeChanged = false;
+		drawBaseLayer(name);
 	}
 
-	for (let i = 0, len = lastTailIDs.length; i < len; i++) {
-		activePixels[lastCellGridIndices[lastTailIDs[i]]] = 0x0;
+	const activePixels = drawings.active.pixels;
+	const activeImageData = drawings.active.imageData;
+
+	if (lastWorkerName !== null) {
+		const lastCellGridIndices = cellGridIndicesByWorkerName.get(lastWorkerName);
+
+		labels.generation.setText(numberFormatter.format(generation));
+
+		labels.simulation_speed.setText(turboSpeed > 0 ? numberFormatter.format(Math.round(1000 * turboSpeed)) : "---");
+
+		for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
+			activePixels[lastCellGridIndices[lastHeadIDs[i]]] = 0x0;
+		}
+
+		for (let i = 0, len = lastTailIDs.length; i < len; i++) {
+			activePixels[lastCellGridIndices[lastTailIDs[i]]] = 0x0;
+		}
 	}
 
 	lastWorkerName = name;
@@ -105,6 +116,7 @@ const paper = {
 	reset,
 	registerWorker,
 	update,
+	setTheme,
 };
 
 export { paper };

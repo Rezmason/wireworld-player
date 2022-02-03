@@ -9,8 +9,6 @@ TODO
 					update the shallow worker only
 
 			Once running,
-				if the shallow worker generation is greater than the deep worker,
-					copy from the shallow worker to the deep worker
 				runShallow is off
 			
 			When running,

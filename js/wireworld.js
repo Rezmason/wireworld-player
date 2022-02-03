@@ -10,42 +10,46 @@ const defaultEngineName = "auto";
 const engineDefinitionsByName = {
 	naive: {
 		themeName: "regal",
-		shallowWorker: "naive",
+		hardWorker: "naive",
 	},
 	alive: {
 		themeName: "gourd",
-		shallowWorker: "alive",
+		hardWorker: "alive",
 	},
 	neighbors: {
 		themeName: "tamarind",
-		shallowWorker: "neighbors",
+		hardWorker: "neighbors",
 	},
 	linked: {
 		themeName: "birthday",
-		shallowWorker: "linked",
+		hardWorker: "linked",
 	},
 	flat: {
 		themeName: "frigid",
-		shallowWorker: "flat",
+		hardWorker: "flat",
 	},
 	macrocell: {
 		themeName: "aubergine",
-		shallowWorker: "macrocell",
+		hardWorker: "macrocell",
 	},
 	auto: {
 		themeName: "coffee",
-		shallowWorker: "flat",
-		deepWorker: "macrocell",
+		fastWorker: "flat",
+		hardWorker: "macrocell",
 	},
 };
 
 const suppressSplash = params.nosplash ?? false;
 
-let shallowWorker = null;
-let deepWorker = null;
+let fastWorker = null;
+let hardWorker = null;
 let engineName = params.engine ?? "auto";
 let queuedRender = null;
 let lastRender = null;
+
+let playing = false;
+let renderFastWorker = false;
+let isHybridEngine = false;
 
 const checkRenderQueue = () => {
 	if (queuedRender != null) {
@@ -62,27 +66,32 @@ const handleEngineMessage = (event) => {
 		case "initializePaper":
 			const data = event.data.args[0];
 			paper.registerWorker(data);
-			if (worker === shallowWorker) {
-				deepWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
-			} else {
-				shallowWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
+			if (isHybridEngine) {
+				if (worker === fastWorker) {
+					hardWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
+				} else {
+					fastWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
+				}
 			}
 			break;
 		case "render":
 			const render = event.data.args[0];
-			if (worker === shallowWorker) {
-				if (lastRender != null) {
-					for (const prop in lastRender) {
-						delete lastRender[prop];
-					}
+			if (lastRender != null) {
+				if (lastRender.generation >= render.generation) {
+					return;
 				}
-				lastRender = render;
-				queuedRender = lastRender;
-			} else {
-				if (lastRender == null || lastRender.generation < render.generation) {
-					shallowWorker.postMessage({ type: "transfer", args: [render] });
+				for (const prop in lastRender) {
+					delete lastRender[prop];
 				}
 			}
+			if (worker === hardWorker && playing) {
+				renderFastWorker = render.slow && isHybridEngine;
+				if (renderFastWorker) {
+					fastWorker.postMessage({ type: "transfer", args: [render] });
+				}
+			}
+			lastRender = render;
+			queuedRender = lastRender;
 			break;
 		case "debug":
 			console.log(...event.data.args);
@@ -91,25 +100,27 @@ const handleEngineMessage = (event) => {
 };
 
 const rebuildEngine = () => {
-	if (shallowWorker != null) {
-		shallowWorker.terminate();
-		shallowWorker.removeEventListener("message", handleEngineMessage);
-		shallowWorker = null;
+	if (hardWorker != null) {
+		hardWorker.terminate();
+		hardWorker.removeEventListener("message", handleEngineMessage);
+		hardWorker = null;
 	}
-	if (deepWorker != null) {
-		deepWorker.terminate();
-		deepWorker.removeEventListener("message", handleEngineMessage);
-		deepWorker = null;
+	if (fastWorker != null) {
+		fastWorker.terminate();
+		fastWorker.removeEventListener("message", handleEngineMessage);
+		fastWorker = null;
 	}
 	const definition = engineDefinitionsByName[engineName];
-	shallowWorker = new Worker(`./js/engines/${definition.shallowWorker}.js`);
-	shallowWorker.addEventListener("message", handleEngineMessage);
-	shallowWorker.postMessage({ type: "initialize", args: [definition.shallowWorker] });
-	if (definition.deepWorker != null) {
-		deepWorker = new Worker(`./js/engines/${definition.deepWorker}.js`);
-		deepWorker.addEventListener("message", handleEngineMessage);
-		deepWorker.postMessage({ type: "initialize", args: [definition.deepWorker] });
+	hardWorker = new Worker(`./js/engines/${definition.hardWorker}.js`);
+	hardWorker.addEventListener("message", handleEngineMessage);
+	hardWorker.postMessage({ type: "initialize", args: [definition.hardWorker] });
+	isHybridEngine = definition.fastWorker != null;
+	if (isHybridEngine) {
+		fastWorker = new Worker(`./js/engines/${definition.fastWorker}.js`);
+		fastWorker.addEventListener("message", handleEngineMessage);
+		fastWorker.postMessage({ type: "initialize", args: [definition.fastWorker] });
 	}
+	paper.setTheme(engineDefinitionsByName[engineName].themeName);
 };
 
 rebuildEngine();
@@ -121,32 +132,46 @@ const swapEngines = (name) => {
 			return;
 		}
 		saveData = event.data.args[0];
-		shallowWorker.removeEventListener("message", listenForSaveFile);
+		hardWorker.removeEventListener("message", listenForSaveFile);
 		engineName = name;
 		rebuildEngine();
-		shallowWorker.postMessage({ type: "load", args: [saveData] });
+		hardWorker.postMessage({ type: "load", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
-	shallowWorker.addEventListener("message", listenForSaveFile);
-	shallowWorker.postMessage({ type: "save" });
+	hardWorker.addEventListener("message", listenForSaveFile);
+	hardWorker.postMessage({ type: "save" });
 };
 
 timing.initialize(
-	(force, time) => shallowWorker.postMessage({ type: "advance", args: [force, time] }),
-	() => shallowWorker.postMessage({ type: "startTurbo" }),
-	() => shallowWorker.postMessage({ type: "stopTurbo" })
+	(force, time) => {
+		if (playing || !isHybridEngine) {
+			hardWorker.postMessage({ type: "advance", args: [force, time] });
+		}
+		if (!playing || renderFastWorker) {
+			fastWorker?.postMessage({ type: "advance", args: [force, time] });
+		}
+	},
+	() => hardWorker.postMessage({ type: "startTurbo" }),
+	() => hardWorker.postMessage({ type: "stopTurbo" })
 );
 
 gui.events.addEventListener("statechanged", () => {
 	if (engineName != gui.state.engineName) {
 		swapEngines(gui.state.engineName);
 	}
+	renderFastWorker = isHybridEngine && gui.state.playing && !playing;
+	playing = gui.state.playing;
 	timing.setRhythm(gui.state);
 });
 
-gui.events.addEventListener("advance", () => shallowWorker.postMessage({ type: "advance", args: [true, 0] }));
+gui.events.addEventListener("advance", () => {
+	(fastWorker ?? hardWorker).postMessage({ type: "advance", args: [true, 0] });
+});
 
-gui.events.addEventListener("resetsim", () => shallowWorker.postMessage({ type: "reset" }));
+gui.events.addEventListener("resetsim", () => {
+	hardWorker.postMessage({ type: "reset" });
+	fastWorker?.postMessage({ type: "reset" });
+});
 
 gui.events.addEventListener("load", () => load(gui.state.file ?? gui.state.url, false));
 
@@ -162,9 +187,11 @@ const load = async (target, splash) => {
 		filename = isFile ? target.name : target.split("/").pop();
 		const key = isFile ? `__local__${target.name}_${target.lastModified}` : target;
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
-		paper.reset(engineDefinitionsByName[engineName].themeName);
+		paper.reset();
+		playing = false;
 		gui.reset(filename);
-		shallowWorker.postMessage({ type: "load", args: [data] });
+		hardWorker.postMessage({ type: "load", args: [data] });
+		fastWorker?.postMessage({ type: "load", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {
