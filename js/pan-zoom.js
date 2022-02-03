@@ -12,6 +12,7 @@ let paperTransform;
 const resetViewButton = document.querySelector("button.reset-view");
 const paper = document.querySelector("drag-region paper");
 const dragRegion = document.querySelector("drag-region");
+const canvases = Array.from(paper.querySelectorAll("canvas"));
 
 const zoomSlider = makeSlider(
 	document.querySelector("button.zoom-out"),
@@ -39,8 +40,9 @@ const setScale = (newScale) => {
 	}
 	scale = newScale;
 	zoomSlider.value = Math.log2(scale) / maxPower;
-	paper.style.width = `${width * scale}px`;
-	paper.style.height = `${height * scale}px`;
+	const dimensions = [Math.round(width * scale) + "px", Math.round(height * scale) + "px"];
+
+	canvases.forEach(({ style }) => ([style.width, style.height] = dimensions));
 };
 
 const transform = (startX, startY, srcX, srcY, srcScale, dstX, dstY, dstScale) => {
