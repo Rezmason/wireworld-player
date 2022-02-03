@@ -110,11 +110,6 @@ const rebuildEngine = () => {
 	}
 };
 
-const postMessageToBothWorkers = (message) => {
-	shallowWorker.postMessage(message);
-	deepWorker?.postMessage(message);
-};
-
 rebuildEngine();
 
 const swapEngines = (name) => {
@@ -127,7 +122,7 @@ const swapEngines = (name) => {
 		shallowWorker.removeEventListener("message", listenForSaveFile);
 		engineName = name;
 		rebuildEngine();
-		postMessageToBothWorkers({ type: "initialize", args: [saveData] });
+		shallowWorker.postMessage({ type: "initialize", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
 	shallowWorker.addEventListener("message", listenForSaveFile);
@@ -135,9 +130,9 @@ const swapEngines = (name) => {
 };
 
 timing.initialize(
-	(force, time) => postMessageToBothWorkers({ type: "advance", args: [force, time] }),
-	() => postMessageToBothWorkers({ type: "startTurbo" }),
-	() => postMessageToBothWorkers({ type: "stopTurbo" })
+	(force, time) => shallowWorker.postMessage({ type: "advance", args: [force, time] }),
+	() => shallowWorker.postMessage({ type: "startTurbo" }),
+	() => shallowWorker.postMessage({ type: "stopTurbo" })
 );
 
 gui.events.addEventListener("statechanged", () => {
@@ -147,9 +142,9 @@ gui.events.addEventListener("statechanged", () => {
 	timing.setRhythm(gui.state);
 });
 
-gui.events.addEventListener("advance", () => postMessageToBothWorkers({ type: "advance", args: [true, 0] }));
+gui.events.addEventListener("advance", () => shallowWorker.postMessage({ type: "advance", args: [true, 0] }));
 
-gui.events.addEventListener("resetsim", () => postMessageToBothWorkers({ type: "reset" }));
+gui.events.addEventListener("resetsim", () => shallowWorker.postMessage({ type: "reset" }));
 
 gui.events.addEventListener("load", () => load(gui.state.file ?? gui.state.url, false));
 
@@ -167,7 +162,7 @@ const load = async (target, splash) => {
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		postMessageToBothWorkers({ type: "initialize", args: [data] });
+		shallowWorker.postMessage({ type: "initialize", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {

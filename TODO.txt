@@ -1,11 +1,31 @@
 TODO
 
-Auto engine coordination bugs
-	Only run deepWorker in turbo mode
-	Transfer render from shallow to deep when entering turbo mode
-	Macrocell: step button should always be ONE generation
+	Auto engine coordination bugs
+		
+		WHEN there is a deep worker:
 
-Safari BUG: canvases larger than a certain size render incorrectly when scaled up
+			When not running,
+				on manual advance,
+					update the shallow worker only
+
+			Once running,
+				if the shallow worker generation is greater than the deep worker,
+					copy from the shallow worker to the deep worker
+				runShallow is off
+			
+			When running,
+				on manual or timed advance,
+					update the deep worker
+					if runShallow is on,
+						update the shallow worker
+
+				if the deep worker signals that it will be late,
+					copy from the deep worker to the shallow worker
+					runShallow is on
+				any time the deep worker renders,
+					runShallow is off
+
+	Macrocell: step button should always be ONE generation
 
 Hashlife investigation (ongoing)
 
