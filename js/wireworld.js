@@ -122,7 +122,7 @@ const swapEngines = (name) => {
 		shallowWorker.removeEventListener("message", listenForSaveFile);
 		engineName = name;
 		rebuildEngine();
-		shallowWorker.postMessage({ type: "initialize", args: [saveData] });
+		shallowWorker.postMessage({ type: "load", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
 	shallowWorker.addEventListener("message", listenForSaveFile);
@@ -162,7 +162,7 @@ const load = async (target, splash) => {
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
 
 		gui.reset(filename);
-		shallowWorker.postMessage({ type: "initialize", args: [data] });
+		shallowWorker.postMessage({ type: "load", args: [data] });
 		if (!splash || !suppressSplash) {
 			await popupPromise;
 			if (splash) {

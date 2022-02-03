@@ -3,7 +3,7 @@ importScripts("engine_common.js");
 let oldCells, newCells, originalCells, width, height;
 const cellIDsByGridIndex = [];
 
-const initialize = (data) => {
+const load = (data) => {
 	({ width, height } = data);
 	cellIDsByGridIndex.length = 0;
 	let numCells = 0;
@@ -120,4 +120,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(initialize, reset, update, render);
+buildEngine(load, reset, update, render);

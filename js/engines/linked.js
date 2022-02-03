@@ -19,7 +19,7 @@ const makeCell = (index, firstState, x, y) => {
 let firstHead = null;
 let firstTail = null;
 
-const initialize = (data) => {
+const load = (data) => {
 	const { width, height } = data;
 	numCells = 0;
 	cells = [];
@@ -177,4 +177,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(initialize, reset, update, render);
+buildEngine(load, reset, update, render);

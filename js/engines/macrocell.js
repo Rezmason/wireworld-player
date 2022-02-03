@@ -118,7 +118,7 @@ const refCell = (cell) => {
 	return cell;
 };
 
-const initialize = (data) => {
+const load = (data) => {
 	({ width, height } = data);
 	cellIDsByGridIndex.length = 0;
 	let numCells = 0;
@@ -234,10 +234,10 @@ const padCell = (cell) => {
 const reset = (saveData) => {
 	const savedHeadIDs = saveData != null ? new Set(saveData.headIDs) : null;
 	const savedTailIDs = saveData != null ? new Set(saveData.tailIDs) : null;
-	reinitialize(savedHeadIDs, savedTailIDs);
+	reload(savedHeadIDs, savedTailIDs);
 };
 
-const reinitialize = (headIDs, tailIDs) => {
+const reload = (headIDs, tailIDs) => {
 	ids = 0;
 	for (const cell of cache.values()) {
 		poolCell(cell);
@@ -380,7 +380,7 @@ const wipeAndRebuild = () => {
 	const headIDs = [];
 	const tailIDs = [];
 	renderCell(headIDs, tailIDs, topCell, 0, 0);
-	reinitialize(new Set(headIDs), new Set(tailIDs));
+	reload(new Set(headIDs), new Set(tailIDs));
 };
 
 const destroyLeastUsedZeroReferenceCells = () => {
@@ -453,4 +453,4 @@ const render = (headIDs, tailIDs) => {
 	// postDebug("cache size:", (cache.size / MAX_CACHE_SIZE).toPrecision(2));
 };
 
-buildEngine(initialize, reset, update, render);
+buildEngine(load, reset, update, render);

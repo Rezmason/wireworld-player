@@ -6,7 +6,7 @@ const cellIDsByGridIndex = [];
 // List all the cells that DO need to change (non-dead)
 const nonDeadCells = [];
 
-const initialize = (data) => {
+const load = (data) => {
 	({ width, height } = data);
 	cellIDsByGridIndex.length = 0;
 	nonDeadCells.length = 0;
@@ -126,4 +126,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(initialize, reset, update, render);
+buildEngine(load, reset, update, render);

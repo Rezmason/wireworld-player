@@ -14,7 +14,7 @@ const isWire_ = 11;
 
 const cellSize = isWire_ + 1;
 
-const initialize = (data) => {
+const load = (data) => {
 	const { width, height } = data;
 	const cellFirstStates = [CellState.DEAD];
 	const cellGridIndices = [-1];
@@ -183,4 +183,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(initialize, reset, update, render);
+buildEngine(load, reset, update, render);

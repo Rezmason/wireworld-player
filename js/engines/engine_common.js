@@ -1,6 +1,6 @@
 const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name, index) => [name, index]));
 
-const buildEngine = (_initialize, _reset, _update, _render) => {
+const buildEngine = (_load, _reset, _update, _render) => {
 	const headIDs = [];
 	const tailIDs = [];
 	let originalData, cellGridIndices, idsByCellGridIndex;
@@ -25,11 +25,13 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 	const maxThreadDelay = 1000 / 30;
 
 	const initialize = (data) => {
+
+	const load = (data) => {
 		originalData = data;
 		width = data.width;
 		height = data.height;
 
-		cellGridIndices = _initialize(data);
+		cellGridIndices = _load(data);
 
 		postMessage({
 			type: "initializePaper",
@@ -193,7 +195,7 @@ const buildEngine = (_initialize, _reset, _update, _render) => {
 	};
 
 	const api = {
-		initialize,
+		load,
 		advance,
 		reset,
 		startTurbo,

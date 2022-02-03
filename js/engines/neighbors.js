@@ -14,7 +14,7 @@ const makeCell = (index, firstState, x, y) => {
 	};
 };
 
-const initialize = (data) => {
+const load = (data) => {
 	({ width, height } = data);
 	numCells = 0;
 	cells.length = 0;
@@ -132,4 +132,4 @@ const render = (headIDs, tailIDs) => {
 	}
 };
 
-buildEngine(initialize, reset, update, render);
+buildEngine(load, reset, update, render);
