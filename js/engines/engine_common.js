@@ -3,6 +3,7 @@ const CellState = Object.fromEntries(["HEAD", "TAIL", "WIRE", "DEAD"].map((name,
 const buildEngine = (_load, _reset, _update, _render) => {
 	const headIDs = [];
 	const tailIDs = [];
+	let name;
 	let originalData, cellGridIndices, idsByCellGridIndex;
 	let transferredCellGridIndices;
 	let transferredTurboSpeed = 0;
@@ -24,7 +25,9 @@ const buildEngine = (_load, _reset, _update, _render) => {
 
 	const maxThreadDelay = 1000 / 30;
 
-	const initialize = (data) => {
+	const initialize = (engineName) => {
+		name = engineName;
+	};
 
 	const load = (data) => {
 		originalData = data;
@@ -37,6 +40,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 			type: "initializePaper",
 			args: [
 				{
+					name,
 					width,
 					height,
 					cellGridIndices,
@@ -109,6 +113,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 			type: "render",
 			args: [
 				{
+					name,
 					generation,
 					turboSpeed,
 					width,
@@ -195,6 +200,7 @@ const buildEngine = (_load, _reset, _update, _render) => {
 	};
 
 	const api = {
+		initialize,
 		load,
 		advance,
 		reset,

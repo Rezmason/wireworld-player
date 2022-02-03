@@ -61,8 +61,8 @@ const handleEngineMessage = (event) => {
 	switch (event.data.type) {
 		case "initializePaper":
 			const data = event.data.args[0];
+			paper.registerWorker(data);
 			if (worker === shallowWorker) {
-				paper.initialize(engineDefinitionsByName[engineName].themeName, data);
 				deepWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
 			} else {
 				shallowWorker.postMessage({ type: "initTransfer", args: [data.cellGridIndices] });
@@ -101,12 +101,14 @@ const rebuildEngine = () => {
 		deepWorker.removeEventListener("message", handleEngineMessage);
 		deepWorker = null;
 	}
-	const definition = engineDefinitionsByName[engineName] ?? engineDefinitionsByName[defaultEngineName];
+	const definition = engineDefinitionsByName[engineName];
 	shallowWorker = new Worker(`./js/engines/${definition.shallowWorker}.js`);
 	shallowWorker.addEventListener("message", handleEngineMessage);
+	shallowWorker.postMessage({ type: "initialize", args: [definition.shallowWorker] });
 	if (definition.deepWorker != null) {
 		deepWorker = new Worker(`./js/engines/${definition.deepWorker}.js`);
 		deepWorker.addEventListener("message", handleEngineMessage);
+		deepWorker.postMessage({ type: "initialize", args: [definition.deepWorker] });
 	}
 };
 
@@ -160,7 +162,7 @@ const load = async (target, splash) => {
 		filename = isFile ? target.name : target.split("/").pop();
 		const key = isFile ? `__local__${target.name}_${target.lastModified}` : target;
 		const data = parseFile(await (isFile ? fetchLocalText : fetchRemoteText)(target));
-
+		paper.reset(engineDefinitionsByName[engineName].themeName);
 		gui.reset(filename);
 		shallowWorker.postMessage({ type: "load", args: [data] });
 		if (!splash || !suppressSplash) {

@@ -7,16 +7,27 @@ const labels = collectUI("label");
 const canvases = collectUI("canvas");
 
 const numberFormatter = new Intl.NumberFormat();
+const cellGridIndicesByWorkerName = new Map();
 let theme = themes["circuit"];
 let drawings;
-let cellGridIndices;
+let lastWorkerName = null;
 let lastHeadIDs = [];
 let lastTailIDs = [];
 
-const initialize = (themeName, data) => {
-	const { width, height } = data;
-	cellGridIndices = data.cellGridIndices;
+const reset = (themeName) => {
 	theme = themes[themeName];
+	cellGridIndicesByWorkerName.clear();
+};
+
+const registerWorker = (data) => {
+	const { width, height } = data;
+	console.log(data.name);
+	cellGridIndicesByWorkerName.set(data.name, data.cellGridIndices);
+
+	if (cellGridIndicesByWorkerName.size > 1) {
+		return;
+	}
+
 	const numBytes = width * height * 4;
 	drawings = Object.fromEntries(
 		Object.entries(canvases).map(([id, canvas]) => {
@@ -31,7 +42,7 @@ const initialize = (themeName, data) => {
 		})
 	);
 
-	drawBaseLayer();
+	drawBaseLayer(data.name);
 
 	labels.generation.setText("0");
 	labels.simulation_speed.setText("---");
@@ -41,7 +52,8 @@ const initialize = (themeName, data) => {
 	}
 };
 
-const drawBaseLayer = () => {
+const drawBaseLayer = (name) => {
+	const cellGridIndices = cellGridIndicesByWorkerName.get(name);
 	const basePixels = drawings.base.pixels;
 	const wireColor = theme.wire;
 	basePixels.fill(theme.dead);
@@ -52,24 +64,28 @@ const drawBaseLayer = () => {
 	drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
 };
 
-const update = ({ generation, turboSpeed, width, height, headIDs, tailIDs }) => {
+const update = ({ name, generation, turboSpeed, width, height, headIDs, tailIDs }) => {
 	const activePixels = drawings.active.pixels;
 	const activeImageData = drawings.active.imageData;
+	const lastCellGridIndices = cellGridIndicesByWorkerName.get(lastWorkerName);
 
 	labels.generation.setText(numberFormatter.format(generation));
 
 	labels.simulation_speed.setText(turboSpeed > 0 ? numberFormatter.format(Math.round(1000 * turboSpeed)) : "---");
 
 	for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
-		activePixels[cellGridIndices[lastHeadIDs[i]]] = 0x0;
+		activePixels[lastCellGridIndices[lastHeadIDs[i]]] = 0x0;
 	}
 
 	for (let i = 0, len = lastTailIDs.length; i < len; i++) {
-		activePixels[cellGridIndices[lastTailIDs[i]]] = 0x0;
+		activePixels[lastCellGridIndices[lastTailIDs[i]]] = 0x0;
 	}
 
+	lastWorkerName = name;
 	lastHeadIDs = headIDs;
 	lastTailIDs = tailIDs;
+
+	const cellGridIndices = cellGridIndicesByWorkerName.get(name);
 
 	const tailColor = theme.tail;
 	const headColor = theme.head;
@@ -86,7 +102,8 @@ const update = ({ generation, turboSpeed, width, height, headIDs, tailIDs }) => 
 };
 
 const paper = {
-	initialize,
+	reset,
+	registerWorker,
 	update,
 };
 
