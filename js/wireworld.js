@@ -139,6 +139,7 @@ const swapEngines = (name) => {
 		engineName = name;
 		rebuildEngine();
 		hardWorker.postMessage({ type: "load", args: [saveData] });
+		fastWorker?.postMessage({ type: "load", args: [saveData] });
 		timing.setRhythm(gui.state, true);
 	};
 	hardWorker.addEventListener("message", listenForSaveFile);
