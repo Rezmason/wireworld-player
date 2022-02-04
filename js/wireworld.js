@@ -4,6 +4,7 @@ import { gui } from "./gui.js";
 import { paper } from "./paper.js";
 import { parseFile } from "./parse.js";
 import { timing } from "./timing.js";
+import themes from "./themes.js";
 
 const defaultEngineName = "auto";
 
@@ -120,7 +121,9 @@ const rebuildEngine = () => {
 		fastWorker.addEventListener("message", handleEngineMessage);
 		fastWorker.postMessage({ type: "initialize", args: [definition.fastWorker] });
 	}
-	paper.setTheme(engineDefinitionsByName[engineName].themeName);
+	const theme = themes[engineDefinitionsByName[engineName].themeName];
+	paper.setTheme(theme);
+	gui.setTheme(theme);
 };
 
 rebuildEngine();

@@ -10,6 +10,10 @@ const formatColorForEndian = (rgba) => {
 };
 
 const makeTheme = (deadColor, wireColor, tailColor, headColor) => ({
+	deadColor,
+	wireColor,
+	tailColor,
+	headColor,
 	dead: formatColorForEndian(deadColor),
 	wire: formatColorForEndian(wireColor),
 	tail: formatColorForEndian(tailColor),

@@ -1,14 +1,13 @@
 import { CellState } from "./data.js";
 import { collectUI } from "./gui-utils.js";
 import { setPanZoomSize } from "./pan-zoom.js";
-import themes from "./themes.js";
 
 const labels = collectUI("label");
 const canvases = collectUI("canvas");
 
 const numberFormatter = new Intl.NumberFormat();
 const cellGridIndicesByWorkerName = new Map();
-let theme = themes["circuit"];
+let theme = null;
 let themeChanged = false;
 let drawings;
 let lastWorkerName = null;
@@ -19,9 +18,12 @@ const reset = () => {
 	cellGridIndicesByWorkerName.clear();
 };
 
-const setTheme = (themeName) => {
-	theme = themes[themeName];
+const setTheme = (newTheme) => {
+	theme = newTheme;
 	themeChanged = true;
+	if (lastWorkerName != null) {
+		update({ name: lastWorkerName, headIDs: lastHeadIDs, tailIDs: lastTailIDs });
+	}
 };
 
 const registerWorker = (data) => {
@@ -54,22 +56,20 @@ const registerWorker = (data) => {
 	}
 };
 
-const drawBaseLayer = (name) => {
-	const cellGridIndices = cellGridIndicesByWorkerName.get(name);
-	const basePixels = drawings.base.pixels;
-	const wireColor = theme.wire;
-	basePixels.fill(theme.dead);
-	for (let i = 0, len = cellGridIndices.length; i < len; i++) {
-		basePixels[cellGridIndices[i]] = wireColor;
-	}
-
-	drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
-};
-
 const update = ({ name, generation, turboSpeed, width, height, headIDs, tailIDs }) => {
+
 	if (themeChanged) {
 		themeChanged = false;
-		drawBaseLayer(name);
+
+		const cellGridIndices = cellGridIndicesByWorkerName.get(name);
+		const basePixels = drawings.base.pixels;
+		const wireColor = theme.wire;
+		basePixels.fill(theme.dead);
+		for (let i = 0, len = cellGridIndices.length; i < len; i++) {
+			basePixels[cellGridIndices[i]] = wireColor;
+		}
+
+		drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
 	}
 
 	const activePixels = drawings.active.pixels;

@@ -1,4 +1,11 @@
 .wwgui {
+
+	/* dynamic */
+	--dead: gray;
+	--wire: goldenrod;
+	--tail: cornflowerblue;
+	--head: deepskyblue;
+
 	/* theme */
 	--bg: #222;
 	--element-bg: #999;
@@ -461,19 +468,24 @@
 /* misc */
 
 .wwgui .code.dead {
-	color: gray;
+	color: var(--dead);
 }
 
 .wwgui .code.wire {
-	color: goldenrod;
+	color: var(--wire);
 }
 
 .wwgui .code.tail {
-	color: cornflowerblue;
+	color: var(--tail);
 }
 
 .wwgui .code.head {
-	color: deepskyblue;
+	color: var(--head);
+}
+
+.wwgui .code {
+	-webkit-text-stroke: 0.125em var(--dead);
+	paint-order: stroke fill;
 }
 
 .wwgui ul {

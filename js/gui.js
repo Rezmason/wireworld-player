@@ -244,6 +244,13 @@ const hideLoadingPopup = () => {
 	}
 };
 
+const setTheme = ({deadColor, wireColor, tailColor, headColor}) => {
+	document.body.style.setProperty("--dead", "#" + deadColor.toString(16).padStart(8, "0"));
+	document.body.style.setProperty("--wire", "#" + wireColor.toString(16).padStart(8, "0"));
+	document.body.style.setProperty("--tail", "#" + tailColor.toString(16).padStart(8, "0"));
+	document.body.style.setProperty("--head", "#" + headColor.toString(16).padStart(8, "0"));
+};
+
 reset("");
 
 const gui = {
@@ -254,6 +261,7 @@ const gui = {
 	showAboutPopup,
 	hideAboutPopup,
 	hideLoadingPopup,
+	setTheme
 };
 
 export { gui };
