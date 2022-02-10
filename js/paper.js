@@ -78,9 +78,13 @@ const update = ({ name, generation, turboSpeed, width, height, headIDs, tailIDs 
 	if (lastWorkerName !== null) {
 		const lastCellGridIndices = cellGridIndicesByWorkerName.get(lastWorkerName);
 
-		labels.generation.setText(numberFormatter.format(generation));
+		if (generation != null) {
+			labels.generation.setText(numberFormatter.format(generation));
+		}
 
-		labels.simulation_speed.setText(turboSpeed > 0 ? numberFormatter.format(Math.round(1000 * turboSpeed)) : "---");
+		if (turboSpeed != null) {
+			labels.simulation_speed.setText(turboSpeed > 0 ? numberFormatter.format(Math.round(1000 * turboSpeed)) : "---");
+		}
 
 		for (let i = 0, len = lastHeadIDs.length; i < len; i++) {
 			activePixels[lastCellGridIndices[lastHeadIDs[i]]] = 0x0;
