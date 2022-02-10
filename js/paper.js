@@ -16,6 +16,9 @@ let lastTailIDs = [];
 
 const reset = () => {
 	cellGridIndicesByWorkerName.clear();
+	lastWorkerName = null;
+	lastHeadIDs = [];
+	lastTailIDs = [];
 };
 
 const setTheme = (newTheme) => {
@@ -24,6 +27,19 @@ const setTheme = (newTheme) => {
 	if (lastWorkerName != null) {
 		update({ name: lastWorkerName, headIDs: lastHeadIDs, tailIDs: lastTailIDs });
 	}
+};
+
+const drawBackground = () => {
+	const name = Array.from(cellGridIndicesByWorkerName.keys())[0];
+	const cellGridIndices = cellGridIndicesByWorkerName.get(name);
+	const basePixels = drawings.base.pixels;
+	const wireColor = theme.wire;
+	basePixels.fill(theme.dead);
+	for (let i = 0, len = cellGridIndices.length; i < len; i++) {
+		basePixels[cellGridIndices[i]] = wireColor;
+	}
+
+	drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
 };
 
 const registerWorker = (data) => {
@@ -54,21 +70,18 @@ const registerWorker = (data) => {
 	if (!data.isRestore) {
 		setPanZoomSize(width, height);
 	}
+
+	drawBackground();
 };
 
 const update = ({ name, generation, turboSpeed, width, height, headIDs, tailIDs }) => {
+	if (!cellGridIndicesByWorkerName.has(name)) {
+		return;
+	}
+
 	if (themeChanged) {
 		themeChanged = false;
-
-		const cellGridIndices = cellGridIndicesByWorkerName.get(name);
-		const basePixels = drawings.base.pixels;
-		const wireColor = theme.wire;
-		basePixels.fill(theme.dead);
-		for (let i = 0, len = cellGridIndices.length; i < len; i++) {
-			basePixels[cellGridIndices[i]] = wireColor;
-		}
-
-		drawings.base.context.putImageData(drawings.base.imageData, 0, 0);
+		drawBackground();
 	}
 
 	const activePixels = drawings.active.pixels;
