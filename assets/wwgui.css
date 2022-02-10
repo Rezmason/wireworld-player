@@ -467,25 +467,30 @@
 
 /* misc */
 
+.wwgui .code {
+	display: inline-block;
+	border-radius: 0.2em;
+	padding: 0 0.2em;
+}
+
 .wwgui .code.dead {
-	color: var(--dead);
-}
-
-.wwgui .code.wire {
-	color: var(--wire);
-}
-
-.wwgui .code.tail {
+	background: var(--dead);
 	color: var(--tail);
 }
 
-.wwgui .code.head {
+.wwgui .code.wire {
+	background: var(--wire);
 	color: var(--head);
 }
 
-.wwgui .code {
-	-webkit-text-stroke: 0.125em var(--dead);
-	paint-order: stroke fill;
+.wwgui .code.tail {
+	background: var(--tail);
+	color: var(--dead);
+}
+
+.wwgui .code.head {
+	background: var(--head);
+	color: var(--wire);
 }
 
 .wwgui ul {
