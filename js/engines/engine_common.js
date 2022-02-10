@@ -16,10 +16,10 @@ const buildEngine = (_load, _reset, _update, _render) => {
 
 	let turboActive = false;
 	let turboStepSize = 1;
-	let turboTimeout = null;
+	let turboInterval = null;
 
 	let lastTurboTime, lastTurboGeneration;
-	const turboHistoryLength = 10;
+	const turboHistoryLength = 6;
 	const turboHistory = Array(turboHistoryLength);
 	let turboHistoryIndex = 0;
 	let turboAverageSpeed = 0;
@@ -87,6 +87,9 @@ const buildEngine = (_load, _reset, _update, _render) => {
 	};
 
 	const update = () => {
+		if (slow) {
+			return;
+		}
 		const stats = _update(generation);
 		generation += stats?.step ?? 1;
 		slow ||= stats?.slow ?? false;
@@ -138,50 +141,42 @@ const buildEngine = (_load, _reset, _update, _render) => {
 
 	const startTurbo = () => {
 		turboActive = true;
-		let now = Date.now();
-		let lastUpdate = now;
-		let lastRender = now;
 		resetTurboHistory();
-
-		const loopTurbo = () => {
-			slow = false;
-			for (let i = 0; i < turboStepSize; i++) {
-				update();
-				update();
-				update();
-				update();
-				update();
-				update();
-			}
-
-			now = Date.now();
-
-			const diff = now - lastUpdate;
-			if (diff > maxFrameTime && turboStepSize > 1) {
-				turboStepSize >>= 1;
-			} else if (diff * 2 < maxFrameTime) {
-				turboStepSize <<= 1;
-			}
-			lastUpdate = now;
-
-			if (now - lastRender > desiredFrameTime * 2) {
-				slow = true;
-			}
-
-			if (now - lastRender > desiredFrameTime) {
-				lastRender = now;
-				render();
-			}
-
-			turboTimeout = setTimeout(loopTurbo, 0);
-		};
+		turboInterval = setInterval(loopTurbo, 0);
 		loopTurbo();
+	};
+
+	const loopTurbo = () => {
+		slow = false;
+		const loopStart = Date.now();
+		for (let i = 0; i < turboStepSize; i++) {
+			update();
+			update();
+			update();
+			update();
+			update();
+			update();
+		}
+		const diff = Date.now() - loopStart;
+		if (diff > maxFrameTime && turboStepSize > 1) {
+			turboStepSize >>= 1;
+		} else if (diff * 2 < maxFrameTime) {
+			turboStepSize <<= 1;
+		}
+
+		if (diff > desiredFrameTime * 3) {
+			slow = true;
+		}
+
+		if (diff > desiredFrameTime) {
+			render();
+		}
 	};
 
 	const stopTurbo = () => {
 		turboActive = false;
-		clearTimeout(turboTimeout);
-		turboTimeout = null;
+		clearTimeout(turboInterval);
+		turboInterval = null;
 	};
 
 	const resetTurboHistory = () => {
