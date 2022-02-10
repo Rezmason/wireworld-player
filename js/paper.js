@@ -57,7 +57,6 @@ const registerWorker = (data) => {
 };
 
 const update = ({ name, generation, turboSpeed, width, height, headIDs, tailIDs }) => {
-
 	if (themeChanged) {
 		themeChanged = false;
 
