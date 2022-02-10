@@ -42,6 +42,7 @@ const engineDefinitionsByName = {
 
 const suppressSplash = params.nosplash ?? false;
 
+let engineDefinition = null;
 let fastWorker = null;
 let hardWorker = null;
 let engineName = params.engine ?? "auto";
@@ -78,18 +79,16 @@ const handleEngineMessage = (event) => {
 		case "render":
 			const render = event.data.args[0];
 			if (lastRender != null) {
-				if (lastRender.generation >= render.generation) {
+				if (playing && lastRender.generation >= render.generation) {
 					return;
 				}
 				for (const prop in lastRender) {
 					delete lastRender[prop];
 				}
 			}
-			if (worker === hardWorker && playing) {
-				renderFastWorker = render.slow && isHybridEngine;
-				if (renderFastWorker) {
-					fastWorker.postMessage({ type: "transfer", args: [render] });
-				}
+			renderFastWorker = isHybridEngine && worker === hardWorker && render.slow;
+			if (renderFastWorker) {
+				fastWorker.postMessage({ type: "transfer", args: [render] });
 			}
 			lastRender = render;
 			queuedRender = lastRender;
@@ -111,17 +110,17 @@ const rebuildEngine = () => {
 		fastWorker.removeEventListener("message", handleEngineMessage);
 		fastWorker = null;
 	}
-	const definition = engineDefinitionsByName[engineName];
-	hardWorker = new Worker(`./js/engines/${definition.hardWorker}.js`);
+	engineDefinition = engineDefinitionsByName[engineName];
+	hardWorker = new Worker(`./js/engines/${engineDefinition.hardWorker}.js`);
 	hardWorker.addEventListener("message", handleEngineMessage);
-	hardWorker.postMessage({ type: "initialize", args: [definition.hardWorker] });
-	isHybridEngine = definition.fastWorker != null;
+	hardWorker.postMessage({ type: "initialize", args: [engineDefinition.hardWorker] });
+	isHybridEngine = engineDefinition.fastWorker != null;
 	if (isHybridEngine) {
-		fastWorker = new Worker(`./js/engines/${definition.fastWorker}.js`);
+		fastWorker = new Worker(`./js/engines/${engineDefinition.fastWorker}.js`);
 		fastWorker.addEventListener("message", handleEngineMessage);
-		fastWorker.postMessage({ type: "initialize", args: [definition.fastWorker] });
+		fastWorker.postMessage({ type: "initialize", args: [engineDefinition.fastWorker] });
 	}
-	const theme = themes[engineDefinitionsByName[engineName].themeName];
+	const theme = themes[engineDefinition.themeName];
 	paper.setTheme(theme);
 	gui.setTheme(theme);
 };
@@ -148,11 +147,10 @@ const swapEngines = (name) => {
 
 timing.initialize(
 	(force, time) => {
-		if (playing || !isHybridEngine) {
-			hardWorker.postMessage({ type: "advance", args: [force, time] });
-		}
-		if (!playing || renderFastWorker) {
-			fastWorker?.postMessage({ type: "advance", args: [force, time] });
+		const message = { type: "advance", args: [force, time] };
+		hardWorker.postMessage(message);
+		if (renderFastWorker) {
+			fastWorker.postMessage(message);
 		}
 	},
 	() => {
@@ -179,6 +177,8 @@ gui.events.addEventListener("advance", () => {
 });
 
 gui.events.addEventListener("resetsim", () => {
+	playing = false;
+	lastRender = null;
 	hardWorker.postMessage({ type: "reset" });
 	fastWorker?.postMessage({ type: "reset" });
 });
