@@ -1,5 +1,10 @@
 TODO
 
+Support the file formats Golly exports
+	At least wc for wireworld
+
+
+
 Wireworld module cleanup
 	It's weird that it reads the rhythm data
 	Maybe refactor out that early return
